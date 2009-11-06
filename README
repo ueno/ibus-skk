@@ -1,7 +1,7 @@
 ibus-skk -- a Japanese input engine for IBus.
 
-*NOTE* This is not usable by now.  It has still a lot of bugs and
-lacks many essentital features (user dictionary support for example).
+*NOTE* This engine is not usable by now.  It has still a lot of bugs
+and lacks essentital features such as user dictionary support.
 
 How to use:
 
