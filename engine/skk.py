@@ -508,6 +508,7 @@ class Context:
             # Start okuri-nasi conversion.
             if letter.isspace():
                 self.conv_state = CONV_STATE_SELECT
+                self.__rom_kana_state = self.__convert_nn(self.__rom_kana_state)
                 candidates = self.__sysdict.lookup(self.__rom_kana_state[0])
                 self.__candidate_selector.set_candidates(candidates)
                 self.next_candidate()
@@ -608,6 +609,16 @@ class Context:
                 else:
                     return u'▼' + self.__rom_kana_state[0]
 
+    def __convert_nn(self, state):
+        output, pending, tree = state
+        if pending.endswith(u'n'):
+            if self.input_mode == INPUT_MODE_HIRAGANA:
+                output += u'ん'
+            elif self.input_mode == INPUT_MODE_KATAKANA:
+                output += u'ン'
+            return (output, pending, tree)
+        return state
+        
     def __convert_rom_kana(self, letter, state):
         # This method takes a LETTER being processed and the current
         # STATE of rom-kana conversion, and returns a new state.
@@ -617,15 +628,10 @@ class Context:
         # conversion, and TREE is a subtree of __ROM_KANA_RULE_TREE.
         output, pending, tree = state
         if letter not in tree:
-            if pending.endswith(u'n'):
-                if self.input_mode == INPUT_MODE_HIRAGANA:
-                    output += u'ん'
-                elif self.input_mode == INPUT_MODE_KATAKANA:
-                    output += u'ン'
-                return self.__convert_rom_kana(letter,
-                                               (output, u'',
-                                                self.__rom_kana_rule_tree))
-            return state
+            output, pending, tree = self.__convert_nn(state)
+            return self.__convert_rom_kana(letter,
+                                           (output, u'',
+                                            self.__rom_kana_rule_tree))
         if isinstance(tree[letter], dict):
             return (output, pending + letter, tree[letter])
         next_pending, next_output = tree[letter]
