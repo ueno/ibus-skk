@@ -10,7 +10,3 @@ $ ./autogen.sh --prefix=/usr
 $ sudo make install
 <kill ibus-daemon>
 $ ibus-daemon --verbose
-
-The implementation is based on ibus-tmpl and ibus-anthy.  The icon in
-icons/ibus-skk.png was grabbed from SCIM-SKK.  Translation tables are
-taken from SKK.

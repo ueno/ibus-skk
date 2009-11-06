@@ -1,3 +1,7 @@
+The implementation is based on ibus-tmpl and ibus-anthy.
+icons/ibus-skk.png was grabbed from SCIM-SKK.  Translation tables are
+from SKK.
+
 Huang Peng <shawn.p.huang@gmail.com> ibus-tmpl, ibus-anthy
 Hideaki ABE <abe.sendai@gmail.com> ibus-anthy
 Takao Fujiwara <takao.fujiwara1@gmail.com> ibus-anthy
