@@ -9,6 +9,7 @@ class TestSKK(unittest.TestCase):
 
     def testromkana(self):
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         # ka -> か
         self.assertEqual(self.__skk.append(u'k'), u'')
         self.assertEqual(self.__skk.preedit(), u'k')
@@ -31,6 +32,7 @@ class TestSKK(unittest.TestCase):
 
     def testokurinasi(self):
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.append(u'shift+a')
         self.assertEqual(self.__skk.preedit(), u'▽あ')
         self.__skk.append(u'i')
@@ -42,6 +44,7 @@ class TestSKK(unittest.TestCase):
 
     def testokuriari(self):
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.append(u'shift+k')
         self.__skk.append(u'a')
         self.__skk.append(u'n')
@@ -54,6 +57,7 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(self.__skk.append(u'u'), u'る')
 
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.append(u'shift+a')
         self.__skk.append(u'i')
         self.__skk.append(u'shift+s')
@@ -62,6 +66,7 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(self.__skk.preedit(), u'▼愛す')
 
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.append(u'shift+t')
         self.__skk.append(u'u')
         self.__skk.append(u'k')
