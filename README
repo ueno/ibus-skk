@@ -5,7 +5,7 @@ and lacks essentital features such as user dictionary support.
 
 How to use:
 
-$ apt-get install skkdic
+$ sudo apt-get install skkdic
 $ ./autogen.sh --prefix=/usr
 $ sudo make install
 <kill ibus-daemon>
