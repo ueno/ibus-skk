@@ -86,7 +86,7 @@ class Dict:
         return list()
 
 # Converted from skk-rom-kana-base-rule in skk-vars.el.
-rom_kana_rule = {
+ROM_KANA_RULE = {
     u'a': (None, (u'ア', u'あ')),
     u'bb': (u'b', (u'ッ', u'っ')),
     u'ba': (None, (u'バ', u'ば')),
@@ -317,8 +317,6 @@ rom_kana_rule = {
     u'zyi': (None, (u'ジィ', u'じぃ')),
     u'zyo': (None, (u'ジョ', u'じょ')),
     u'zyu': (None, (u'ジュ', u'じゅ')),
-    u'.': (None, u'．'),
-    u',': (None, u'，'),
     u'-': (None, u'ー'),
     u':': (None, u'：'),
     u';': (None, u'；'),
@@ -352,7 +350,7 @@ def compile_rom_kana_rule(rule):
     return tree
 
 # skk-jisx0208-latin-vector
-wide_latin_table = (None, None, None, None, None, None, None, None, 
+WIDE_LATIN_TABLE = (None, None, None, None, None, None, None, None, 
                     None, None, None, None, None, None, None, None, 
                     None, None, None, None, None, None, None, None, 
                     None, None, None, None, None, None, None, None, 
@@ -368,6 +366,13 @@ wide_latin_table = (None, None, None, None, None, None, None, None,
                     u'ｈ', u'ｉ', u'ｊ', u'ｋ', u'ｌ', u'ｍ', u'ｎ', u'ｏ', 
                     u'ｐ', u'ｑ', u'ｒ', u'ｓ', u'ｔ', u'ｕ', u'ｖ', u'ｗ', 
                     u'ｘ', u'ｙ', u'ｚ', u'｛', u'｜', u'｝', u'〜', None)
+
+KUTOUTEN_JP, \
+KUTOUTEN_EN, \
+KUTOUTEN_JP_EN, \
+KUTOUTEN_EN_JP = range(4)
+
+KUTOUTEN_RULE = ((u'。', u'、'), (u'．', u'，'), (u'。', u'，'), (u'．', u'、'))
 
 CONV_STATE_NONE, \
 CONV_STATE_START, \
@@ -420,23 +425,33 @@ class CandidateSelectorBase(object):
 class Context:
     def __init__(self, sysdict=Dict()):
         self.__sysdict = sysdict
-        self.__rom_kana_rule_tree = compile_rom_kana_rule(rom_kana_rule)
+        self.__rom_kana_rule_tree = compile_rom_kana_rule(ROM_KANA_RULE)
         self.set_candidate_selector(CandidateSelectorBase())
         self.reset()
         self.activate_input_mode(INPUT_MODE_HIRAGANA)
-
-    def set_candidate_selector(self, candidate_selector):
-        self.__candidate_selector = candidate_selector
+        self.kutouten_type = KUTOUTEN_JP
 
     def reset(self):
-        # The rom-kana state is either None or a tuple (OUTPUT,
-        # PENDING, TREE) where OUTPUT is a kana string, PENDING is a
-        # string is in rom-kana conversion, and TREE is a subtree of
+        # rom-kana state is either None or a tuple
+        #
+        # (OUTPUT, PENDING, TREE)
+        #
+        # where OUTPUT is a kana string, PENDING is a string is
+        # in rom-kana conversion, and TREE is a subtree of
         # __ROM_KANA_RULE_TREE.
+        #
+        # See __convert_rom_kana for the state transition algorithm.
         self.__rom_kana_state = None
         self.__okuri_rom_kana_state = None
 
+        # kana-kan state is either None or a tuple
+        #
+        # (MIDASI, CANDIDATE)
+        #
+        # where MIDASI is a kana string used as a key for dict search
+        # and CANDIDATE is the current candidate selected (if any).
         self.__kana_kan_state = None
+
         self.conv_state = CONV_STATE_NONE
         self.clear_candidates()
 
@@ -496,7 +511,7 @@ class Context:
             if self.input_mode == INPUT_MODE_LATIN:
                 return letter
             elif self.input_mode == INPUT_MODE_WIDE_LATIN:
-                return wide_latin_table[ord(letter)]
+                return WIDE_LATIN_TABLE[ord(letter)]
 
             if is_shift:
                 self.conv_state = CONV_STATE_START
@@ -601,6 +616,9 @@ class Context:
             return True
         return False
 
+    def set_candidate_selector(self, candidate_selector):
+        self.__candidate_selector = candidate_selector
+
     def clear_candidates(self):
         self.__candidate_selector.set_candidates(list())
         self.__kana_kan_state = None
@@ -656,6 +674,10 @@ class Context:
         output, pending, tree = state
         if letter not in tree:
             output, pending, tree = self.__convert_nn(state)
+            index = u'.,'.find(letter)
+            if index >= 0:
+                return (output + KUTOUTEN_RULE[self.kutouten_type][index],
+                        u'', self.__rom_kana_rule_tree)
             return self.__convert_rom_kana(letter,
                                            (output, u'',
                                             self.__rom_kana_rule_tree))

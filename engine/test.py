@@ -29,6 +29,9 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(self.__skk.preedit(), u'k')
         self.assertEqual(self.__skk.append(u'a'), u'カ')
         self.assertEqual(self.__skk.preedit(), u'')
+        # nX -> ンX
+        self.__skk.append(u'n')
+        self.assertEqual(self.__skk.append(u'.'), u'ン。')
 
     def testokurinasi(self):
         self.__skk.reset()
