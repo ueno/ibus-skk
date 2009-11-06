@@ -464,6 +464,10 @@ class Context:
         else:
             letter = keyval
 
+        if key == 'ctrl+g':
+            self.reset()
+            return u''
+
         if self.conv_state == CONV_STATE_NONE:
             input_mode = \
                 input_mode_transition_rule.get(key, dict()).get(self.input_mode)
