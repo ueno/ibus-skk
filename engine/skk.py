@@ -421,17 +421,22 @@ class Context:
     def __init__(self, sysdict=Dict()):
         self.__sysdict = sysdict
         self.__rom_kana_rule_tree = compile_rom_kana_rule(rom_kana_rule)
-        self.input_mode = INPUT_MODE_HIRAGANA
         self.set_candidate_selector(CandidateSelectorBase())
         self.reset()
+        self.activate_input_mode(INPUT_MODE_HIRAGANA)
 
     def set_candidate_selector(self, candidate_selector):
         self.__candidate_selector = candidate_selector
 
     def reset(self):
-        self.__candidate = None
-        self.__rom_kana_state = (u'', u'', self.__rom_kana_rule_tree)
+        # The rom-kana state is either None or a tuple (OUTPUT,
+        # PENDING, TREE) where OUTPUT is a kana string, PENDING is a
+        # string is in rom-kana conversion, and TREE is a subtree of
+        # __ROM_KANA_RULE_TREE.
+        self.__rom_kana_state = None
         self.__okuri_rom_kana_state = None
+
+        self.__kana_kan_state = None
         self.conv_state = CONV_STATE_NONE
         self.clear_candidates()
 
@@ -441,14 +446,26 @@ class Context:
     def __katakana_to_hiragana(self, kana):
         return kana             # XXX
 
+    def activate_input_mode(self, input_mode):
+        self.input_mode = input_mode
+        if self.input_mode == INPUT_MODE_HIRAGANA or \
+                self.input_mode == INPUT_MODE_KATAKANA:
+            self.__rom_kana_state = (u'', u'', self.__rom_kana_rule_tree)
+
     def kakutei(self):
-        if self.__candidate:
-            output = self.__candidate[0]
-            if self.__okuri_rom_kana_state:
-                output += self.__okuri_rom_kana_state[0]
+        input_mode = self.input_mode
+        if self.__kana_kan_state:
+            candidate = self.__kana_kan_state[1]
+            if candidate:
+                output = candidate[0]
+                if self.__okuri_rom_kana_state:
+                    output += self.__okuri_rom_kana_state[0]
+            else:
+                output = self.__rom_kana_state[0]
         else:
             output = self.__rom_kana_state[0]
         self.reset()
+        self.activate_input_mode(input_mode)
         return output
 
     def append(self, key):
@@ -472,8 +489,8 @@ class Context:
             input_mode = \
                 input_mode_transition_rule.get(key, dict()).get(self.input_mode)
             if input_mode is not None:
-                self.input_mode = input_mode
                 self.reset()
+                self.activate_input_mode(input_mode)
                 return u''
 
             if self.input_mode == INPUT_MODE_LATIN:
@@ -498,22 +515,25 @@ class Context:
                     input_mode == INPUT_MODE_KATAKANA:
                 kana = self.__hiragana_to_katakana(skk.__rom_kana_state[0])
                 self.kakutei()
+                self.activate_input_mode(input_mode)
                 return kana
             elif self.input_mode == INPUT_MODE_KATAKANA and \
                     input_mode == INPUT_MODE_HIRAGANA:
                 kana = self.__katakana_to_hiragana(skk.__rom_kana_state[0])
                 self.kakutei()
+                self.activate_input_mode(input_mode)
                 return kana
             elif input_mode is not None:
                 output = self.kakutei()
-                self.input_mode = input_mode
+                self.activate_input_mode(input_mode)
                 return output
 
             # Start okuri-nasi conversion.
             if letter.isspace():
                 self.conv_state = CONV_STATE_SELECT
                 self.__rom_kana_state = self.__convert_nn(self.__rom_kana_state)
-                candidates = self.__sysdict.lookup(self.__rom_kana_state[0])
+                self.__kana_kan_state = (self.__rom_kana_state[0], None)
+                candidates = self.__sysdict.lookup(self.__kana_kan_state[0])
                 self.__candidate_selector.set_candidates(candidates)
                 self.next_candidate()
                 return u''
@@ -533,8 +553,11 @@ class Context:
                 # Start okuri-ari conversion.
                 if len(self.__okuri_rom_kana_state[1]) == 0:
                     self.conv_state = CONV_STATE_SELECT
-                    midasi = self.__rom_kana_state[0] + okuri
-                    candidates = self.__sysdict.lookup(midasi, okuri=True)
+                    self.__kana_kan_state = \
+                        (self.__rom_kana_state[0] + okuri, None)
+                    candidates = \
+                        self.__sysdict.lookup(self.__kana_kan_state[0], \
+                                                  okuri=True)
                     self.__candidate_selector.set_candidates(candidates)
                     self.next_candidate()
                 return u''
@@ -580,17 +603,21 @@ class Context:
 
     def clear_candidates(self):
         self.__candidate_selector.set_candidates(list())
-        self.__candidate = None
+        self.__kana_kan_state = None
         
     def next_candidate(self):
-        self.__candidate = self.__candidate_selector.next_candidate()
+        candidate = self.__candidate_selector.next_candidate()
+        self.__kana_kan_state = (self.__kana_kan_state[0], candidate)
             
     def previous_candidate(self):
         self.__candidate = self.__candidate_selector.previous_candidate()
+        self.__kana_kan_state = (self.__kana_kan_state[0], candidate)
 
     def preedit(self):
         if self.conv_state == CONV_STATE_NONE:
-            return self.__rom_kana_state[1]
+            if self.__rom_kana_state:
+                return self.__rom_kana_state[1]
+            return u''
         elif self.conv_state == CONV_STATE_START:
             if self.__okuri_rom_kana_state:
                 return u'▽' + self.__rom_kana_state[0] + u'*' + \
@@ -601,17 +628,19 @@ class Context:
                     self.__rom_kana_state[1]
         else:
             if self.__okuri_rom_kana_state:
-                if self.__candidate:
-                    return u'▼' + self.__candidate[0] + \
-                        self.__okuri_rom_kana_state[0]
-                else:
-                    return u'▼' + self.__rom_kana_state[0] + \
-                        self.__okuri_rom_kana_state[0]
+                if self.__kana_kan_state:
+                    candidate = self.__kana_kan_state[1]
+                    if candidate:
+                        return u'▼' + candidate[0] + \
+                            self.__okuri_rom_kana_state[0]
+                return u'▼' + self.__rom_kana_state[0] + \
+                    self.__okuri_rom_kana_state[0]
             else:
-                if self.__candidate:
-                    return u'▼' + self.__candidate[0]
-                else:
-                    return u'▼' + self.__rom_kana_state[0]
+                if self.__kana_kan_state:
+                    candidate = self.__kana_kan_state[1]
+                    if candidate:
+                        return u'▼' + candidate[0]
+                return u'▼' + self.__rom_kana_state[0]
 
     def __convert_nn(self, state):
         output, pending, tree = state
@@ -624,12 +653,6 @@ class Context:
         return state
         
     def __convert_rom_kana(self, letter, state):
-        # This method takes a LETTER being processed and the current
-        # STATE of rom-kana conversion, and returns a new state.
-        #
-        # The state format is (OUTPUT, PENDING, TREE) where OUTPUT is
-        # a kana string, PENDING is a string is in rom-kana
-        # conversion, and TREE is a subtree of __ROM_KANA_RULE_TREE.
         output, pending, tree = state
         if letter not in tree:
             output, pending, tree = self.__convert_nn(state)
