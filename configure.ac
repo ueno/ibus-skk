@@ -38,8 +38,6 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
 # define PACKAGE_VERSION_* variables
-AS_VERSION
-AS_NANO
 AM_SANITY_CHECK
 AM_MAINTAINER_MODE
 AM_DISABLE_STATIC
@@ -77,15 +75,6 @@ else
 fi
 AC_SUBST(PYTHON_CFLAGS)
 AC_SUBST(PYTHON_LIBS)
-
-# define GETTEXT_* variables
-GETTEXT_PACKAGE=ibus-skk
-AC_SUBST(GETTEXT_PACKAGE)
-AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Define to the read-only architecture-independent data directory.])
-
-AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION(0.16.1)
-
 
 # OUTPUT files
 AC_CONFIG_FILES([ po/Makefile.in
