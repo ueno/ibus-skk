@@ -77,7 +77,7 @@ AC_SUBST(PYTHON_CFLAGS)
 AC_SUBST(PYTHON_LIBS)
 
 # OUTPUT files
-AC_CONFIG_FILES([ po/Makefile.in
+AC_CONFIG_FILES([
 Makefile
 engine/Makefile
 engine/ibus-engine-skk
