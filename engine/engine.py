@@ -263,6 +263,6 @@ class Engine(ibus.EngineBase):
         pass
 
     def property_activate(self, prop_name, state):
-        print "PropertyActivate(%s, %d)" % (prop_name, state)
+        # print "PropertyActivate(%s, %d)" % (prop_name, state)
         if state == ibus.PROP_STATE_CHECKED:
             self.__input_mode_activate(prop_name, state)
