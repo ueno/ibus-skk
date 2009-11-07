@@ -20,12 +20,26 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
-class Dict:
+from __future__ import with_statement
+import os.path
+
+class DictBase(object):
     ENCODING = 'EUC-JP'
 
-    def __init__(self, filename='/usr/share/skk/SKK-JISYO.L', mode='r',
-                 encoding=ENCODING):
-        self.__fp = open(filename, mode)
+    def candidate_list(self, line):
+        def seperate_annotation(candidate):
+            index = candidate.find(u';')
+            if index >= 0:
+                return (candidate[0:index], candidate[index + 1:])
+            else:
+                return (candidate, None)
+        return map(seperate_annotation, line.strip()[1:-1].split('/'))
+
+class SysDict(DictBase):
+    def __init__(self, filename='/usr/share/skk/SKK-JISYO.L',
+                 encoding=DictBase.ENCODING):
+        self.__fp = open(filename, 'r')
+        self.__encoding = encoding
         self.__okuri_ari = list()
         self.__okuri_nasi = list()
 
@@ -50,19 +64,7 @@ class Dict:
                 offsets.append(pos)
         self.__okuri_ari.reverse()
 
-    def __candidate_list(self, line):
-        candidates = line.strip()[1:-1].split('/')
-        candidates = [candidate.decode(self.ENCODING)
-                      for candidate in candidates]
-        def seperate_annotation(candidate):
-            index = candidate.find(u';')
-            if index >= 0:
-                return (candidate[0:index], candidate[index + 1:])
-            else:
-                return (candidate, None)
-        return map(seperate_annotation, candidates)
-
-    def lookup(self, key, okuri=False):
+    def lookup(self, midasi, okuri=False):
         if okuri:
             offsets = self.__okuri_ari
         else:
@@ -70,14 +72,14 @@ class Dict:
         self.__fp.seek(0)
         begin, end = 0, len(offsets) - 1
         pos = begin + (end - begin) / 2
-        key = key.encode(self.ENCODING)
+        midasi = midasi.encode(self.__encoding)
         while begin <= end:
             self.__fp.seek(offsets[pos])
             line = self.__fp.next()
-            word, candidates = line.split(' ', 1)
-            r = cmp(key, word)
+            _midasi, candidates = line.split(' ', 1)
+            r = cmp(midasi, _midasi)
             if r == 0:
-                return self.__candidate_list(candidates)
+                return self.candidate_list(candidates.decode(self.__encoding))
             elif r < 0:
                 end = pos - 1
             else:
@@ -85,6 +87,49 @@ class Dict:
             pos = begin + (end - begin) / 2
         return list()
 
+class UsrDict(DictBase):
+    def __init__(self, filename='~/.skk-ibus-jisyo',
+                 encoding=DictBase.ENCODING):
+        self.__path = os.path.expanduser(filename)
+        self.__encoding = encoding
+        self.load()
+
+    def load(self):
+        self.__dict = dict()
+        with open(self.__path, 'a+') as fp:
+            for line in fp:
+                if line.startswith(';'):
+                    continue
+                line = line.decode(self.__encoding)
+                midasi, candidates = line.split(' ', 1)
+                self.__dict[midasi] = map(lambda (candidate, annotation):
+                                        candidate,
+                                    self.candidate_list(candidates))
+
+    def save(self):
+        with open(self.__path, 'w+') as fp:
+            for midasi in self.__dict:
+                line = midasi + u' /' + u'/'.join(self.__dict[midasi]) + '/\n'
+                fp.write(line.encode(self.__encoding))
+
+    def lookup(self, midasi, okuri=False):
+        return self.__dict.get(midasi, list())
+        
+    def select_candidate(self, midasi, candidate):
+        if midasi not in self.__dict:
+            self.__dict[midasi] = list()
+        candidates = self.__dict[midasi]
+        if candidate not in candidates:
+            candidates.append(candidate)
+            return True
+        index = candidates.index(candidate)
+        if index == 0:
+            return False
+        first = candidates[0]
+        candidates[0] = candidates[index]
+        candidates[index] = candidates[0]
+        return True
+        
 # Converted from skk-rom-kana-base-rule in skk-vars.el.
 ROM_KANA_RULE = {
     u'a': (None, (u'ア', u'あ')),
@@ -423,7 +468,8 @@ class CandidateSelectorBase(object):
             return self.__candidates[self.__candidate_index]
 
 class Context:
-    def __init__(self, sysdict=Dict()):
+    def __init__(self, usrdict=UsrDict(), sysdict=SysDict()):
+        self.__usrdict = usrdict
         self.__sysdict = sysdict
         self.__rom_kana_rule_tree = compile_rom_kana_rule(ROM_KANA_RULE)
         self.set_candidate_selector(CandidateSelectorBase())
@@ -484,6 +530,9 @@ class Context:
                 output = candidate[0]
                 if self.__okuri_rom_kana_state:
                     output += self.__okuri_rom_kana_state[0]
+                if self.__usrdict.select_candidate(self.__kana_kan_state[0],
+                                                   candidate[0]):
+                    self.__usrdict.save()
             else:
                 output = self.__rom_kana_state[0]
         else:
@@ -557,7 +606,9 @@ class Context:
                 self.conv_state = CONV_STATE_SELECT
                 self.__rom_kana_state = self.__convert_nn(self.__rom_kana_state)
                 self.__kana_kan_state = (self.__rom_kana_state[0], None)
-                candidates = self.__sysdict.lookup(self.__kana_kan_state[0])
+                candidates = \
+                    self.__usrdict.lookup(self.__kana_kan_state[0]) or \
+                    self.__sysdict.lookup(self.__kana_kan_state[0])
                 self.__candidate_selector.set_candidates(candidates)
                 self.next_candidate()
                 return u''
@@ -580,6 +631,7 @@ class Context:
                     self.__kana_kan_state = \
                         (self.__rom_kana_state[0] + okuri, None)
                     candidates = \
+                        self.__usrdict.lookup(self.__kana_kan_state[0]) or \
                         self.__sysdict.lookup(self.__kana_kan_state[0], \
                                                   okuri=True)
                     self.__candidate_selector.set_candidates(candidates)
