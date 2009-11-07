@@ -510,6 +510,7 @@ class Context:
         self.clear_candidates()
 
     conv_state = property(lambda self: self.__conv_state)
+    input_mode = property(lambda self: self.__input_mode)
 
     def __hiragana_to_katakana(self, kana):
         diff = ord(u'ア') - ord(u'あ')
@@ -528,12 +529,12 @@ class Context:
         return ''.join(map(to_hiragana, kana))
 
     def activate_input_mode(self, input_mode):
-        self.input_mode = input_mode
-        if self.input_mode in (INPUT_MODE_HIRAGANA, INPUT_MODE_KATAKANA):
+        self.__input_mode = input_mode
+        if self.__input_mode in (INPUT_MODE_HIRAGANA, INPUT_MODE_KATAKANA):
             self.__rom_kana_state = (u'', u'', self.__rom_kana_rule_tree)
 
     def kakutei(self):
-        input_mode = self.input_mode
+        input_mode = self.__input_mode
         if self.__kana_kan_state:
             candidate = self.__kana_kan_state[1]
             if candidate:
@@ -570,15 +571,15 @@ class Context:
 
         if self.__conv_state == CONV_STATE_NONE:
             input_mode = \
-                INPUT_MODE_TRANSITION_RULE.get(key, dict()).get(self.input_mode)
+                INPUT_MODE_TRANSITION_RULE.get(key, dict()).get(self.__input_mode)
             if input_mode is not None:
                 self.reset()
                 self.activate_input_mode(input_mode)
                 return u''
 
-            if self.input_mode == INPUT_MODE_LATIN:
+            if self.__input_mode == INPUT_MODE_LATIN:
                 return letter
-            elif self.input_mode == INPUT_MODE_WIDE_LATIN:
+            elif self.__input_mode == INPUT_MODE_WIDE_LATIN:
                 return WIDE_LATIN_TABLE[ord(letter)]
 
             if is_shift:
@@ -593,14 +594,14 @@ class Context:
 
         elif self.__conv_state == CONV_STATE_START:
             input_mode = \
-                INPUT_MODE_TRANSITION_RULE.get(key, dict()).get(self.input_mode)
-            if self.input_mode == INPUT_MODE_HIRAGANA and \
+                INPUT_MODE_TRANSITION_RULE.get(key, dict()).get(self.__input_mode)
+            if self.__input_mode == INPUT_MODE_HIRAGANA and \
                     input_mode == INPUT_MODE_KATAKANA:
                 kana = self.__hiragana_to_katakana(self.__rom_kana_state[0])
                 self.kakutei()
                 self.activate_input_mode(input_mode)
                 return kana
-            elif self.input_mode == INPUT_MODE_KATAKANA and \
+            elif self.__input_mode == INPUT_MODE_KATAKANA and \
                     input_mode == INPUT_MODE_HIRAGANA:
                 kana = self.__katakana_to_hiragana(self.__rom_kana_state[0])
                 self.kakutei()
@@ -734,9 +735,9 @@ class Context:
     def __convert_nn(self, state):
         output, pending, tree = state
         if pending.endswith(u'n'):
-            if self.input_mode == INPUT_MODE_HIRAGANA:
+            if self.__input_mode == INPUT_MODE_HIRAGANA:
                 output += u'ん'
-            elif self.input_mode == INPUT_MODE_KATAKANA:
+            elif self.__input_mode == INPUT_MODE_KATAKANA:
                 output += u'ン'
             return (output, pending, tree)
         return state
@@ -759,7 +760,7 @@ class Context:
             output += next_output
         else:
             katakana, hiragana = next_output
-            if self.input_mode == INPUT_MODE_HIRAGANA:
+            if self.__input_mode == INPUT_MODE_HIRAGANA:
                 output += hiragana
             else:
                 output += katakana
