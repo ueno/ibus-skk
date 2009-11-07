@@ -434,14 +434,14 @@ class UsrDict(DictBase):
             self.__dict[midasi] = list()
         elements = self.__dict[midasi]
         for index, (_candidate, _annotation) in enumerate(elements):
-            if _candidate == candidate:
+            if _candidate == candidate[0]:
                 if index > 0:
                     first = elements[0]
                     elements[0] = elements[index]
                     elements[index] = first
                     self.__dict_changed = True
                 return
-        elements.append((candidate, None))
+        elements.insert(0, candidate)
         self.__dict_changed = True
 
 def compile_rom_kana_rule(rule):
@@ -509,6 +509,8 @@ class Context:
         # and CANDIDATE is the current candidate selected (if any).
         self.__kana_kan_state = None
 
+        self.__abbrev = False
+
         self.__conv_state = CONV_STATE_NONE
         self.clear_candidates()
 
@@ -545,7 +547,7 @@ class Context:
                 if self.__okuri_rom_kana_state:
                     output += self.__okuri_rom_kana_state[0]
                 self.__usrdict.select_candidate(self.__kana_kan_state[0],
-                                                candidate[0])
+                                                candidate)
             else:
                 output = self.__rom_kana_state[0]
         else:
@@ -596,6 +598,12 @@ class Context:
             elif self.__input_mode == INPUT_MODE_WIDE_LATIN:
                 return WIDE_LATIN_TABLE[ord(letter)]
 
+            # Start rom-kan mode.
+            if keyval == '/':
+                self.__conv_state = CONV_STATE_START
+                self.__abbrev = True
+                return u''
+
             if is_shift and keyval.isalpha():
                 self.__conv_state = CONV_STATE_START
 
@@ -621,7 +629,7 @@ class Context:
                 self.kakutei()
                 self.activate_input_mode(input_mode)
                 return kana
-            elif input_mode is not None:
+            elif input_mode is not None and not self.__abbrev:
                 output = self.kakutei()
                 self.activate_input_mode(input_mode)
                 return output
@@ -667,8 +675,12 @@ class Context:
                     self.next_candidate()
                 return u''
 
-            self.__rom_kana_state = \
-                self.__convert_rom_kana(keyval, self.__rom_kana_state)
+            if self.__abbrev:
+                self.__rom_kana_state = (self.__rom_kana_state[0] + keyval,
+                                         u'', self.__rom_kana_rule_tree)
+            else:
+                self.__rom_kana_state = \
+                    self.__convert_rom_kana(keyval, self.__rom_kana_state)
             return u''
 
         elif self.__conv_state == CONV_STATE_SELECT:
