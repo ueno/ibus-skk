@@ -456,15 +456,24 @@ class Context:
         self.clear_candidates()
 
     def __hiragana_to_katakana(self, kana):
-        return kana             # XXX
+        diff = ord(u'ア') - ord(u'あ')
+        def to_katakana(letter):
+            if ord(u'ぁ') <= ord(letter) and ord(letter) <= ord(u'ん'):
+                return unichr(ord(letter) + diff)
+            return letter
+        return ''.join(map(to_katakana, kana))
 
     def __katakana_to_hiragana(self, kana):
-        return kana             # XXX
+        diff = ord(u'ア') - ord(u'あ')
+        def to_hiragana(letter):
+            if ord(u'ァ') <= ord(letter) and ord(letter) <= ord(u'ン'):
+                return unichr(ord(letter) - diff)
+            return letter
+        return ''.join(map(to_hiragana, kana))
 
     def activate_input_mode(self, input_mode):
         self.input_mode = input_mode
-        if self.input_mode == INPUT_MODE_HIRAGANA or \
-                self.input_mode == INPUT_MODE_KATAKANA:
+        if self.input_mode in (INPUT_MODE_HIRAGANA, INPUT_MODE_KATAKANA):
             self.__rom_kana_state = (u'', u'', self.__rom_kana_rule_tree)
 
     def kakutei(self):
@@ -528,13 +537,13 @@ class Context:
                 input_mode_transition_rule.get(key, dict()).get(self.input_mode)
             if self.input_mode == INPUT_MODE_HIRAGANA and \
                     input_mode == INPUT_MODE_KATAKANA:
-                kana = self.__hiragana_to_katakana(skk.__rom_kana_state[0])
+                kana = self.__hiragana_to_katakana(self.__rom_kana_state[0])
                 self.kakutei()
                 self.activate_input_mode(input_mode)
                 return kana
             elif self.input_mode == INPUT_MODE_KATAKANA and \
                     input_mode == INPUT_MODE_HIRAGANA:
-                kana = self.__katakana_to_hiragana(skk.__rom_kana_state[0])
+                kana = self.__katakana_to_hiragana(self.__rom_kana_state[0])
                 self.kakutei()
                 self.activate_input_mode(input_mode)
                 return kana
