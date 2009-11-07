@@ -418,7 +418,7 @@ class UsrDict(DictBase):
 
     def save(self):
         with open(self.__path, 'w+') as fp:
-            for midasi in self.__dict:
+            for midasi in sorted(self.__dict):
                 line = midasi + u' /' + \
                     self.join_candidates(self.__dict[midasi]) + '/\n'
                 fp.write(line.encode(self.__encoding))
