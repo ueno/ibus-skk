@@ -145,6 +145,8 @@ class Engine(ibus.EngineBase):
                     (keyval in (keysyms.j, keysyms.J) and \
                          state & modifier.CONTROL_MASK != 0):
                 self.__commit_string(self.__skk.kakutei())
+                gobject.idle_add(self.__skk.save_usrdict,
+                                 priority = gobject.PRIORITY_LOW)
                 self.__lookup_table.clean()
                 self.__update()
                 return True

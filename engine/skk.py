@@ -415,8 +415,11 @@ class UsrDict(DictBase):
                 line = line.decode(self.__encoding)
                 midasi, candidates = line.split(' ', 1)
                 self.__dict[midasi] = self.split_candidates(candidates)
+        self.__dict_changed = False
 
     def save(self):
+        if not self.__dict_changed:
+            return
         with open(self.__path, 'w+') as fp:
             for midasi in sorted(self.__dict):
                 line = midasi + u' /' + \
@@ -429,18 +432,18 @@ class UsrDict(DictBase):
     def select_candidate(self, midasi, candidate):
         if midasi not in self.__dict:
             self.__dict[midasi] = list()
-        candidates = self.__dict[midasi]
-        if candidate not in candidates:
-            candidates.append((candidate, None))
-            return True
-        index = candidates.index(candidate)
-        if index == 0:
-            return False
-        first = candidates[0]
-        candidates[0] = candidates[index]
-        candidates[index] = candidates[0]
-        return True
-        
+        elements = self.__dict[midasi]
+        for index, (_candidate, _annotation) in enumerate(elements):
+            if _candidate == candidate:
+                if index > 0:
+                    first = elements[0]
+                    elements[0] = elements[index]
+                    elements[index] = first
+                    self.__dict_changed = True
+                return
+        elements.append((candidate, None))
+        self.__dict_changed = True
+
 def compile_rom_kana_rule(rule):
     def _compile_rom_kana_rule(tree, input_state, arg):
         hd, tl = input_state[0], input_state[1:]
@@ -541,9 +544,8 @@ class Context:
                 output = candidate[0]
                 if self.__okuri_rom_kana_state:
                     output += self.__okuri_rom_kana_state[0]
-                if self.__usrdict.select_candidate(self.__kana_kan_state[0],
-                                                   candidate[0]):
-                    self.__usrdict.save()
+                self.__usrdict.select_candidate(self.__kana_kan_state[0],
+                                                candidate[0])
             else:
                 output = self.__rom_kana_state[0]
         else:
@@ -618,8 +620,10 @@ class Context:
                 self.__rom_kana_state = self.__convert_nn(self.__rom_kana_state)
                 midasi = self.__katakana_to_hiragana(self.__rom_kana_state[0])
                 self.__kana_kan_state = (midasi, None)
-                candidates = self.__usrdict.lookup(midasi) or \
-                    self.__sysdict.lookup(midasi)
+                usr_candidates = self.__usrdict.lookup(midasi)
+                sys_candidates = self.__sysdict.lookup(midasi)
+                candidates = self.__merge_candidates(usr_candidates,
+                                                     sys_candidates)
                 self.__candidate_selector.set_candidates(candidates)
                 self.next_candidate()
                 return u''
@@ -643,8 +647,10 @@ class Context:
                         self.__katakana_to_hiragana(self.__rom_kana_state[0] + \
                                                         okuri)
                     self.__kana_kan_state = (midasi, None)
-                    candidates = self.__usrdict.lookup(midasi) or \
-                        self.__sysdict.lookup(midasi, okuri=True)
+                    usr_candidates = self.__usrdict.lookup(midasi)
+                    sys_candidates = self.__sysdict.lookup(midasi, okuri=True)
+                    candidates = self.__merge_candidates(usr_candidates,
+                                                         sys_candidates)
                     self.__candidate_selector.set_candidates(candidates)
                     self.next_candidate()
                 return u''
@@ -703,6 +709,14 @@ class Context:
         self.__candidate = self.__candidate_selector.previous_candidate()
         self.__kana_kan_state = (self.__kana_kan_state[0], candidate)
 
+    def __merge_candidates(self, usr_candidates, sys_candidates):
+        return usr_candidates + \
+            [candidate for candidate in sys_candidates
+             if candidate not in usr_candidates]
+
+    def save_usrdict(self):
+        self.__usrdict.save()
+        
     def preedit(self):
         if self.__conv_state == CONV_STATE_NONE:
             if self.__rom_kana_state:
