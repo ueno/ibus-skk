@@ -569,6 +569,7 @@ class Context:
 
         if key == 'ctrl+g':
             self.reset()
+            self.activate_input_mode(self.__input_mode)
             return u''
 
         if self.__conv_state == CONV_STATE_NONE:
