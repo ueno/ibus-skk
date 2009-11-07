@@ -26,7 +26,10 @@ import ibus
 from ibus import keysyms
 from ibus import modifier
 import skk
-import os
+
+from gettext import dgettext
+_  = lambda a : dgettext("ibus-skk", a)
+N_ = lambda a : a
 
 class CandidateSelector(skk.CandidateSelectorBase):
     def __init__(self, engine):
@@ -79,22 +82,22 @@ class Engine(ibus.EngineBase):
         input_mode_prop = ibus.Property(key=u"InputMode",
                                         type=ibus.PROP_TYPE_MENU,
                                         label=u"あ",
-                                        tooltip=u"Switch input mode")
+                                        tooltip=_(u"Switch input mode"))
         self.__prop_dict[u"InputMode"] = input_mode_prop
 
         props = ibus.PropList()
         props.append(ibus.Property(key=u"InputMode.Hiragana",
                                    type=ibus.PROP_TYPE_RADIO,
-                                   label=u"Hiragana"))
+                                   label=_(u"Hiragana")))
         props.append(ibus.Property(key=u"InputMode.Katakana",
                                    type=ibus.PROP_TYPE_RADIO,
-                                   label=u"Katakana"))
+                                   label=_(u"Katakana")))
         props.append(ibus.Property(key=u"InputMode.Latin",
                                    type=ibus.PROP_TYPE_RADIO,
-                                   label=u"Latin"))
+                                   label=_(u"Latin")))
         props.append(ibus.Property(key=u"InputMode.WideLatin",
                                    type=ibus.PROP_TYPE_RADIO,
-                                   label=u"Wide Latin"))
+                                   label=_(u"Wide Latin")))
 
         props[self.__skk.input_mode].set_state(ibus.PROP_STATE_CHECKED)
 

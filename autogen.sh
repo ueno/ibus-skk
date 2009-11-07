@@ -2,6 +2,7 @@
 set -e
 set -x
 
+autopoint --force
 libtoolize --automake --copy --force
 aclocal -I m4 --force
 autoheader --force
