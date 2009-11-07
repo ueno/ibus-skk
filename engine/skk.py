@@ -23,113 +23,6 @@
 from __future__ import with_statement
 import os.path
 
-class DictBase(object):
-    ENCODING = 'EUC-JP'
-
-    def candidate_list(self, line):
-        def seperate_annotation(candidate):
-            index = candidate.find(u';')
-            if index >= 0:
-                return (candidate[0:index], candidate[index + 1:])
-            else:
-                return (candidate, None)
-        return map(seperate_annotation, line.strip()[1:-1].split('/'))
-
-class SysDict(DictBase):
-    def __init__(self, filename='/usr/share/skk/SKK-JISYO.L',
-                 encoding=DictBase.ENCODING):
-        self.__fp = open(filename, 'r')
-        self.__encoding = encoding
-        self.__okuri_ari = list()
-        self.__okuri_nasi = list()
-
-        # Skip headers.
-        while True:
-            pos = self.__fp.tell()
-            line = self.__fp.readline()
-            if not line or not line.startswith(';'):
-                break
-
-        offsets = self.__okuri_ari
-        offsets.append(pos)
-        while True:
-            pos = self.__fp.tell()
-            line = self.__fp.readline()
-            if not line:
-                break
-            # A comment line seperating okuri-ari/okuri-nasi entries.
-            if line.startswith(';'):
-                offsets = self.__okuri_nasi
-            else:
-                offsets.append(pos)
-        self.__okuri_ari.reverse()
-
-    def lookup(self, midasi, okuri=False):
-        if okuri:
-            offsets = self.__okuri_ari
-        else:
-            offsets = self.__okuri_nasi
-        self.__fp.seek(0)
-        begin, end = 0, len(offsets) - 1
-        pos = begin + (end - begin) / 2
-        midasi = midasi.encode(self.__encoding)
-        while begin <= end:
-            self.__fp.seek(offsets[pos])
-            line = self.__fp.next()
-            _midasi, candidates = line.split(' ', 1)
-            r = cmp(midasi, _midasi)
-            if r == 0:
-                return self.candidate_list(candidates.decode(self.__encoding))
-            elif r < 0:
-                end = pos - 1
-            else:
-                begin = pos + 1
-            pos = begin + (end - begin) / 2
-        return list()
-
-class UsrDict(DictBase):
-    def __init__(self, filename='~/.skk-ibus-jisyo',
-                 encoding=DictBase.ENCODING):
-        self.__path = os.path.expanduser(filename)
-        self.__encoding = encoding
-        self.load()
-
-    def load(self):
-        self.__dict = dict()
-        with open(self.__path, 'a+') as fp:
-            for line in fp:
-                if line.startswith(';'):
-                    continue
-                line = line.decode(self.__encoding)
-                midasi, candidates = line.split(' ', 1)
-                self.__dict[midasi] = map(lambda (candidate, annotation):
-                                        candidate,
-                                    self.candidate_list(candidates))
-
-    def save(self):
-        with open(self.__path, 'w+') as fp:
-            for midasi in self.__dict:
-                line = midasi + u' /' + u'/'.join(self.__dict[midasi]) + '/\n'
-                fp.write(line.encode(self.__encoding))
-
-    def lookup(self, midasi, okuri=False):
-        return self.__dict.get(midasi, list())
-        
-    def select_candidate(self, midasi, candidate):
-        if midasi not in self.__dict:
-            self.__dict[midasi] = list()
-        candidates = self.__dict[midasi]
-        if candidate not in candidates:
-            candidates.append(candidate)
-            return True
-        index = candidates.index(candidate)
-        if index == 0:
-            return False
-        first = candidates[0]
-        candidates[0] = candidates[index]
-        candidates[index] = candidates[0]
-        return True
-        
 # Converted from skk-rom-kana-base-rule in skk-vars.el.
 ROM_KANA_RULE = {
     u'a': (None, (u'ア', u'あ')),
@@ -380,20 +273,6 @@ ROM_KANA_RULE = {
     # (skk-kakutei-key nil skk-kakutei)
     }
 
-def compile_rom_kana_rule(rule):
-    def _compile_rom_kana_rule(tree, input_state, arg):
-        hd, tl = input_state[0], input_state[1:]
-        if hd not in tree:
-            if not tl:
-                tree[hd] = arg
-                return
-            tree[hd] = dict()
-        _compile_rom_kana_rule(tree[hd], tl, arg)
-    tree = dict()
-    for input_state in rule:
-        _compile_rom_kana_rule(tree, input_state, rule[input_state])
-    return tree
-
 # skk-jisx0208-latin-vector
 WIDE_LATIN_TABLE = (None, None, None, None, None, None, None, None, 
                     None, None, None, None, None, None, None, None, 
@@ -428,7 +307,7 @@ INPUT_MODE_KATAKANA, \
 INPUT_MODE_LATIN, \
 INPUT_MODE_WIDE_LATIN = range(4)
 
-input_mode_transition_rule = {
+INPUT_MODE_TRANSITION_RULE = {
     u'q': {
         INPUT_MODE_HIRAGANA: INPUT_MODE_KATAKANA,
         INPUT_MODE_KATAKANA: INPUT_MODE_HIRAGANA
@@ -446,6 +325,127 @@ input_mode_transition_rule = {
         INPUT_MODE_LATIN: INPUT_MODE_HIRAGANA
         }
     }
+
+class DictBase(object):
+    ENCODING = 'EUC-JP'
+
+    def candidate_list(self, line):
+        def seperate_annotation(candidate):
+            index = candidate.find(u';')
+            if index >= 0:
+                return (candidate[0:index], candidate[index + 1:])
+            else:
+                return (candidate, None)
+        return map(seperate_annotation, line.strip()[1:-1].split('/'))
+
+class SysDict(DictBase):
+    def __init__(self, filename='/usr/share/skk/SKK-JISYO.L',
+                 encoding=DictBase.ENCODING):
+        self.__fp = open(filename, 'r')
+        self.__encoding = encoding
+        self.__okuri_ari = list()
+        self.__okuri_nasi = list()
+
+        # Skip headers.
+        while True:
+            pos = self.__fp.tell()
+            line = self.__fp.readline()
+            if not line or not line.startswith(';'):
+                break
+
+        offsets = self.__okuri_ari
+        offsets.append(pos)
+        while True:
+            pos = self.__fp.tell()
+            line = self.__fp.readline()
+            if not line:
+                break
+            # A comment line seperating okuri-ari/okuri-nasi entries.
+            if line.startswith(';'):
+                offsets = self.__okuri_nasi
+            else:
+                offsets.append(pos)
+        self.__okuri_ari.reverse()
+
+    def lookup(self, midasi, okuri=False):
+        if okuri:
+            offsets = self.__okuri_ari
+        else:
+            offsets = self.__okuri_nasi
+        self.__fp.seek(0)
+        begin, end = 0, len(offsets) - 1
+        pos = begin + (end - begin) / 2
+        midasi = midasi.encode(self.__encoding)
+        while begin <= end:
+            self.__fp.seek(offsets[pos])
+            line = self.__fp.next()
+            _midasi, candidates = line.split(' ', 1)
+            r = cmp(midasi, _midasi)
+            if r == 0:
+                return self.candidate_list(candidates.decode(self.__encoding))
+            elif r < 0:
+                end = pos - 1
+            else:
+                begin = pos + 1
+            pos = begin + (end - begin) / 2
+        return list()
+
+class UsrDict(DictBase):
+    def __init__(self, filename='~/.skk-ibus-jisyo',
+                 encoding=DictBase.ENCODING):
+        self.__path = os.path.expanduser(filename)
+        self.__encoding = encoding
+        self.load()
+
+    def load(self):
+        self.__dict = dict()
+        with open(self.__path, 'a+') as fp:
+            for line in fp:
+                if line.startswith(';'):
+                    continue
+                line = line.decode(self.__encoding)
+                midasi, candidates = line.split(' ', 1)
+                self.__dict[midasi] = map(lambda (candidate, annotation):
+                                        candidate,
+                                    self.candidate_list(candidates))
+
+    def save(self):
+        with open(self.__path, 'w+') as fp:
+            for midasi in self.__dict:
+                line = midasi + u' /' + u'/'.join(self.__dict[midasi]) + '/\n'
+                fp.write(line.encode(self.__encoding))
+
+    def lookup(self, midasi, okuri=False):
+        return self.__dict.get(midasi, list())
+        
+    def select_candidate(self, midasi, candidate):
+        if midasi not in self.__dict:
+            self.__dict[midasi] = list()
+        candidates = self.__dict[midasi]
+        if candidate not in candidates:
+            candidates.append(candidate)
+            return True
+        index = candidates.index(candidate)
+        if index == 0:
+            return False
+        first = candidates[0]
+        candidates[0] = candidates[index]
+        candidates[index] = candidates[0]
+        return True
+        
+def compile_rom_kana_rule(rule):
+    def _compile_rom_kana_rule(tree, input_state, arg):
+        hd, tl = input_state[0], input_state[1:]
+        if hd not in tree:
+            if not tl:
+                tree[hd] = arg
+                return
+            tree[hd] = dict()
+        _compile_rom_kana_rule(tree[hd], tl, arg)
+    tree = dict()
+    for input_state in rule:
+        _compile_rom_kana_rule(tree, input_state, rule[input_state])
+    return tree
 
 class CandidateSelectorBase(object):
     def __init__(self):
@@ -560,7 +560,7 @@ class Context:
 
         if self.conv_state == CONV_STATE_NONE:
             input_mode = \
-                input_mode_transition_rule.get(key, dict()).get(self.input_mode)
+                INPUT_MODE_TRANSITION_RULE.get(key, dict()).get(self.input_mode)
             if input_mode is not None:
                 self.reset()
                 self.activate_input_mode(input_mode)
@@ -583,7 +583,7 @@ class Context:
 
         elif self.conv_state == CONV_STATE_START:
             input_mode = \
-                input_mode_transition_rule.get(key, dict()).get(self.input_mode)
+                INPUT_MODE_TRANSITION_RULE.get(key, dict()).get(self.input_mode)
             if self.input_mode == INPUT_MODE_HIRAGANA and \
                     input_mode == INPUT_MODE_KATAKANA:
                 kana = self.__hiragana_to_katakana(self.__rom_kana_state[0])
