@@ -568,8 +568,19 @@ class Context:
             letter = keyval
 
         if key == 'ctrl+g':
-            self.reset()
-            self.activate_input_mode(self.__input_mode)
+            if self.__conv_state in (CONV_STATE_NONE, CONV_STATE_START):
+                self.reset()
+                self.activate_input_mode(self.__input_mode)
+            else:
+                if self.__okuri_rom_kana_state:
+                    self.__rom_kana_state = (self.__rom_kana_state[0] + \
+                                                 self.__okuri_rom_kana_state[0],
+                                             u'', self.__rom_kana_rule_tree)
+                    self.__okuri_rom_kana_state = None
+                # Stop kana-kan conversion.
+                self.__kana_kan_state = None
+                self.clear_candidates()
+                self.__conv_state = CONV_STATE_START
             return u''
 
         if self.__conv_state == CONV_STATE_NONE:
