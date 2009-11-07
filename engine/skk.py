@@ -615,10 +615,10 @@ class Context:
             if letter.isspace():
                 self.__conv_state = CONV_STATE_SELECT
                 self.__rom_kana_state = self.__convert_nn(self.__rom_kana_state)
-                self.__kana_kan_state = (self.__rom_kana_state[0], None)
-                candidates = \
-                    self.__usrdict.lookup(self.__kana_kan_state[0]) or \
-                    self.__sysdict.lookup(self.__kana_kan_state[0])
+                midasi = self.__katakana_to_hiragana(self.__rom_kana_state[0])
+                self.__kana_kan_state = (midasi, None)
+                candidates = self.__usrdict.lookup(midasi) or \
+                    self.__sysdict.lookup(midasi)
                 self.__candidate_selector.set_candidates(candidates)
                 self.next_candidate()
                 return u''
@@ -638,12 +638,12 @@ class Context:
                 # Start okuri-ari conversion.
                 if len(self.__okuri_rom_kana_state[1]) == 0:
                     self.__conv_state = CONV_STATE_SELECT
-                    self.__kana_kan_state = \
-                        (self.__rom_kana_state[0] + okuri, None)
-                    candidates = \
-                        self.__usrdict.lookup(self.__kana_kan_state[0]) or \
-                        self.__sysdict.lookup(self.__kana_kan_state[0], \
-                                                  okuri=True)
+                    midasi = \
+                        self.__katakana_to_hiragana(self.__rom_kana_state[0] + \
+                                                        okuri)
+                    self.__kana_kan_state = (midasi, None)
+                    candidates = self.__usrdict.lookup(midasi) or \
+                        self.__sysdict.lookup(midasi, okuri=True)
                     self.__candidate_selector.set_candidates(candidates)
                     self.next_candidate()
                 return u''
