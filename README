@@ -1,12 +1,10 @@
 ibus-skk -- a Japanese input engine for IBus.
 
 *NOTE* This engine is not usable by now.  It has still a lot of bugs
-and lacks essentital features such as user dictionary support.
+and lacks essentital features such as skk-today.
 
-How to use:
+How to install:
 
 $ sudo apt-get install skkdic
 $ ./autogen.sh --prefix=/usr
 $ sudo make install
-$ /usr/bin/ibus-setup # run ibus
-$ GTK_IM_MODULE=ibus gedit
