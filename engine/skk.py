@@ -700,10 +700,12 @@ class Context:
             if state:
                 self.__okuri_rom_kana_state = state
                 return True
-        state = self.__delete_char_from_rom_kana_state(self.__rom_kana_state)
-        if state:
-            self.__rom_kana_state = state
-            return True
+        if self.__rom_kana_state:
+            state = self.__delete_char_from_rom_kana_state(\
+                self.__rom_kana_state)
+            if state:
+                self.__rom_kana_state = state
+                return True
         return False
 
     def set_candidate_selector(self, candidate_selector):
