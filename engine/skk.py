@@ -570,8 +570,8 @@ class Context:
             return u''
 
         if self.__conv_state == CONV_STATE_NONE:
-            input_mode = \
-                INPUT_MODE_TRANSITION_RULE.get(key, dict()).get(self.__input_mode)
+            input_mode = INPUT_MODE_TRANSITION_RULE.get(key, dict()).\
+                get(self.__input_mode)
             if input_mode is not None:
                 self.reset()
                 self.activate_input_mode(input_mode)
@@ -593,8 +593,8 @@ class Context:
             return u''
 
         elif self.__conv_state == CONV_STATE_START:
-            input_mode = \
-                INPUT_MODE_TRANSITION_RULE.get(key, dict()).get(self.__input_mode)
+            input_mode = INPUT_MODE_TRANSITION_RULE.get(key, dict()).\
+                get(self.__input_mode)
             if self.__input_mode == INPUT_MODE_HIRAGANA and \
                     input_mode == INPUT_MODE_KATAKANA:
                 kana = self.__hiragana_to_katakana(self.__rom_kana_state[0])
