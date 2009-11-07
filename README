@@ -8,5 +8,5 @@ How to use:
 $ sudo apt-get install skkdic
 $ ./autogen.sh --prefix=/usr
 $ sudo make install
-<kill ibus-daemon>
-$ ibus-daemon --verbose
+$ /usr/bin/ibus-setup # run ibus
+$ GTK_IM_MODULE=ibus gedit
