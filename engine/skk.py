@@ -596,7 +596,7 @@ class Context:
             elif self.__input_mode == INPUT_MODE_WIDE_LATIN:
                 return WIDE_LATIN_TABLE[ord(letter)]
 
-            if is_shift:
+            if is_shift and keyval.isalpha():
                 self.__conv_state = CONV_STATE_START
 
             self.__rom_kana_state = \
@@ -776,6 +776,8 @@ class Context:
             if index >= 0:
                 return (output + KUTOUTEN_RULE[self.kutouten_type][index],
                         u'', self.__rom_kana_rule_tree)
+            if letter not in self.__rom_kana_rule_tree:
+                return (output + letter, u'', self.__rom_kana_rule_tree)
             return self.__convert_rom_kana(letter,
                                            (output, u'',
                                             self.__rom_kana_rule_tree))
