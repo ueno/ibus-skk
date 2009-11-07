@@ -139,8 +139,8 @@ class Engine(ibus.EngineBase):
         if not is_press:
             return False
 
-        if self.__skk.conv_state == skk.CONV_STATE_START or \
-                self.__skk.conv_state == skk.CONV_STATE_SELECT:
+        if self.__skk.conv_state in (skk.CONV_STATE_START,
+                                     skk.CONV_STATE_SELECT):
             if keyval == keysyms.Return or \
                     (keyval in (keysyms.j, keysyms.J) and \
                          state & modifier.CONTROL_MASK != 0):
@@ -154,8 +154,8 @@ class Engine(ibus.EngineBase):
                 self.__update()
                 return True
 
-        if self.__skk.conv_state == skk.CONV_STATE_NONE or \
-                self.__skk.conv_state == skk.CONV_STATE_START:
+        if self.__skk.conv_state in (skk.CONV_STATE_NONE,
+                                     skk.CONV_STATE_START):
             if keyval == keysyms.BackSpace:
                 if self.__skk.delete_char():
                     self.__update()

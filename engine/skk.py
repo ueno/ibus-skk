@@ -329,14 +329,23 @@ INPUT_MODE_TRANSITION_RULE = {
 class DictBase(object):
     ENCODING = 'EUC-JP'
 
-    def candidate_list(self, line):
+    def split_candidates(self, line):
         def seperate_annotation(candidate):
             index = candidate.find(u';')
             if index >= 0:
                 return (candidate[0:index], candidate[index + 1:])
             else:
                 return (candidate, None)
-        return map(seperate_annotation, line.strip()[1:-1].split('/'))
+        return map(seperate_annotation, line.strip()[1:-1].split(u'/'))
+
+    def join_candidates(self, candidates):
+        def append_annotation(candidate_annotation):
+            candidate, annotation = candidate_annotation
+            if annotation is not None:
+                return candidate + u';' + annotation
+            else:
+                return candidate
+        return u'/'.join(map(append_annotation, candidates))
 
 class SysDict(DictBase):
     def __init__(self, filename='/usr/share/skk/SKK-JISYO.L',
@@ -382,7 +391,7 @@ class SysDict(DictBase):
             _midasi, candidates = line.split(' ', 1)
             r = cmp(midasi, _midasi)
             if r == 0:
-                return self.candidate_list(candidates.decode(self.__encoding))
+                return self.split_candidates(candidates.decode(self.__encoding))
             elif r < 0:
                 end = pos - 1
             else:
@@ -405,14 +414,13 @@ class UsrDict(DictBase):
                     continue
                 line = line.decode(self.__encoding)
                 midasi, candidates = line.split(' ', 1)
-                self.__dict[midasi] = map(lambda (candidate, annotation):
-                                        candidate,
-                                    self.candidate_list(candidates))
+                self.__dict[midasi] = self.split_candidates(candidates)
 
     def save(self):
         with open(self.__path, 'w+') as fp:
             for midasi in self.__dict:
-                line = midasi + u' /' + u'/'.join(self.__dict[midasi]) + '/\n'
+                line = midasi + u' /' + \
+                    self.join_candidates(self.__dict[midasi]) + '/\n'
                 fp.write(line.encode(self.__encoding))
 
     def lookup(self, midasi, okuri=False):
@@ -423,7 +431,7 @@ class UsrDict(DictBase):
             self.__dict[midasi] = list()
         candidates = self.__dict[midasi]
         if candidate not in candidates:
-            candidates.append(candidate)
+            candidates.append((candidate, None))
             return True
         index = candidates.index(candidate)
         if index == 0:
@@ -498,8 +506,10 @@ class Context:
         # and CANDIDATE is the current candidate selected (if any).
         self.__kana_kan_state = None
 
-        self.conv_state = CONV_STATE_NONE
+        self.__conv_state = CONV_STATE_NONE
         self.clear_candidates()
+
+    conv_state = property(lambda self: self.__conv_state)
 
     def __hiragana_to_katakana(self, kana):
         diff = ord(u'ア') - ord(u'あ')
@@ -558,7 +568,7 @@ class Context:
             self.reset()
             return u''
 
-        if self.conv_state == CONV_STATE_NONE:
+        if self.__conv_state == CONV_STATE_NONE:
             input_mode = \
                 INPUT_MODE_TRANSITION_RULE.get(key, dict()).get(self.input_mode)
             if input_mode is not None:
@@ -572,16 +582,16 @@ class Context:
                 return WIDE_LATIN_TABLE[ord(letter)]
 
             if is_shift:
-                self.conv_state = CONV_STATE_START
+                self.__conv_state = CONV_STATE_START
 
             self.__rom_kana_state = \
                 self.__convert_rom_kana(keyval, self.__rom_kana_state)
-            if self.conv_state == CONV_STATE_NONE and \
+            if self.__conv_state == CONV_STATE_NONE and \
                     len(self.__rom_kana_state[1]) == 0:
                 return self.kakutei()
             return u''
 
-        elif self.conv_state == CONV_STATE_START:
+        elif self.__conv_state == CONV_STATE_START:
             input_mode = \
                 INPUT_MODE_TRANSITION_RULE.get(key, dict()).get(self.input_mode)
             if self.input_mode == INPUT_MODE_HIRAGANA and \
@@ -603,7 +613,7 @@ class Context:
 
             # Start okuri-nasi conversion.
             if letter.isspace():
-                self.conv_state = CONV_STATE_SELECT
+                self.__conv_state = CONV_STATE_SELECT
                 self.__rom_kana_state = self.__convert_nn(self.__rom_kana_state)
                 self.__kana_kan_state = (self.__rom_kana_state[0], None)
                 candidates = \
@@ -627,7 +637,7 @@ class Context:
 
                 # Start okuri-ari conversion.
                 if len(self.__okuri_rom_kana_state[1]) == 0:
-                    self.conv_state = CONV_STATE_SELECT
+                    self.__conv_state = CONV_STATE_SELECT
                     self.__kana_kan_state = \
                         (self.__rom_kana_state[0] + okuri, None)
                     candidates = \
@@ -642,7 +652,7 @@ class Context:
                 self.__convert_rom_kana(keyval, self.__rom_kana_state)
             return u''
 
-        elif self.conv_state == CONV_STATE_SELECT:
+        elif self.__conv_state == CONV_STATE_SELECT:
             if letter.isspace():
                 self.next_candidate()
             elif key == 'x':
@@ -693,11 +703,11 @@ class Context:
         self.__kana_kan_state = (self.__kana_kan_state[0], candidate)
 
     def preedit(self):
-        if self.conv_state == CONV_STATE_NONE:
+        if self.__conv_state == CONV_STATE_NONE:
             if self.__rom_kana_state:
                 return self.__rom_kana_state[1]
             return u''
-        elif self.conv_state == CONV_STATE_START:
+        elif self.__conv_state == CONV_STATE_START:
             if self.__okuri_rom_kana_state:
                 return u'▽' + self.__rom_kana_state[0] + u'*' + \
                     self.__okuri_rom_kana_state[0] + \
