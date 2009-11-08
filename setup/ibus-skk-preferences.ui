@@ -43,13 +43,13 @@
                                 <child>
                                   <object class="GtkLabel" id="label5">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">System Dictionary</property>
+                                    <property name="label" translatable="yes">User Dictionary</property>
                                   </object>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="label10">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">User Dictionary</property>
+                                    <property name="label" translatable="yes">System Dictionary</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">1</property>
@@ -57,7 +57,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkFileChooserButton" id="sysdict">
+                                  <object class="GtkFileChooserButton" id="usrdict">
                                     <property name="visible">True</property>
                                     <property name="create_folders">False</property>
                                   </object>
@@ -67,7 +67,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkFileChooserButton" id="usrdict">
+                                  <object class="GtkFileChooserButton" id="sysdict">
                                     <property name="visible">True</property>
                                     <property name="create_folders">False</property>
                                   </object>

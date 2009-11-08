@@ -25,8 +25,11 @@ import pango
 import ibus
 from ibus import keysyms
 from ibus import modifier
-import os, os.path
+import sys, os, os.path
 import skk
+
+sys.path.insert(0, os.path.join(os.getenv('IBUS_SKK_PKGDATADIR'), 'setup'))
+import config
 
 from gettext import dgettext
 _  = lambda a : dgettext("ibus-skk", a)
@@ -59,13 +62,16 @@ class CandidateSelector(skk.CandidateSelectorBase):
         return self.__candidate
 
 class Engine(ibus.EngineBase):
+    __config = None
     __setup_pid = 0
 
     def __init__(self, bus, object_path):
         super(Engine, self).__init__(bus, object_path)
         self.__is_invalidate = False
         self.__lookup_table = ibus.LookupTable(round=True)
-        self.__skk = skk.Context()
+        self.__skk = skk.Context(skk.UsrDict(self.__config.usrdict_path),
+                                 skk.SysDict(self.__config.sysdict_path))
+        self.__skk.kutouten_type = self.__config.get_value('period_style', 0)
         self.__skk.set_candidate_selector(CandidateSelector(self))
         self.__prop_dict = dict()
         self.__prop_list = self.__init_props()
@@ -293,8 +299,10 @@ class Engine(ibus.EngineBase):
 
     @classmethod
     def CONFIG_RELOADED(cls, bus):
-        print 'RELOADED'
+        if not cls.__config:
+            cls.__config = config.Config(bus)
 
     @classmethod
     def CONFIG_VALUE_CHANGED(cls, bus, section, name, value):
-        print 'VALUE_CHAMGED =', section, name, value
+        if section == 'engine/SKK':
+            cls.__config.set_value(name, value)

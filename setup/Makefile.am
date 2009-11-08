@@ -21,6 +21,7 @@
 
 setup_skk_PYTHON = \
 	main.py \
+	config.py \
 	ibus-skk-preferences.ui \
 	$(NULL)
 
