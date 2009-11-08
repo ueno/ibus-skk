@@ -1,4 +1,5 @@
-./python-config.py
-./engine/main.py
-./engine/engine.py
-./engine/factory.py
+python-config.py
+engine/main.py
+engine/engine.py
+engine/factory.py
+[type: gettext/glade]setup/ibus-skk-preferences.ui

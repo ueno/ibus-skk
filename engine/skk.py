@@ -354,6 +354,8 @@ class SysDict(DictBase):
         self.__encoding = encoding
         self.load()
 
+    path = property(lambda self: self.__path)
+
     def load(self):
         self.__okuri_ari = list()
         self.__okuri_nasi = list()
@@ -410,6 +412,8 @@ class UsrDict(DictBase):
         self.__path = os.path.expanduser(filename)
         self.__encoding = encoding
         self.load()
+
+    path = property(lambda self: self.__path)
 
     def load(self):
         self.__dict = dict()

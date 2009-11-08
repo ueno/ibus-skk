@@ -25,6 +25,7 @@ import pango
 import ibus
 from ibus import keysyms
 from ibus import modifier
+import os, os.path
 import skk
 
 from gettext import dgettext
@@ -58,6 +59,8 @@ class CandidateSelector(skk.CandidateSelectorBase):
         return self.__candidate
 
 class Engine(ibus.EngineBase):
+    __setup_pid = 0
+
     def __init__(self, bus, object_path):
         super(Engine, self).__init__(bus, object_path)
         self.__is_invalidate = False
@@ -106,6 +109,10 @@ class Engine(ibus.EngineBase):
 
         input_mode_prop.set_sub_props(props)
         skk_props.append(input_mode_prop)
+
+        skk_props.append(ibus.Property(key=u"setup",
+                                         icon=u"ibus-setup",
+                                         tooltip=_(u"Configure SKK")))
 
         return skk_props
 
@@ -258,6 +265,15 @@ class Engine(ibus.EngineBase):
         for candidate in candidates:
             self.__lookup_table.append_candidate(ibus.Text(candidate))
 
+    def __start_setup(self):
+        if Engine.__setup_pid != 0:
+            pid, state = os.waitpid(Engine.__setup_pid, os.P_NOWAIT)
+            if pid != Engine.__setup_pid:
+                return
+            Engine.__setup_pid = 0
+        setup_cmd = os.path.join(os.getenv('LIBEXECDIR'), 'ibus-setup-skk')
+        Engine.__setup_pid = os.spawnl(os.P_NOWAIT, setup_cmd, 'ibus-setup-skk')
+
     def focus_in(self):
         self.register_properties(self.__prop_list)
 
@@ -271,3 +287,14 @@ class Engine(ibus.EngineBase):
         # print "PropertyActivate(%s, %d)" % (prop_name, state)
         if state == ibus.PROP_STATE_CHECKED:
             self.__input_mode_activate(prop_name, state)
+        else:
+            if prop_name == 'setup':
+                self.__start_setup()
+
+    @classmethod
+    def CONFIG_RELOADED(cls, bus):
+        print 'RELOADED'
+
+    @classmethod
+    def CONFIG_VALUE_CHANGED(cls, bus, section, name, value):
+        print 'VALUE_CHAMGED =', section, name, value

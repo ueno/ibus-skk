@@ -21,6 +21,7 @@
 
 SUBDIRS = \
 	engine \
+	setup \
 	icons \
 	m4 \
 	po \

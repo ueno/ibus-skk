@@ -39,7 +39,7 @@ class EngineFactory(ibus.EngineFactoryBase):
 
     def __init__(self, bus):
         self.__bus = bus
-        # engine.Engine.CONFIG_RELOADED(bus)
+        engine.Engine.CONFIG_RELOADED(bus)
         super(EngineFactory, self).__init__(bus)
 
         self.__id = 0
@@ -56,10 +56,8 @@ class EngineFactory(ibus.EngineFactoryBase):
         return super(EngineFactory, self).create_engine(engine_name)
 
     def __config_reloaded_cb(self, config):
-        pass
-    # engine.Engine.CONFIG_RELOADED(self.__bus)
+        engine.Engine.CONFIG_RELOADED(self.__bus)
 
     def __config_value_changed_cb(self, config, section, name, value):
-        pass
-    # engine.Engine.CONFIG_VALUE_CHANGED(self.__bus, section, name, value)
+        engine.Engine.CONFIG_VALUE_CHANGED(self.__bus, section, name, value)
 
