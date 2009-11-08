@@ -42,10 +42,11 @@ AM_SANITY_CHECK
 AM_MAINTAINER_MODE
 AM_DISABLE_STATIC
 AC_PROG_CC
-AM_PROG_CC_C_O
 AC_PROG_CXX
+AM_PROG_CC_C_O
 AC_ISC_POSIX
 AC_HEADER_STDC
+IT_PROG_INTLTOOL([0.35.0])
 AM_PROG_LIBTOOL
 
 # For dislpay Date
@@ -77,13 +78,10 @@ AC_SUBST(PYTHON_CFLAGS)
 AC_SUBST(PYTHON_LIBS)
 
 # define GETTEXT_* variables
-GETTEXT_PACKAGE=ibus-anthy
+GETTEXT_PACKAGE=ibus-skk
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Define to the read-only architecture-independent data directory.])
-
-AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION(0.16.1)
-
+AM_GLIB_GNU_GETTEXT
 
 # OUTPUT files
 AC_CONFIG_FILES([ po/Makefile.in
@@ -91,6 +89,8 @@ Makefile
 engine/Makefile
 engine/ibus-engine-skk
 engine/skk.xml.in
+setup/Makefile
+setup/ibus-setup-skk
 icons/Makefile
 m4/Makefile
 ])
