@@ -200,16 +200,6 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkLabel" id="label9">
-                            <property name="visible">True</property>
-                            <property name="label">&lt;small&gt;Copyright &amp;#xA9; 2009 Daiki Ueno &amp;lt;ueno@unixuser.org&amp;gt;&lt;/small&gt;</property>
-                            <property name="use_markup">True</property>
-                          </object>
-                          <packing>
-                            <property name="position">3</property>
-                          </packing>
-                        </child>
-                        <child>
                           <object class="GtkLinkButton" id="linkbutton1">
                             <property name="label">http://github.com/ueno/ibus-skk</property>
                             <property name="visible">True</property>
@@ -220,7 +210,7 @@
                             <property name="uri">http://glade.gnome.org</property>
                           </object>
                           <packing>
-                            <property name="position">4</property>
+                            <property name="position">3</property>
                           </packing>
                         </child>
                       </object>
