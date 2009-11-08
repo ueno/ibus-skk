@@ -353,10 +353,11 @@ class SysDict(DictBase):
         self.__path = path
         self.__mtime = os.path.getmtime(self.__path)
         self.__encoding = encoding
-        self.load(self.__path)
+        self.load()
 
-    def load(self, path):
-        if path == self.__path and os.path.getmtime(path) <= self.__mtime:
+    def load(self, path=None):
+        if path is not None and \
+                path == self.__path and os.path.getmtime(path) <= self.__mtime:
             return
             
         self.__okuri_ari = list()
@@ -412,12 +413,11 @@ class UsrDict(DictBase):
     def __init__(self, path='~/.skk-ibus-jisyo',
                  encoding=DictBase.ENCODING):
         self.__path = os.path.expanduser(path)
-        self.__mtime = os.path.getmtime(self.__path)
         self.__encoding = encoding
-        self.load(self.__path)
+        self.load()
 
-    def load(self, path):
-        if path == self.__path and os.path.getmtime(path) <= self.__mtime:
+    def load(self, path=None):
+        if path is not None and path == self.__path:
             return
 
         self.__dict = dict()
