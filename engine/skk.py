@@ -350,54 +350,59 @@ class DictBase(object):
 class SysDict(DictBase):
     def __init__(self, filename='/usr/share/skk/SKK-JISYO.L',
                  encoding=DictBase.ENCODING):
-        self.__fp = open(filename, 'r')
+        self.__path = filename
         self.__encoding = encoding
+        self.load()
+
+    def load(self):
         self.__okuri_ari = list()
         self.__okuri_nasi = list()
+        with open(self.__path, 'r') as fp:
+            # Skip headers.
+            while True:
+                pos = fp.tell()
+                line = fp.readline()
+                if not line or not line.startswith(';'):
+                    break
 
-        # Skip headers.
-        while True:
-            pos = self.__fp.tell()
-            line = self.__fp.readline()
-            if not line or not line.startswith(';'):
-                break
-
-        offsets = self.__okuri_ari
-        offsets.append(pos)
-        while True:
-            pos = self.__fp.tell()
-            line = self.__fp.readline()
-            if not line:
-                break
-            # A comment line seperating okuri-ari/okuri-nasi entries.
-            if line.startswith(';'):
-                offsets = self.__okuri_nasi
-            else:
-                offsets.append(pos)
-        self.__okuri_ari.reverse()
+            offsets = self.__okuri_ari
+            offsets.append(pos)
+            while True:
+                pos = fp.tell()
+                line = fp.readline()
+                if not line:
+                    break
+                # A comment line seperating okuri-ari/okuri-nasi entries.
+                if line.startswith(';'):
+                    offsets = self.__okuri_nasi
+                else:
+                    offsets.append(pos)
+            self.__okuri_ari.reverse()
 
     def lookup(self, midasi, okuri=False):
         if okuri:
             offsets = self.__okuri_ari
         else:
             offsets = self.__okuri_nasi
-        self.__fp.seek(0)
-        begin, end = 0, len(offsets) - 1
-        pos = begin + (end - begin) / 2
-        midasi = midasi.encode(self.__encoding)
-        while begin <= end:
-            self.__fp.seek(offsets[pos])
-            line = self.__fp.next()
-            _midasi, candidates = line.split(' ', 1)
-            r = cmp(midasi, _midasi)
-            if r == 0:
-                return self.split_candidates(candidates.decode(self.__encoding))
-            elif r < 0:
-                end = pos - 1
-            else:
-                begin = pos + 1
+        with open(self.__path, 'r') as fp:
+            fp.seek(0)
+            begin, end = 0, len(offsets) - 1
             pos = begin + (end - begin) / 2
-        return list()
+            midasi = midasi.encode(self.__encoding)
+            while begin <= end:
+                fp.seek(offsets[pos])
+                line = fp.next()
+                _midasi, candidates = line.split(' ', 1)
+                r = cmp(midasi, _midasi)
+                if r == 0:
+                    candidates = candidates.decode(self.__encoding)
+                    return self.split_candidates(candidates)
+                elif r < 0:
+                    end = pos - 1
+                else:
+                    begin = pos + 1
+                pos = begin + (end - begin) / 2
+            return list()
 
 class UsrDict(DictBase):
     def __init__(self, filename='~/.skk-ibus-jisyo',
