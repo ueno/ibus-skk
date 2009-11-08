@@ -348,15 +348,17 @@ class DictBase(object):
         return u'/'.join(map(append_annotation, candidates))
 
 class SysDict(DictBase):
-    def __init__(self, filename='/usr/share/skk/SKK-JISYO.L',
+    def __init__(self, path='/usr/share/skk/SKK-JISYO.L',
                  encoding=DictBase.ENCODING):
-        self.__path = filename
+        self.__path = path
+        self.__mtime = os.path.getmtime(self.__path)
         self.__encoding = encoding
-        self.load()
+        self.load(self.__path)
 
-    path = property(lambda self: self.__path)
-
-    def load(self):
+    def load(self, path):
+        if path == self.__path and os.path.getmtime(path) <= self.__mtime:
+            return
+            
         self.__okuri_ari = list()
         self.__okuri_nasi = list()
         with open(self.__path, 'r') as fp:
@@ -407,15 +409,17 @@ class SysDict(DictBase):
             return list()
 
 class UsrDict(DictBase):
-    def __init__(self, filename='~/.skk-ibus-jisyo',
+    def __init__(self, path='~/.skk-ibus-jisyo',
                  encoding=DictBase.ENCODING):
-        self.__path = os.path.expanduser(filename)
+        self.__path = os.path.expanduser(path)
+        self.__mtime = os.path.getmtime(self.__path)
         self.__encoding = encoding
-        self.load()
+        self.load(self.__path)
 
-    path = property(lambda self: self.__path)
+    def load(self, path):
+        if path == self.__path and os.path.getmtime(path) <= self.__mtime:
+            return
 
-    def load(self):
         self.__dict = dict()
         with open(self.__path, 'a+') as fp:
             for line in fp:
@@ -502,8 +506,8 @@ class Context:
         #
         # (OUTPUT, PENDING, TREE)
         #
-        # where OUTPUT is a kana string, PENDING is a string is
-        # in rom-kana conversion, and TREE is a subtree of
+        # where OUTPUT is a kana string, PENDING is a string in
+        # rom-kana conversion, and TREE is a subtree of
         # __ROM_KANA_RULE_TREE.
         #
         # See __convert_rom_kana for the state transition algorithm.
@@ -748,6 +752,10 @@ class Context:
         return usr_candidates + \
             [candidate for candidate in sys_candidates
              if candidate not in usr_candidates]
+
+    def reload_dictionaries(self, usrdict_path, sysdict_path):
+        self.__usrdict.load(usrdict_path)
+        self.__sysdict.load(sysdict_path)
 
     def save_usrdict(self):
         self.__usrdict.save()

@@ -264,6 +264,14 @@ class Engine(ibus.EngineBase):
         self.update_lookup_table(self.__lookup_table, visible)
         self.__input_mode_activate(self.__input_modes[self.__skk.input_mode],
                                    ibus.PROP_STATE_CHECKED)
+
+        # Apply config value changes.
+        if self.__skk.conv_state is not skk.CONV_STATE_SELECT:
+            self.__skk.reload_dictionaries(self.__config.usrdict_path,
+                                           self.__config.sysdict_path)
+            self.__skk.kutouten_type = \
+                self.__config.get_value('period_style', 0)
+
         self.__is_invalidate = False
 
     def fill_lookup_table(self, candidates):
