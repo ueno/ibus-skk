@@ -33,4 +33,7 @@ missing
 stamp-h1
 py-compile
 ibus-skk*.tar.*
-
+intltool-extract.in
+intltool-merge.in
+intltool-update.in
+mkinstalldirs
