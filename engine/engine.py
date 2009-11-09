@@ -69,8 +69,8 @@ class Engine(ibus.EngineBase):
         super(Engine, self).__init__(bus, object_path)
         self.__is_invalidate = False
         self.__lookup_table = ibus.LookupTable(round=True)
-        self.__skk = skk.Context(skk.UsrDict(self.__config.usrdict_path),
-                                 skk.SysDict(self.__config.sysdict_path))
+        self.__skk = skk.Context(self.__config.usrdict_path,
+                                 self.__config.sysdict_path)
         self.__skk.kutouten_type = self.__config.get_value('period_style', 0)
         self.__skk.set_candidate_selector(CandidateSelector(self))
         self.__prop_dict = dict()

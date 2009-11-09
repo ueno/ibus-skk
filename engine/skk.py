@@ -516,9 +516,15 @@ class CandidateSelectorBase(object):
             return self.__candidates[self.__candidate_index]
 
 class Context:
-    def __init__(self, usrdict=UsrDict(), sysdict=SysDict()):
-        self.__usrdict = usrdict
-        self.__sysdict = sysdict
+    def __init__(self, usrdict_path=UsrDict.PATH, sysdict_path=SysDict.PATH):
+        self.__usrdict = UsrDict(usrdict_path)
+        if os.path.isabs(sysdict_path):
+            self.__sysdict = SysDict(sysdict_path)
+        elif isinstance(sysdict_path, tuple):
+            self.__sysdict = SkkServ(sysdict_path)
+        else:
+            self.__sysdict = SysDict()
+
         self.__rom_kana_rule_tree = compile_rom_kana_rule(ROM_KANA_RULE)
         self.set_candidate_selector(CandidateSelectorBase())
         self.reset()
