@@ -887,6 +887,8 @@ class Context:
                         return u'▼' + candidate[0]
                 return u'▼' + self.__rom_kana_state[0]
 
+    preedit = property(lambda self: self.__preedit())
+
     def __convert_nn(self, state):
         output, pending, tree = state
         if pending.endswith(u'n'):
@@ -926,5 +928,3 @@ class Context:
             for next_letter in next_pending:
                 next_state = self.__convert_rom_kana(next_letter, next_state)
         return next_state
-
-    preedit = property(lambda self: self.__preedit())
