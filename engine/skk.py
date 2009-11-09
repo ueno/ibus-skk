@@ -563,12 +563,10 @@ class Context:
         dictionaries.  SYSDICT_PATH can be a tuple (HOST, PORT).  In
         that case, skkserv will be used.'''
         self.__usrdict = UsrDict(usrdict_path)
-        if os.path.isabs(sysdict_path):
-            self.__sysdict = SysDict(sysdict_path)
-        elif isinstance(sysdict_path, tuple):
+        if isinstance(sysdict_path, tuple):
             self.__sysdict = SkkServ(sysdict_path)
         else:
-            self.__sysdict = SysDict()
+            self.__sysdict = SysDict(sysdict_path)
 
         self.__rom_kana_rule_tree = compile_rom_kana_rule(ROM_KANA_RULE)
         self.set_candidate_selector(CandidateSelectorBase())
