@@ -22,6 +22,7 @@
 
 from __future__ import with_statement
 import os.path
+import socket
 
 # Converted from skk-rom-kana-base-rule in skk-vars.el.
 ROM_KANA_RULE = {
@@ -486,8 +487,8 @@ class SkkServ(DictBase):
     BUFSIZ = 4096
 
     def __init__(self, address=ADDRESS, encoding=DictBase.ENCODING):
-        self.load(address, encoding)
         self.__socket = None
+        self.load(address, encoding)
 
     def load(self, address=ADDRESS, encoding=DictBase.ENCODING):
         if self.__socket is not None and \
@@ -503,7 +504,7 @@ class SkkServ(DictBase):
                 self.__socket.connect(self.__address)
                 # Request server version.
                 self.__socket.send('2')
-                assert(len(self.__socket.recv(BUFSIZ)) > 0)
+                assert(len(self.__socket.recv(self.BUFSIZ)) > 0)
             except socket.error, AssertionError:
                 if self.__socket:
                     self.__socket.close()
@@ -514,7 +515,7 @@ class SkkServ(DictBase):
             return list()
         try:
             self.__socket.send('1' + midasi.encode(self.__encoding) + ' ')
-            candidates = self.__socket.recv(BUFSIZ)
+            candidates = self.__socket.recv(self.BUFSIZ)
             if len(candidates) == 0 or candidates[0] != '1':
                 return list()
             return self.split_candidates(candidates.decode(self.__encoding)[1:])
