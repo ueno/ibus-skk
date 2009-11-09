@@ -599,7 +599,7 @@ class Context:
         self.activate_input_mode(input_mode)
         return output
 
-    def append(self, key):
+    def press_key(self, key):
         keyval = key
         is_ctrl = keyval.startswith('ctrl+')
         if is_ctrl:
@@ -734,7 +734,7 @@ class Context:
             elif key == 'ctrl+j' or key == 'return':
                 return self.kakutei()
             else:
-                return self.kakutei() + self.append(key)
+                return self.kakutei() + self.press_key(key)
             return u''
 
     def __delete_char_from_rom_kana_state(self, state):
@@ -789,8 +789,8 @@ class Context:
 
     def possibly_save_usrdict(self):
         self.__usrdict.save()
-        
-    def preedit(self):
+
+    def __preedit(self):
         if self.__conv_state == CONV_STATE_NONE:
             if self.__rom_kana_state:
                 return self.__rom_kana_state[1]
@@ -858,3 +858,4 @@ class Context:
             for next_letter in next_pending:
                 next_state = self.__convert_rom_kana(next_letter, next_state)
         return next_state
+    preedit = property(lambda self: self.__preedit())

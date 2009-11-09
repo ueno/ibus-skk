@@ -205,7 +205,7 @@ class Engine(ibus.EngineBase):
                 keychr = u'shift+' + keychr
             if state & modifier.CONTROL_MASK: 
                 keychr = u'ctrl+' + keychr
-            output = self.__skk.append(keychr)
+            output = self.__skk.press_key(keychr)
             if output:
                 self.__commit_string(output)
             self.__update()
@@ -256,7 +256,7 @@ class Engine(ibus.EngineBase):
         self.__skk.kutouten_type = self.__config.get_value('period_style', 0)
 
     def __update(self):
-        preedit = self.__skk.preedit()
+        preedit = self.__skk.preedit
         attrs = ibus.AttrList()
         # self.update_auxiliary_text(ibus.Text(self.__skk.auxiliary_string,
         #                                      attrs),
