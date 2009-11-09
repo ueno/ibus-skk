@@ -481,6 +481,46 @@ class UsrDict(DictBase):
         elements.insert(0, candidate)
         self.__dict_changed = True
 
+class SkkServ(DictBase):
+    ADDRESS=('localhost', 1178)
+    BUFSIZ = 4096
+
+    def __init__(self, address=ADDRESS, encoding=DictBase.ENCODING):
+        self.load(address, encoding)
+        self.__socket = None
+
+    def load(self, address=ADDRESS, encoding=DictBase.ENCODING):
+        if self.__socket is not None and \
+                hasattr(self, '_SkkServ__address') and \
+                address == self.__address:
+            return
+
+        self.__address = address
+        self.__encoding = encoding
+        if self.__socket is None:
+            try:
+                self.__socket = socket.socket()
+                self.__socket.connect(self.__address)
+                # Request server version.
+                self.__socket.send('2')
+                assert(len(self.__socket.recv(BUFSIZ)) > 0)
+            except socket.error, AssertionError:
+                if self.__socket:
+                    self.__socket.close()
+                    self.__socket = None
+
+    def lookup(self, midasi, okuri=False):
+        if self.__socket is None:
+            return list()
+        try:
+            self.__socket.send('1' + midasi.encode(self.__encoding) + ' ')
+            candidates = self.__socket.recv(BUFSIZ)
+            if len(candidates) == 0 or candidates[0] != '1':
+                return list()
+            return self.split_candidates(candidates.decode(self.__encoding)[1:])
+        except socket.error:
+            return list()
+        
 def compile_rom_kana_rule(rule):
     def _compile_rom_kana_rule(tree, input_state, arg):
         hd, tl = input_state[0], input_state[1:]
@@ -520,7 +560,8 @@ class Context:
         '''Create an SKK context.
 
         USRDICT_PATH and SYSDICT_PATH are the location of the SKK
-        dictionaries.'''
+        dictionaries.  SYSDICT_PATH can be a tuple (HOST, PORT).  In
+        that case, skkserv will be used.'''
         self.__usrdict = UsrDict(usrdict_path)
         if os.path.isabs(sysdict_path):
             self.__sysdict = SysDict(sysdict_path)
