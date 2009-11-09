@@ -840,7 +840,17 @@ class Context:
         '''Trigger a reload of dictionaries if the new settings are
         different from the current settings.'''
         self.__usrdict.load(usrdict_path)
-        self.__sysdict.load(sysdict_path)
+
+        # sysdict type changed.
+        if isinstance(sysdict_path, tuple) and \
+                not isinstance(self.__sysdict, SkkServ):
+            self.__sysdict = SkkServ(sysdict_path)
+        elif isinstance(sysdict_path, str) and \
+                not isinstance(self.__sysdict, SysDict):
+            self.__sysdict = SysDict(sysdict_path)
+        # sysdict path changed.
+        else:
+            self.__sysdict.load(sysdict_path)
 
     def possibly_save_usrdict(self):
         '''Save the user dictionary if it has changed.'''
