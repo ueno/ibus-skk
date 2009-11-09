@@ -354,7 +354,11 @@ class SysDict(DictBase):
         self.load(path, encoding)
 
     def load(self, path=PATH, encoding=DictBase.ENCODING):
-        mtime = os.path.getmtime(path)
+        try:
+            mtime = os.path.getmtime(path)
+        except OSError:
+            mtime = 0
+
         if hasattr(self, '_SysDict__path') and \
                 path == self.__path and mtime <= self.__mtime and \
                 encoding == self.__encoding:
@@ -365,6 +369,13 @@ class SysDict(DictBase):
         self.__encoding = encoding
         self.__okuri_ari = list()
         self.__okuri_nasi = list()
+
+        try:
+            self.__load()
+        except IOError:
+            pass
+
+    def __load(self):
         with open(self.__path, 'r') as fp:
             # Skip headers.
             while True:
@@ -387,11 +398,7 @@ class SysDict(DictBase):
                     offsets.append(pos)
             self.__okuri_ari.reverse()
 
-    def lookup(self, midasi, okuri=False):
-        if okuri:
-            offsets = self.__okuri_ari
-        else:
-            offsets = self.__okuri_nasi
+    def __lookup(self, midasi, offsets):
         with open(self.__path, 'r') as fp:
             fp.seek(0)
             begin, end = 0, len(offsets) - 1
@@ -410,6 +417,18 @@ class SysDict(DictBase):
                 else:
                     begin = pos + 1
                 pos = begin + (end - begin) / 2
+            return list()
+
+    def lookup(self, midasi, okuri=False):
+        if okuri:
+            offsets = self.__okuri_ari
+        else:
+            offsets = self.__okuri_nasi
+        if len(offsets) == 0:
+            self.load(self.__path, self.__encoding)
+        try:
+            return self.__lookup(midasi, offsets)
+        except IOError:
             return list()
 
 class UsrDict(DictBase):
