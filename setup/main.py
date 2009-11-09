@@ -34,6 +34,7 @@ class PreferencesDialog:
         else:
             self.__sysdict_file.set_active(False)
             self.__sysdict_skkserv.set_active(True)
+        self.__set_sysdict_widgets_sensitivity(sysdict_type)
         self.__sysdict.set_filename(self.__config.sysdict_path)
         self.__skkserv_host.set_text(\
             self.__config.get_value('skkserv_host', 'localhost'))
@@ -53,13 +54,16 @@ class PreferencesDialog:
         self.__period_style.connect('changed', self.__period_style_changed_cb)
 
     def __sysdict_toggle_cb(self, widget):
-        if self.__sysdict_file.get_active():
-            self.__config.set_value('sysdict_type', 'file')
+        sysdict_type = 'file' if self.__sysdict_file.get_active() else 'skkserv'
+        self.__config.set_value('sysdict_type', sysdict_type)
+        self.__set_sysdict_widgets_sensitivity(sysdict_type)
+
+    def __set_sysdict_widgets_sensitivity(self, sysdict_type):
+        if sysdict_type == 'file':
             self.__sysdict.set_sensitive(True)
             self.__skkserv_host.set_sensitive(False)
             self.__skkserv_port.set_sensitive(False)
         else:
-            self.__config.set_value('sysdict_type', 'skkserv')
             self.__sysdict.set_sensitive(False)
             self.__skkserv_host.set_sensitive(True)
             self.__skkserv_port.set_sensitive(True)
