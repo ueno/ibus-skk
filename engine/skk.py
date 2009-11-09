@@ -650,7 +650,6 @@ class Context:
         '''Process a key press event KEY to the context and return a
         committable string (if any).
         KEY is in the format of ["ctrl+"]["shift+"]<lower case ASCII letter>.'''
-        print self.__sysdict
         keyval = key
         is_ctrl = keyval.startswith('ctrl+')
         if is_ctrl:
