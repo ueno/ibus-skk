@@ -1,0 +1,3 @@
+- make existing tests side-effect free
+- add more tests
+- add support for CDB dictionaries (though python-cdb was removed from Debian)
