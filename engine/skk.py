@@ -355,7 +355,7 @@ class SysDict(DictBase):
 
     def load(self, path=PATH, encoding=DictBase.ENCODING):
         mtime = os.path.getmtime(path)
-        if hasattr(self, '__path') and \
+        if hasattr(self, '_SysDict__path') and \
                 path == self.__path and mtime <= self.__mtime and \
                 encoding == self.__encoding:
             return
@@ -419,7 +419,7 @@ class UsrDict(DictBase):
         self.load(os.path.expanduser(path), encoding)
 
     def load(self, path=PATH, encoding=DictBase.ENCODING):
-        if hasattr(self, '__path') and \
+        if hasattr(self, '_UsrDict__path') and \
                 path == self.__path and encoding == self.__encoding:
             return
 
@@ -758,11 +758,11 @@ class Context:
             [candidate for candidate in sys_candidates
              if candidate not in usr_candidates]
 
-    def reload_dictionaries(self, usrdict_path, sysdict_path):
+    def possibly_reload_dictionaries(self, usrdict_path, sysdict_path):
         self.__usrdict.load(usrdict_path)
         self.__sysdict.load(sysdict_path)
 
-    def save_usrdict(self):
+    def possibly_save_usrdict(self):
         self.__usrdict.save()
         
     def preedit(self):

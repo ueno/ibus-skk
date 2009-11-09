@@ -161,7 +161,7 @@ class Engine(ibus.EngineBase):
                     (keyval in (keysyms.j, keysyms.J) and \
                          state & modifier.CONTROL_MASK != 0):
                 self.__commit_string(self.__skk.kakutei())
-                gobject.idle_add(self.__skk.save_usrdict,
+                gobject.idle_add(self.__skk.possibly_save_usrdict,
                                  priority = gobject.PRIORITY_LOW)
                 self.__lookup_table.clean()
                 self.__update()
@@ -250,6 +250,11 @@ class Engine(ibus.EngineBase):
         self.commit_text(ibus.Text(text))
         self.__update()
 
+    def __possibly_update_config(self):
+        self.__skk.possibly_reload_dictionaries(\
+            self.__config.usrdict_path, self.__config.sysdict_path)
+        self.__skk.kutouten_type = self.__config.get_value('period_style', 0)
+
     def __update(self):
         preedit = self.__skk.preedit()
         attrs = ibus.AttrList()
@@ -265,12 +270,9 @@ class Engine(ibus.EngineBase):
         self.__input_mode_activate(self.__input_modes[self.__skk.input_mode],
                                    ibus.PROP_STATE_CHECKED)
 
-        # Apply config value changes.
         if self.__skk.conv_state is not skk.CONV_STATE_SELECT:
-            self.__skk.reload_dictionaries(self.__config.usrdict_path,
-                                           self.__config.sysdict_path)
-            self.__skk.kutouten_type = \
-                self.__config.get_value('period_style', 0)
+            gobject.idle_add(self.__possibly_update_config,
+                             priority = gobject.PRIORITY_LOW)
 
         self.__is_invalidate = False
 
