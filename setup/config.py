@@ -29,7 +29,7 @@ class Config:
         value = self.__config.get_value('engine/SKK', name, None)
         if value is not None:
             return value
-        self.__set_value(name, defval)
+        self.set_value(name, defval)
         return defval
 
     def set_value(self, name, val):
