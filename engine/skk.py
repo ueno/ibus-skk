@@ -348,18 +348,21 @@ class DictBase(object):
         return u'/'.join(map(append_annotation, candidates))
 
 class SysDict(DictBase):
-    def __init__(self, path='/usr/share/skk/SKK-JISYO.L',
-                 encoding=DictBase.ENCODING):
-        self.__path = path
-        self.__mtime = os.path.getmtime(self.__path)
-        self.__encoding = encoding
-        self.load()
+    PATH = '/usr/share/skk/SKK-JISYO.L'
 
-    def load(self, path=None):
-        if path is not None and \
-                path == self.__path and os.path.getmtime(path) <= self.__mtime:
+    def __init__(self, path=PATH, encoding=DictBase.ENCODING):
+        self.load(path, encoding)
+
+    def load(self, path=PATH, encoding=DictBase.ENCODING):
+        mtime = os.path.getmtime(path)
+        if hasattr(self, '__path') and \
+                path == self.__path and mtime <= self.__mtime and \
+                encoding == self.__encoding:
             return
-            
+
+        self.__path = path
+        self.__mtime = mtime
+        self.__encoding = encoding
         self.__okuri_ari = list()
         self.__okuri_nasi = list()
         with open(self.__path, 'r') as fp:
@@ -410,16 +413,18 @@ class SysDict(DictBase):
             return list()
 
 class UsrDict(DictBase):
-    def __init__(self, path='~/.skk-ibus-jisyo',
-                 encoding=DictBase.ENCODING):
-        self.__path = os.path.expanduser(path)
-        self.__encoding = encoding
-        self.load()
+    PATH = '~/.skk-ibus-jisyo'
 
-    def load(self, path=None):
-        if path is not None and path == self.__path:
+    def __init__(self, path=PATH, encoding=DictBase.ENCODING):
+        self.load(os.path.expanduser(path), encoding)
+
+    def load(self, path=PATH, encoding=DictBase.ENCODING):
+        if hasattr(self, '__path') and \
+                path == self.__path and encoding == self.__encoding:
             return
 
+        self.__path = path
+        self.__encoding = encoding
         self.__dict = dict()
         with open(self.__path, 'a+') as fp:
             for line in fp:
