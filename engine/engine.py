@@ -152,8 +152,10 @@ class Engine(ibus.EngineBase):
 
     def process_key_event(self, keyval, keycode, state):
         # ignore key release events
-        is_press = ((state & modifier.RELEASE_MASK) == 0)
-        if not is_press:
+        if state & modifier.RELEASE_MASK:
+            return False
+        # ignore alt+key events
+        if state & modifier.MOD1_MASK:
             return False
 
         if self.__skk.conv_state in (skk.CONV_STATE_START,
@@ -198,13 +200,17 @@ class Engine(ibus.EngineBase):
 
         if keyval in xrange(keysyms.a, keysyms.z + 1) or \
             keyval in xrange(keysyms.A, keysyms.Z + 1) or \
+            keyval in xrange(keysyms._0, keysyms._9 + 1) or \
             unichr(keyval) in u'!"#$%^\'()*+,-./:;<=>?@[\]^_`{|}~ ':
             keychr = unichr(keyval)
             if keychr.isalpha():
                 keychr = keychr.lower()
             if state & modifier.SHIFT_MASK:
                 keychr = u'shift+' + keychr
-            if state & modifier.CONTROL_MASK: 
+            if state & modifier.CONTROL_MASK:
+                # XXX: acceptable keys should be checked in press_key().
+                if keychr not in (u'j', u'g'):
+                    return False
                 keychr = u'ctrl+' + keychr
             output = self.__skk.press_key(keychr)
             if output:
