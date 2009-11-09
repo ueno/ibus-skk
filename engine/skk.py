@@ -517,6 +517,10 @@ class CandidateSelectorBase(object):
 
 class Context:
     def __init__(self, usrdict_path=UsrDict.PATH, sysdict_path=SysDict.PATH):
+        '''Create an SKK context.
+
+        USRDICT_PATH and SYSDICT_PATH are the location of the SKK
+        dictionaries.'''
         self.__usrdict = UsrDict(usrdict_path)
         if os.path.isabs(sysdict_path):
             self.__sysdict = SysDict(sysdict_path)
@@ -532,6 +536,7 @@ class Context:
         self.kutouten_type = KUTOUTEN_JP
 
     def reset(self):
+        '''Reset the internal state of the context.'''
         # rom-kana state is either None or a tuple
         #
         # (OUTPUT, PENDING, TREE)
@@ -577,11 +582,13 @@ class Context:
         return ''.join(map(to_hiragana, kana))
 
     def activate_input_mode(self, input_mode):
+        '''Switch the current input mode to INPUT_MODE.'''
         self.__input_mode = input_mode
         if self.__input_mode in (INPUT_MODE_HIRAGANA, INPUT_MODE_KATAKANA):
             self.__rom_kana_state = (u'', u'', self.__rom_kana_rule_tree)
 
     def kakutei(self):
+        '''Fix the current candidate as a commitable string.'''
         input_mode = self.__input_mode
         if self.__kana_kan_state:
             candidate = self.__kana_kan_state[1]
@@ -600,6 +607,8 @@ class Context:
         return output
 
     def press_key(self, key):
+        '''Process a key press event KEY to the context and return a
+        committable string (if any).'''
         keyval = key
         is_ctrl = keyval.startswith('ctrl+')
         if is_ctrl:
@@ -749,6 +758,7 @@ class Context:
             return (output[:-1], u'', tree)
 
     def delete_char(self):
+        '''Delete a character at the end of the buffer.'''
         if self.__okuri_rom_kana_state:
             state = self.__delete_char_from_rom_kana_state(\
                 self.__okuri_rom_kana_state)
@@ -764,17 +774,21 @@ class Context:
         return False
 
     def set_candidate_selector(self, candidate_selector):
+        '''Set candidate selector.'''
         self.__candidate_selector = candidate_selector
 
     def clear_candidates(self):
+        '''Clear the current candidates.'''
         self.__candidate_selector.set_candidates(list())
         self.__kana_kan_state = None
         
     def next_candidate(self):
+        '''Select the next candidate.'''
         candidate = self.__candidate_selector.next_candidate()
         self.__kana_kan_state = (self.__kana_kan_state[0], candidate)
             
     def previous_candidate(self):
+        '''Select the previous candidate.'''
         self.__candidate = self.__candidate_selector.previous_candidate()
         self.__kana_kan_state = (self.__kana_kan_state[0], candidate)
 
@@ -784,10 +798,13 @@ class Context:
              if candidate not in usr_candidates]
 
     def possibly_reload_dictionaries(self, usrdict_path, sysdict_path):
+        '''Trigger a reload of dictionaries if the new settings are
+        different from the current settings.'''
         self.__usrdict.load(usrdict_path)
         self.__sysdict.load(sysdict_path)
 
     def possibly_save_usrdict(self):
+        '''Save the user dictionary if it has changed.'''
         self.__usrdict.save()
 
     def __preedit(self):
@@ -858,4 +875,5 @@ class Context:
             for next_letter in next_pending:
                 next_state = self.__convert_rom_kana(next_letter, next_state)
         return next_state
+
     preedit = property(lambda self: self.__preedit())
