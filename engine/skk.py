@@ -647,9 +647,9 @@ class Context:
         return output
 
     def press_key(self, key):
-        '''Process a key press event KEY to the context and return a
-        committable string (if any).
-        KEY is in the format of ["ctrl+"]["shift+"]<lower case ASCII letter>.'''
+        '''Process a key press event KEY and return a committable
+        string (if any).  KEY is in the format of
+        ["ctrl+"]["shift+"]<lower case ASCII letter>.'''
         keyval = key
         is_ctrl = keyval.startswith('ctrl+')
         if is_ctrl:
