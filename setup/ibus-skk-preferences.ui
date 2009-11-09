@@ -27,43 +27,32 @@
                     <property name="visible">True</property>
                     <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkFrame" id="frame1">
+                      <object class="GtkFrame" id="frame3">
                         <property name="visible">True</property>
                         <property name="label_xalign">0</property>
                         <property name="shadow_type">none</property>
                         <child>
-                          <object class="GtkAlignment" id="alignment3">
+                          <object class="GtkAlignment" id="alignment5">
                             <property name="visible">True</property>
                             <property name="left_padding">12</property>
                             <child>
-                              <object class="GtkTable" id="table1">
+                              <object class="GtkTable" id="table3">
                                 <property name="visible">True</property>
-                                <property name="n_rows">2</property>
-                                <property name="n_columns">2</property>
+                                <property name="n_rows">3</property>
+                                <property name="n_columns">4</property>
                                 <child>
-                                  <object class="GtkLabel" id="label5">
-                                    <property name="visible">True</property>
-                                    <property name="label" translatable="yes">User Dictionary</property>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="label10">
-                                    <property name="visible">True</property>
+                                  <object class="GtkRadioButton" id="sysdict_file">
                                     <property name="label" translatable="yes">System Dictionary</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="active">True</property>
+                                    <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
+                                    <property name="right_attach">2</property>
                                     <property name="top_attach">1</property>
                                     <property name="bottom_attach">2</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkFileChooserButton" id="usrdict">
-                                    <property name="visible">True</property>
-                                    <property name="create_folders">False</property>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -72,10 +61,83 @@
                                     <property name="create_folders">False</property>
                                   </object>
                                   <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
+                                    <property name="left_attach">2</property>
+                                    <property name="right_attach">4</property>
                                     <property name="top_attach">1</property>
                                     <property name="bottom_attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkRadioButton" id="sysdict_skkserv">
+                                    <property name="label" translatable="yes">skkserv</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="draw_indicator">True</property>
+                                    <property name="group">sysdict_file</property>
+                                  </object>
+                                  <packing>
+                                    <property name="top_attach">2</property>
+                                    <property name="bottom_attach">3</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkEntry" id="skkserv_host">
+                                    <property name="visible">True</property>
+				    <property name="sensitive">False</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="invisible_char">&#x2022;</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                    <property name="top_attach">2</property>
+                                    <property name="bottom_attach">3</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="label9">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">Port:</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">2</property>
+                                    <property name="right_attach">3</property>
+                                    <property name="top_attach">2</property>
+                                    <property name="bottom_attach">3</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkEntry" id="skkserv_port">
+                                    <property name="visible">True</property>
+				    <property name="sensitive">False</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="invisible_char">&#x2022;</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">3</property>
+                                    <property name="right_attach">4</property>
+                                    <property name="top_attach">2</property>
+                                    <property name="bottom_attach">3</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="label5">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">User Dictionary</property>
+                                  </object>
+                                  <packing>
+                                    <property name="right_attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkFileChooserButton" id="usrdict">
+                                    <property name="visible">True</property>
+                                    <property name="create_folders">False</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">2</property>
+                                    <property name="right_attach">4</property>
                                   </packing>
                                 </child>
                               </object>
@@ -83,7 +145,7 @@
                           </object>
                         </child>
                         <child type="label">
-                          <object class="GtkLabel" id="label4">
+                          <object class="GtkLabel" id="label3">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">&lt;b&gt;Dictionaries&lt;/b&gt;</property>
                             <property name="use_markup">True</property>
@@ -281,16 +343,16 @@
     </columns>
     <data>
       <row>
-        <col id="0" translatable="no">&#x3002;&#x3001;</col>
+        <col id="0">&#x3002;&#x3001;</col>
       </row>
       <row>
-        <col id="0" translatable="no">&#xFF0E;&#xFF0C;</col>
+        <col id="0">&#xFF0E;&#xFF0C;</col>
       </row>
       <row>
-        <col id="0" translatable="no">&#x3002;&#xFF0C;</col>
+        <col id="0">&#x3002;&#xFF0C;</col>
       </row>
       <row>
-        <col id="0" translatable="no">&#xFF0E;&#x3001;</col>
+        <col id="0">&#xFF0E;&#x3001;</col>
       </row>
     </data>
   </object>

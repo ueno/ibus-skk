@@ -69,8 +69,9 @@ class Engine(ibus.EngineBase):
         super(Engine, self).__init__(bus, object_path)
         self.__is_invalidate = False
         self.__lookup_table = ibus.LookupTable(round=True)
+        
         self.__skk = skk.Context(self.__config.usrdict_path,
-                                 self.__config.sysdict_path)
+                                 self.__sysdict_path())
         self.__skk.kutouten_type = self.__config.get_value('period_style', 0)
         self.__skk.set_candidate_selector(CandidateSelector(self))
         self.__prop_dict = dict()
@@ -250,9 +251,17 @@ class Engine(ibus.EngineBase):
         self.commit_text(ibus.Text(text))
         self.__update()
 
+    def __sysdict_path(self):
+        sysdict_type = self.__config.get_value('sysdict_type', 'file')
+        if sysdict_type == 'file':
+            return self.__config.sysdict_path
+        else:
+            return (self.__config.get_value('skkserv_host', 'localhost'),
+                    int(self.__config.get_value('skkserv_port', '1178')))
+
     def __possibly_update_config(self):
-        self.__skk.possibly_reload_dictionaries(\
-            self.__config.usrdict_path, self.__config.sysdict_path)
+        self.__skk.possibly_reload_dictionaries(self.__config.usrdict_path,
+                                                self.__sysdict_path())
         self.__skk.kutouten_type = self.__config.get_value('period_style', 0)
 
     def __update(self):
