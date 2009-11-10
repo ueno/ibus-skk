@@ -490,6 +490,14 @@ class SkkServ(DictBase):
         self.__socket = None
         self.load(address, encoding)
 
+    def __close(self):
+        if self.__socket:
+            self.__socket.close()
+            self.__socket = None
+
+    def __del__(self):
+        self.__close()
+        
     def load(self, address=ADDRESS, encoding=DictBase.ENCODING):
         if self.__socket is not None and \
                 hasattr(self, '_SkkServ__address') and \
@@ -506,9 +514,7 @@ class SkkServ(DictBase):
                 self.__socket.send('2')
                 assert(len(self.__socket.recv(self.BUFSIZ)) > 0)
             except socket.error, AssertionError:
-                if self.__socket:
-                    self.__socket.close()
-                    self.__socket = None
+                self.__close()
 
     def lookup(self, midasi, okuri=False):
         if self.__socket is None:
