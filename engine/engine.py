@@ -163,7 +163,7 @@ class Engine(ibus.EngineBase):
             if keyval == keysyms.Return or \
                     (keyval in (keysyms.j, keysyms.J) and \
                          state & modifier.CONTROL_MASK != 0):
-                self.__commit_string(self.__skk.kakutei())
+                self.commit_text(ibus.Text(self.__skk.kakutei()))
                 gobject.idle_add(self.__skk.possibly_save_usrdict,
                                  priority = gobject.PRIORITY_LOW)
                 self.__lookup_table.clean()
@@ -198,10 +198,7 @@ class Engine(ibus.EngineBase):
                 self.__update()
                 return True
 
-        if keyval in xrange(keysyms.a, keysyms.z + 1) or \
-            keyval in xrange(keysyms.A, keysyms.Z + 1) or \
-            keyval in xrange(keysyms._0, keysyms._9 + 1) or \
-            unichr(keyval) in u'!"#$%^\'()*+,-./:;<=>?@[\]^_`{|}~ ':
+        if 0x20 <= keyval and keyval <= 0x7E:
             keychr = unichr(keyval)
             if keychr.isalpha():
                 keychr = keychr.lower()
@@ -214,12 +211,12 @@ class Engine(ibus.EngineBase):
                 keychr = u'ctrl+' + keychr
             output = self.__skk.press_key(keychr)
             if output:
-                self.__commit_string(output)
+                self.commit_text(ibus.Text(output))
             self.__update()
             return True
-        else:
-            if keyval < 128:
-                self.__commit_string(unichr(keyval))
+        elif keyval < 128:
+            self.commit_text(ibus.Text(unichr(keyval)))
+            return True
 
         return False
 
@@ -252,10 +249,6 @@ class Engine(ibus.EngineBase):
             self.cursor_down_lookup_table()
             return True
         return False
-
-    def __commit_string(self, text):
-        self.commit_text(ibus.Text(text))
-        self.__update()
 
     def __sysdict_path(self):
         sysdict_type = self.__config.get_value('sysdict_type', 'file')
