@@ -192,6 +192,7 @@ class Engine(ibus.EngineBase):
                 return True
             elif keyval == keysyms.Up:
                 self.__skk.previous_candidate()
+                self.__update()
                 return True
             elif keyval == keysyms.Down or keyval == keysyms.space:
                 self.__skk.next_candidate()
