@@ -1,11 +1,24 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+import os, os.path
 import skk
 
 class TestSKK(unittest.TestCase):
     def setUp(self):
-        self.__skk = skk.Context()
+        usrdict_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                    "test-usrdict")
+        sysdict_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                    "SKK-JISYO.S")
+        self.__skk = skk.Context(usrdict_path=usrdict_path,
+                                 sysdict_path=sysdict_path)
+        self.__usrdict_path = usrdict_path
+
+    def tearDown(self):
+        try:
+            os.unlink(self.__usrdict_path)
+        except:
+            pass
 
     def testromkana(self):
         self.__skk.reset()
@@ -55,7 +68,7 @@ class TestSKK(unittest.TestCase):
         self.__skk.press_key(u' ')
         self.assertEqual(self.__skk.preedit, u'▼愛')
         self.__skk.press_key(u' ')
-        self.assertEqual(self.__skk.preedit, u'▼相')
+        self.assertEqual(self.__skk.preedit, u'▼哀')
 
     def testokuriari(self):
         self.__skk.reset()
@@ -73,12 +86,12 @@ class TestSKK(unittest.TestCase):
 
         self.__skk.reset()
         self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
-        self.__skk.press_key(u'shift+a')
-        self.__skk.press_key(u'i')
-        self.__skk.press_key(u'shift+s')
-        self.assertEqual(self.__skk.preedit, u'▽あい*s')
+        self.__skk.press_key(u'shift+h')
+        self.__skk.press_key(u'a')
+        self.__skk.press_key(u'shift+z')
+        self.assertEqual(self.__skk.preedit, u'▽は*z')
         self.__skk.press_key(u'u')
-        self.assertEqual(self.__skk.preedit, u'▼愛す')
+        self.assertEqual(self.__skk.preedit, u'▼恥ず')
 
         self.__skk.reset()
         self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
