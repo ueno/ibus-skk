@@ -6,19 +6,21 @@ import skk
 
 class TestSKK(unittest.TestCase):
     def setUp(self):
+        # Make sure to start with new empty usrdict.
         usrdict_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                    "test-usrdict")
-        sysdict_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                    "SKK-JISYO.S")
-        self.__skk = skk.Context(usrdict_path=usrdict_path,
-                                 sysdict_path=sysdict_path)
-        self.__usrdict_path = usrdict_path
-
-    def tearDown(self):
+                                    ".skk-ibus-jisyo")
         try:
-            os.unlink(self.__usrdict_path)
+            os.unlink(usrdict_path)
         except:
             pass
+
+        sysdict_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                    "SKK-JISYO.S")
+        if not os.path.exists(sysdict_path):
+            raise RuntimeError('Get SKK-JISYO.S from http://openlab.ring.gr.jp/skk/ and copy it to %s' % sysdict_path)
+
+        self.__skk = skk.Context(usrdict_path=usrdict_path,
+                                 sysdict_path=sysdict_path)
 
     def testromkana(self):
         self.__skk.reset()
