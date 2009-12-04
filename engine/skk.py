@@ -836,7 +836,7 @@ class Context:
             
     def previous_candidate(self):
         '''Select the previous candidate.'''
-        self.__candidate = self.__candidate_selector.previous_candidate()
+        candidate = self.__candidate_selector.previous_candidate()
         self.__kana_kan_state = (self.__kana_kan_state[0], candidate)
 
     def __merge_candidates(self, usr_candidates, sys_candidates):
