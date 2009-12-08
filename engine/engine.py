@@ -303,10 +303,11 @@ class Engine(ibus.EngineBase):
         self.register_properties(self.__prop_list)
 
     def focus_out(self):
-        pass
+        self.reset()
 
     def reset(self):
-        pass
+        self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
 
     def property_activate(self, prop_name, state):
         # print "PropertyActivate(%s, %d)" % (prop_name, state)
