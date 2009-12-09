@@ -756,15 +756,13 @@ class Context:
             if self.__okuri_rom_kana_state:
                 okuri = (self.__okuri_rom_kana_state[1] or keyval)[0]
                 self.__okuri_rom_kana_state = \
-                    self.__convert_rom_kana(keyval, \
-                                            self.__okuri_rom_kana_state)
+                    self.__convert_rom_kana(keyval, self.__okuri_rom_kana_state)
 
                 # Start okuri-ari conversion.
                 if len(self.__okuri_rom_kana_state[1]) == 0:
                     self.__conv_state = CONV_STATE_SELECT
-                    midasi = \
-                        self.__katakana_to_hiragana(self.__rom_kana_state[0] + \
-                                                        okuri)
+                    midasi = self.__katakana_to_hiragana(\
+                        self.__rom_kana_state[0] + okuri)
                     self.__kana_kan_state = (midasi, None)
                     usr_candidates = self.__usrdict.lookup(midasi)
                     sys_candidates = self.__sysdict.lookup(midasi, okuri=True)
