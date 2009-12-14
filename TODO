@@ -1,8 +1,8 @@
 - add more tests
-- add support for CDB dictionaries (though python-cdb was removed from Debian)
-- share single sysdict instance among Engine instances
+- add support for CDB dictionaries
+- share a single sysdict instance among Engine instances
 - TAB completion of midasi-go
-- mimic the original behavior of the candidate list
--- suppress display up to 4(?) candidates
+- mimic the original behavior of candidate selection
+-- don't display the candidate list for the first 4(?) candidates
 -- use asdfjkl as candidate labels
 
