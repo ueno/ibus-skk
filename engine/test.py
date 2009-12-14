@@ -17,7 +17,7 @@ class TestSKK(unittest.TestCase):
         sysdict_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                     "SKK-JISYO.S")
         if not os.path.exists(sysdict_path):
-            raise RuntimeError('Get SKK-JISYO.S from http://openlab.ring.gr.jp/skk/ and copy it to %s' % sysdict_path)
+            raise RuntimeError('SKK-JISYO.S not found; do "wget http://openlab.ring.gr.jp/skk/skk/dic/SKK-JISYO.S"')
 
         self.__skk = skk.Context(usrdict_path=usrdict_path,
                                  sysdict_path=sysdict_path)
