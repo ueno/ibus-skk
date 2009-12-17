@@ -399,26 +399,36 @@ class SysDict(DictBase):
                     offsets.append(pos)
             self.__okuri_ari.reverse()
 
+    def __search_pos(self, fp, offsets, _cmp):
+        fp.seek(0)
+        begin, end = 0, len(offsets) - 1
+        pos = begin + (end - begin) / 2
+        while begin <= end:
+            fp.seek(offsets[pos])
+            line = fp.next()
+            r = _cmp(line)
+            if r == 0:
+                return (pos, line)
+            elif r < 0:
+                end = pos - 1
+            else:
+                begin = pos + 1
+            pos = begin + (end - begin) / 2
+        return None
+        
     def __lookup(self, midasi, offsets):
         with open(self.__path, 'r') as fp:
-            fp.seek(0)
-            begin, end = 0, len(offsets) - 1
-            pos = begin + (end - begin) / 2
             midasi = midasi.encode(self.__encoding)
-            while begin <= end:
-                fp.seek(offsets[pos])
-                line = fp.next()
+            def _lookup_cmp(line):
                 _midasi, candidates = line.split(' ', 1)
-                r = cmp(midasi, _midasi)
-                if r == 0:
-                    candidates = candidates.decode(self.__encoding)
-                    return self.split_candidates(candidates)
-                elif r < 0:
-                    end = pos - 1
-                else:
-                    begin = pos + 1
-                pos = begin + (end - begin) / 2
-            return list()
+                return cmp(midasi, _midasi)
+            r = self.__search_pos(fp, offsets, _lookup_cmp)
+            if not r:
+                return list()
+            pos, line = r
+            _midasi, candidates = line.split(' ', 1)
+            candidates = candidates.decode(self.__encoding)
+            return self.split_candidates(candidates)
 
     def lookup(self, midasi, okuri=False):
         if okuri:
@@ -431,6 +441,36 @@ class SysDict(DictBase):
             return self.__lookup(midasi, offsets)
         except IOError:
             return list()
+
+    def __completer(self, midasi):
+        with open(self.__path, 'r') as fp:
+            midasi = midasi.encode(self.__encoding)
+            def _completer_cmp(line):
+                if line.startswith(midasi):
+                    return 0
+                return cmp(midasi, line)
+            r = self.__search_pos(fp, self.__okuri_nasi, _completer_cmp)
+            if r:
+                pos, line = r
+                while pos >= 0:
+                    fp.seek(self.__okuri_nasi[pos])
+                    line = fp.next()
+                    if not line.startswith(midasi):
+                        pos += 1
+                        break
+                    pos -= 1
+                while 0 <= pos and pos < len(self.__okuri_nasi):
+                    fp.seek(self.__okuri_nasi[pos])
+                    line = fp.next()
+                    _midasi, candidates = line.split(' ', 1)
+                    yield _midasi.decode(self.__encoding)
+                    pos += 1
+                
+    def completer(self, midasi):
+        try:
+            return self.__completer(midasi)
+        except IOError:
+            return iter(list())
 
 class UsrDict(DictBase):
     PATH = '~/.skk-ibus-jisyo'
@@ -527,7 +567,10 @@ class SkkServ(DictBase):
             return self.split_candidates(candidates.decode(self.__encoding)[1:])
         except socket.error:
             return list()
-        
+
+    def completer(self, midasi):
+        return iter(list())
+
 def compile_rom_kana_rule(rule):
     def _compile_rom_kana_rule(tree, input_state, arg):
         hd, tl = input_state[0], input_state[1:]
@@ -607,6 +650,8 @@ class Context:
 
         self.__conv_state = CONV_STATE_NONE
         self.clear_candidates()
+
+        self.__completer = None
 
     conv_state = property(lambda self: self.__conv_state)
     input_mode = property(lambda self: self.__input_mode)
@@ -733,8 +778,19 @@ class Context:
                 self.activate_input_mode(input_mode)
                 return output
 
+            # Start TAB completion.
+            if keyval == u'\t':
+                self.__rom_kana_state = self.__convert_nn(self.__rom_kana_state)
+                if not self.__completer:
+                    self.__completer = self.__sysdict.completer(\
+                        self.__rom_kana_state[0])
+                self.__rom_kana_state = (self.__completer.next(), u'', u'')
+                return u''
+            # Stop TAB completion.
+            self.__completer = None
+
             # Start okuri-nasi conversion.
-            if letter.isspace():
+            if keyval == u' ':
                 self.__conv_state = CONV_STATE_SELECT
                 self.__rom_kana_state = self.__convert_nn(self.__rom_kana_state)
                 midasi = self.__katakana_to_hiragana(self.__rom_kana_state[0])
