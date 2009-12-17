@@ -183,6 +183,13 @@ class Engine(ibus.EngineBase):
                     return True
                 return False
                 
+        if self.__skk.conv_state == skk.CONV_STATE_START:
+            keychr = unichr(keyval)
+            if keychr == u'\t':
+                self.skk.press_key(keychr)
+                self.__update()
+                return True
+
         if self.__skk.conv_state == skk.CONV_STATE_SELECT:
             if keyval == keysyms.Page_Up or keyval == keysyms.KP_Page_Up:
                 self.page_up()
