@@ -459,7 +459,7 @@ class SysDict(DictBase):
                         pos += 1
                         break
                     pos -= 1
-                while 0 <= pos and pos < len(self.__okuri_nasi):
+                while pos < len(self.__okuri_nasi):
                     fp.seek(self.__okuri_nasi[pos])
                     line = fp.next()
                     _midasi, candidates = line.split(' ', 1)
