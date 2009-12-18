@@ -185,8 +185,8 @@ class Engine(ibus.EngineBase):
                 
         if self.__skk.conv_state == skk.CONV_STATE_START:
             keychr = unichr(keyval)
-            if keychr == u'\t':
-                self.skk.press_key(keychr)
+            if state & modifier.CONTROL_MASK and keychr == u'i':
+                self.__skk.press_key(u'\t')
                 self.__update()
                 return True
 
