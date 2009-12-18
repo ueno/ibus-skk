@@ -784,7 +784,10 @@ class Context:
                 if not self.__completer:
                     self.__completer = self.__sysdict.completer(\
                         self.__rom_kana_state[0])
-                self.__rom_kana_state = (self.__completer.next(), u'', u'')
+                try:
+                    self.__rom_kana_state = (self.__completer.next(), u'', u'')
+                except StopIteration:
+                    pass
                 return u''
             # Stop TAB completion.
             self.__completer = None
