@@ -21,6 +21,7 @@
 # 02110-1301, USA.
 
 from __future__ import with_statement
+import itertools
 import os.path
 import socket
 
@@ -623,6 +624,7 @@ class Context:
         self.reset()
         self.activate_input_mode(INPUT_MODE_HIRAGANA)
         self.kutouten_type = KUTOUTEN_JP
+        self.__comphist = dict()
 
     def reset(self):
         '''Reset the internal state of the context.'''
@@ -651,7 +653,7 @@ class Context:
         self.__conv_state = CONV_STATE_NONE
         self.clear_candidates()
 
-        self.__completer = None
+        self.__comp_state = None
 
     conv_state = property(lambda self: self.__conv_state)
     input_mode = property(lambda self: self.__input_mode)
@@ -781,16 +783,26 @@ class Context:
             # Start TAB completion.
             if keyval == u'\t':
                 self.__rom_kana_state = self.__convert_nn(self.__rom_kana_state)
-                if not self.__completer:
-                    self.__completer = self.__sysdict.completer(\
+                if self.__comp_state is None:
+                    self.__comp_state = self.__init_completion(\
                         self.__rom_kana_state[0])
                 try:
-                    self.__rom_kana_state = (self.__completer.next(), u'', u'')
+                    self.__rom_kana_state = (self.__comp_state[1].next(),
+                                             u'', u'')
                 except StopIteration:
                     pass
                 return u''
             # Stop TAB completion.
-            self.__completer = None
+            if self.__comp_state is not None and \
+                    len(self.__rom_kana_state[0]) > 0:
+                comphist = self.__comphist.setdefault(self.__comp_state[0],
+                                                      list())
+                try:
+                    comphist.remove(self.__rom_kana_state[0])
+                except:
+                    pass
+                comphist.insert(0, self.__rom_kana_state[0])
+            self.__comp_state = None
 
             # Start okuri-nasi conversion.
             if keyval == u' ':
@@ -849,6 +861,11 @@ class Context:
             else:
                 return self.kakutei() + self.press_key(key)
             return u''
+
+    def __init_completion(self, compkey):
+        return (compkey,
+                itertools.chain(self.__comphist.get(compkey, list()),
+                                self.__sysdict.completer(compkey)))
 
     def __delete_char_from_rom_kana_state(self, state):
         tree = self.__rom_kana_rule_tree

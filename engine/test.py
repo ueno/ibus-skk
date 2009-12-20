@@ -114,6 +114,14 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(self.__skk.preedit, u'▽あ')
         self.__skk.press_key(u'\t')
         self.assertEqual(self.__skk.preedit, u'▽あい')
+        self.__skk.press_key(u'\t')
+        self.assertEqual(self.__skk.preedit, u'▽あいさつ')
+        self.__skk.press_key(u' ')
+        self.__skk.kakutei()
+        self.__skk.press_key(u'shift+a')
+        self.assertEqual(self.__skk.preedit, u'▽あ')
+        self.__skk.press_key(u'\t')
+        self.assertEqual(self.__skk.preedit, u'▽あいさつ')
         
 if __name__ == '__main__':
     unittest.main()
