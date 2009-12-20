@@ -4,4 +4,3 @@
 - mimic the original behavior of candidate selection
 -- don't display the candidate list for the first 4(?) candidates
 -- use asdfjkl as candidate labels
-- extract completion candidates from history
