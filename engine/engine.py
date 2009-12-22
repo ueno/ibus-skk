@@ -174,7 +174,10 @@ class Engine(ibus.EngineBase):
                 return True
 
         if keyval == keysyms.BackSpace:
-            if self.__skk.delete_char():
+            handled, output = self.__skk.delete_char()
+            if handled:
+                if output:
+                    self.commit_text(ibus.Text(output))
                 self.__update()
                 return True
             return False

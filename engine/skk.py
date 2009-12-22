@@ -901,27 +901,26 @@ class Context:
         '''Delete a character at the end of the buffer.'''
         if self.__conv_state == CONV_STATE_SELECT:
             self.__conv_state = CONV_STATE_NONE
-            self.reset()
-            self.activate_input_mode(INPUT_MODE_HIRAGANA)
-            return True
+            output = self.kakutei()
+            return (True, output[:-1])
         if self.__okuri_rom_kana_state:
             state = self.__delete_char_from_rom_kana_state(\
                 self.__okuri_rom_kana_state)
             if state:
                 self.__okuri_rom_kana_state = state
-                return True
+                return (True, u'')
         if self.__rom_kana_state:
             state = self.__delete_char_from_rom_kana_state(\
                 self.__rom_kana_state)
             if state:
                 self.__rom_kana_state = state
-                return True
+                return (True, u'')
         if self.__conv_state == CONV_STATE_START:
             self.__conv_state = CONV_STATE_NONE
             self.reset()
             self.activate_input_mode(INPUT_MODE_HIRAGANA)
-            return True
-        return False
+            return (True, u'')
+        return (False, u'')
 
     def set_candidate_selector(self, candidate_selector):
         '''Set candidate selector.'''
