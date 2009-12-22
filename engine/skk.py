@@ -899,6 +899,11 @@ class Context:
 
     def delete_char(self):
         '''Delete a character at the end of the buffer.'''
+        if self.__conv_state == CONV_STATE_SELECT:
+            self.__conv_state = CONV_STATE_NONE
+            self.reset()
+            self.activate_input_mode(INPUT_MODE_HIRAGANA)
+            return True
         if self.__okuri_rom_kana_state:
             state = self.__delete_char_from_rom_kana_state(\
                 self.__okuri_rom_kana_state)
@@ -911,6 +916,11 @@ class Context:
             if state:
                 self.__rom_kana_state = state
                 return True
+        if self.__conv_state == CONV_STATE_START:
+            self.__conv_state = CONV_STATE_NONE
+            self.reset()
+            self.activate_input_mode(INPUT_MODE_HIRAGANA)
+            return True
         return False
 
     def set_candidate_selector(self, candidate_selector):

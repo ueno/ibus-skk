@@ -173,13 +173,11 @@ class Engine(ibus.EngineBase):
                 self.__update()
                 return True
 
-        if self.__skk.conv_state in (skk.CONV_STATE_NONE,
-                                     skk.CONV_STATE_START):
-            if keyval == keysyms.BackSpace:
-                if self.__skk.delete_char():
-                    self.__update()
-                    return True
-                return False
+        if keyval == keysyms.BackSpace:
+            if self.__skk.delete_char():
+                self.__update()
+                return True
+            return False
                 
         if self.__skk.conv_state == skk.CONV_STATE_START:
             keychr = unichr(keyval)
