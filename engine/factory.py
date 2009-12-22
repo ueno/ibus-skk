@@ -21,12 +21,15 @@
 
 import ibus
 import engine
-import os
+import sys, os, os.path
+import skk
 
 from gettext import dgettext
 _  = lambda a : dgettext("ibus-skk", a)
 N_ = lambda a : a
 
+sys.path.insert(0, os.path.join(os.getenv('IBUS_SKK_PKGDATADIR'), 'setup'))
+import config
 
 class EngineFactory(ibus.EngineFactoryBase):
     FACTORY_PATH = "/com/redhat/IBus/engines/SKK/Factory"
@@ -39,14 +42,13 @@ class EngineFactory(ibus.EngineFactoryBase):
 
     def __init__(self, bus):
         self.__bus = bus
-        engine.Engine.CONFIG_RELOADED(bus)
         super(EngineFactory, self).__init__(bus)
 
         self.__id = 0
-        self.__config = self.__bus.get_config()
-
-        self.__config.connect("reloaded", self.__config_reloaded_cb)
-        self.__config.connect("value-changed", self.__config_value_changed_cb)
+        bus_config = self.__bus.get_config()
+        bus_config.connect("reloaded", self.__config_reloaded_cb)
+        bus_config.connect("value-changed", self.__config_value_changed_cb)
+        self.__config_reloaded_cb(bus_config)
 
     def create_engine(self, engine_name):
         if engine_name == "skk":
@@ -55,9 +57,22 @@ class EngineFactory(ibus.EngineFactoryBase):
 
         return super(EngineFactory, self).create_engine(engine_name)
 
-    def __config_reloaded_cb(self, config):
-        engine.Engine.CONFIG_RELOADED(self.__bus)
+    def __load_sysdict(self, _config):
+        sysdict_type = _config.get_value('sysdict_type', 'file')
+        if sysdict_type == 'file':
+            return skk.SysDict(_config.sysdict_path)
+        else:
+            host = _config.get_value('skkserv_host', 'localhost')
+            port = int(_config.get_value('skkserv_port', '1178'))
+            return skk.SkkServ(host, port)
 
-    def __config_value_changed_cb(self, config, section, name, value):
-        engine.Engine.CONFIG_VALUE_CHANGED(self.__bus, section, name, value)
+    def __config_reloaded_cb(self, bus_config):
+        engine.Engine.config = config.Config(self.__bus)
+        engine.Engine.sysdict = self.__load_sysdict(engine.Engine.config)
 
+    def __config_value_changed_cb(self, bus_config, section, name, value):
+        if section == 'engine/SKK':
+            engine.Engine.config.set_value(name, value)
+            if name in ('sysdict_type', 'sysdict',
+                        'skkserv_host', 'skkserv_port'):
+                engine.Engine.sysdict = self.__load_sysdict(engine.Engine.config)

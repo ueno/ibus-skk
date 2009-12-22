@@ -19,8 +19,8 @@ class TestSKK(unittest.TestCase):
         if not os.path.exists(sysdict_path):
             raise RuntimeError('SKK-JISYO.S not found; do "wget http://openlab.ring.gr.jp/skk/skk/dic/SKK-JISYO.S"')
 
-        self.__skk = skk.Context(usrdict_path=usrdict_path,
-                                 sysdict_path=sysdict_path)
+        self.__skk = skk.Context(usrdict=skk.UsrDict(usrdict_path),
+                                 sysdict=skk.SysDict(sysdict_path))
 
     def testromkana(self):
         self.__skk.reset()

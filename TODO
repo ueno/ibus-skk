@@ -1,6 +1,5 @@
 - add more tests
 - add support for CDB dictionaries
-- share a single sysdict instance among Engine instances
 - mimic the original behavior of candidate selection
 -- don't display the candidate list for the first 4(?) candidates
 -- use asdfjkl as candidate labels

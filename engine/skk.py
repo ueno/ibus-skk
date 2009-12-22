@@ -349,35 +349,43 @@ class DictBase(object):
                 return candidate
         return u'/'.join(map(append_annotation, candidates))
 
+    def reload(self):
+        raise NotImplemented
+
+    def lookup(self, midasi, okuri=False):
+        raise NotImplemented
+        
+    def completer(self, midasi):
+        raise NotImplemented
+
+    def save(self):
+        raise NotImplemented
+
 class SysDict(DictBase):
-    PATH = '/usr/share/skk/SKK-JISYO.L'
+    def __init__(self, path, encoding=DictBase.ENCODING):
+        self.__path = path
+        self.__mtime = 0
+        self.__encoding = encoding
+        self.reload()
 
-    def __init__(self, path=PATH, encoding=DictBase.ENCODING):
-        self.load(path, encoding)
+    path = property(lambda self: self.__path)
 
-    def load(self, path=PATH, encoding=DictBase.ENCODING):
+    def reload(self):
         try:
-            mtime = os.path.getmtime(path)
+            mtime = os.path.getmtime(self.__path)
         except OSError:
             mtime = 0
-
-        if hasattr(self, '_SysDict__path') and \
-                path == self.__path and mtime <= self.__mtime and \
-                encoding == self.__encoding:
+        if mtime <= self.__mtime:
             return
-
-        self.__path = path
-        self.__mtime = mtime
-        self.__encoding = encoding
-        self.__okuri_ari = list()
-        self.__okuri_nasi = list()
-
         try:
             self.__load()
         except IOError:
             pass
+        self.__mtime = mtime
 
     def __load(self):
+        self.__okuri_ari = list()
+        self.__okuri_nasi = list()
         with open(self.__path, 'r') as fp:
             # Skip headers.
             while True:
@@ -437,7 +445,7 @@ class SysDict(DictBase):
         else:
             offsets = self.__okuri_nasi
         if len(offsets) == 0:
-            self.load(self.__path, self.__encoding)
+            self.reload(self.__path, self.__encoding)
         try:
             return self.__lookup(midasi, offsets)
         except IOError:
@@ -477,15 +485,13 @@ class UsrDict(DictBase):
     PATH = '~/.skk-ibus-jisyo'
 
     def __init__(self, path=PATH, encoding=DictBase.ENCODING):
-        self.load(os.path.expanduser(path), encoding)
-
-    def load(self, path=PATH, encoding=DictBase.ENCODING):
-        if hasattr(self, '_UsrDict__path') and \
-                path == self.__path and encoding == self.__encoding:
-            return
-
-        self.__path = path
+        self.__path = os.path.expanduser(path)
         self.__encoding = encoding
+        self.reload()
+
+    path = property(lambda self: self.__path)
+
+    def reload(self):
         self.__dict = dict()
         with open(self.__path, 'a+') as fp:
             for line in fp:
@@ -524,12 +530,19 @@ class UsrDict(DictBase):
         self.__dict_changed = True
 
 class SkkServ(DictBase):
-    ADDRESS=('localhost', 1178)
+    HOST='localhost'
+    PORT=1178
     BUFSIZ = 4096
 
-    def __init__(self, address=ADDRESS, encoding=DictBase.ENCODING):
+    def __init__(self, host=HOST, port=PORT, encoding=DictBase.ENCODING):
+        self.__host = host
+        self.__port = port
+        self.__encoding = encoding
         self.__socket = None
-        self.load(address, encoding)
+        self.reload()
+
+    host = property(lambda self: self.__host)
+    port = property(lambda self: self.__port)
 
     def __close(self):
         if self.__socket:
@@ -539,23 +552,16 @@ class SkkServ(DictBase):
     def __del__(self):
         self.__close()
         
-    def load(self, address=ADDRESS, encoding=DictBase.ENCODING):
-        if self.__socket is not None and \
-                hasattr(self, '_SkkServ__address') and \
-                address == self.__address:
-            return
-
-        self.__address = address
-        self.__encoding = encoding
-        if self.__socket is None:
-            try:
-                self.__socket = socket.socket()
-                self.__socket.connect(self.__address)
-                # Request server version.
-                self.__socket.send('2')
-                assert(len(self.__socket.recv(self.BUFSIZ)) > 0)
-            except socket.error, AssertionError:
-                self.__close()
+    def reload(self):
+        self.__close()
+        try:
+            self.__socket = socket.socket()
+            self.__socket.connect((self.__host, self.__port))
+            # Request server version.
+            self.__socket.send('2')
+            assert(len(self.__socket.recv(self.BUFSIZ)) > 0)
+        except socket.error, AssertionError:
+            self.__close()
 
     def lookup(self, midasi, okuri=False):
         if self.__socket is None:
@@ -607,17 +613,13 @@ class CandidateSelectorBase(object):
             return self.__candidates[self.__candidate_index]
 
 class Context:
-    def __init__(self, usrdict_path=UsrDict.PATH, sysdict_path=SysDict.PATH):
+    def __init__(self, usrdict, sysdict):
         '''Create an SKK context.
 
-        USRDICT_PATH and SYSDICT_PATH are the location of the SKK
-        dictionaries.  SYSDICT_PATH can be a tuple (HOST, PORT).  In
-        that case, skkserv will be used.'''
-        self.__usrdict = UsrDict(usrdict_path)
-        if isinstance(sysdict_path, tuple):
-            self.__sysdict = SkkServ(sysdict_path)
-        else:
-            self.__sysdict = SysDict(sysdict_path)
+        USRDICT is a user dictionary and SYSDICT is a system
+        dictionary (or a connection to SKKServ).'''
+        self.__usrdict = usrdict
+        self.__sysdict = sysdict
 
         self.__rom_kana_rule_tree = compile_rom_kana_rule(ROM_KANA_RULE)
         self.set_candidate_selector(CandidateSelectorBase())
@@ -625,6 +627,23 @@ class Context:
         self.activate_input_mode(INPUT_MODE_HIRAGANA)
         self.kutouten_type = KUTOUTEN_JP
         self.__comphist = dict()
+
+    def __check_dict(self, _dict):
+        if not isinstance(_dict, DictBase):
+            raise TypeError('bad dict')
+
+    def set_usrdict(self, usrdict):
+        '''Set the user dictionary.'''
+        self.__check_dict(usrdict)
+        self.__usrdict = usrdict
+
+    def set_sysdict(self, sysdict):
+        '''Set the system dictionary.'''
+        self.__check_dict(sysdict)
+        self.__sysdict = sysdict
+
+    usrdict = property(lambda self: self.__usrdict, set_usrdict)
+    sysdict = property(lambda self: self.__sysdict, set_sysdict)
 
     def reset(self):
         '''Reset the internal state of the context.'''
@@ -917,26 +936,6 @@ class Context:
         return usr_candidates + \
             [candidate for candidate in sys_candidates
              if candidate not in usr_candidates]
-
-    def possibly_reload_dictionaries(self, usrdict_path, sysdict_path):
-        '''Trigger a reload of dictionaries if the new settings are
-        different from the current settings.'''
-        self.__usrdict.load(usrdict_path)
-
-        # sysdict type changed.
-        if isinstance(sysdict_path, tuple) and \
-                not isinstance(self.__sysdict, SkkServ):
-            self.__sysdict = SkkServ(sysdict_path)
-        elif isinstance(sysdict_path, str) and \
-                not isinstance(self.__sysdict, SysDict):
-            self.__sysdict = SysDict(sysdict_path)
-        # sysdict path changed.
-        else:
-            self.__sysdict.load(sysdict_path)
-
-    def possibly_save_usrdict(self):
-        '''Save the user dictionary if it has changed.'''
-        self.__usrdict.save()
 
     def __preedit(self):
         if self.__conv_state == CONV_STATE_NONE:

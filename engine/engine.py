@@ -28,9 +28,6 @@ from ibus import modifier
 import sys, os, os.path
 import skk
 
-sys.path.insert(0, os.path.join(os.getenv('IBUS_SKK_PKGDATADIR'), 'setup'))
-import config
-
 from gettext import dgettext
 _  = lambda a : dgettext("ibus-skk", a)
 N_ = lambda a : a
@@ -62,7 +59,8 @@ class CandidateSelector(skk.CandidateSelectorBase):
         return self.__candidate
 
 class Engine(ibus.EngineBase):
-    __config = None
+    config = None
+    sysdict = None
     __setup_pid = 0
 
     def __init__(self, bus, object_path):
@@ -70,9 +68,9 @@ class Engine(ibus.EngineBase):
         self.__is_invalidate = False
         self.__lookup_table = ibus.LookupTable(round=True)
         
-        self.__skk = skk.Context(self.__config.usrdict_path,
-                                 self.__sysdict_path())
-        self.__skk.kutouten_type = self.__config.get_value('period_style', 0)
+        usrdict = skk.UsrDict(self.config.usrdict_path)
+        self.__skk = skk.Context(usrdict, self.sysdict)
+        self.__skk.kutouten_type = self.config.get_value('period_style', 0)
         self.__skk.set_candidate_selector(CandidateSelector(self))
         self.__prop_dict = dict()
         self.__prop_list = self.__init_props()
@@ -164,7 +162,7 @@ class Engine(ibus.EngineBase):
                     (keyval in (keysyms.j, keysyms.J) and \
                          state & modifier.CONTROL_MASK != 0):
                 self.commit_text(ibus.Text(self.__skk.kakutei()))
-                gobject.idle_add(self.__skk.possibly_save_usrdict,
+                gobject.idle_add(self.__skk.usrdict.save,
                                  priority = gobject.PRIORITY_LOW)
                 self.__lookup_table.clean()
                 self.__update()
@@ -258,18 +256,10 @@ class Engine(ibus.EngineBase):
             return True
         return False
 
-    def __sysdict_path(self):
-        sysdict_type = self.__config.get_value('sysdict_type', 'file')
-        if sysdict_type == 'file':
-            return self.__config.sysdict_path
-        else:
-            return (self.__config.get_value('skkserv_host', 'localhost'),
-                    int(self.__config.get_value('skkserv_port', '1178')))
-
     def __possibly_update_config(self):
-        self.__skk.possibly_reload_dictionaries(self.__config.usrdict_path,
-                                                self.__sysdict_path())
-        self.__skk.kutouten_type = self.__config.get_value('period_style', 0)
+        if self.__skk.usrdict.path != self.config.usrdict_path:
+            self.__skk.usrdict = skk.UsrDict(self.config.usrdict_path)
+        self.__skk.kutouten_type = self.config.get_value('period_style', 0)
 
     def __update(self):
         preedit = self.__skk.preedit
@@ -323,13 +313,3 @@ class Engine(ibus.EngineBase):
         else:
             if prop_name == 'setup':
                 self.__start_setup()
-
-    @classmethod
-    def CONFIG_RELOADED(cls, bus):
-        if not cls.__config:
-            cls.__config = config.Config(bus)
-
-    @classmethod
-    def CONFIG_VALUE_CHANGED(cls, bus, section, name, value):
-        if section == 'engine/SKK':
-            cls.__config.set_value(name, value)
