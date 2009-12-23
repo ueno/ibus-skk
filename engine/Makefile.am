@@ -49,6 +49,7 @@ test:
 EXTRA_DIST = \
 	skk.xml.in.in \
 	ibus-engine-skk.in \
+	test.py \
 	$(NULL)
 
 CLEANFILES = \
