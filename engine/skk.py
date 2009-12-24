@@ -483,6 +483,7 @@ class SysDict(DictBase):
 
 class UsrDict(DictBase):
     PATH = '~/.skk-ibus-jisyo'
+    HISTSIZE = 128
 
     def __init__(self, path=PATH, encoding=DictBase.ENCODING):
         self.__path = os.path.expanduser(path)
@@ -501,6 +502,7 @@ class UsrDict(DictBase):
                 midasi, candidates = line.split(' ', 1)
                 self.__dict[midasi] = self.split_candidates(candidates)
         self.__dict_changed = False
+        self.__midasi_history = list()
 
     def save(self):
         if not self.__dict_changed:
@@ -515,6 +517,18 @@ class UsrDict(DictBase):
         return self.__dict.get(midasi, list())
         
     def select_candidate(self, midasi, candidate):
+        del(self.__midasi_history[self.HISTSIZE:])
+        _midasi = None
+        for index, _midasi in self.__midasi_history:
+            if _midasi == midasi:
+                if index > 0:
+                    first = self.__midasi_history[0]
+                    self.__midasi_history[0] = self.__midasi_history[index]
+                    self.__midasi_history[index] = first
+                break
+        if _midasi is not midasi:
+            self.__midasi_history.insert(0, midasi)
+
         if midasi not in self.__dict:
             self.__dict[midasi] = list()
         elements = self.__dict[midasi]
@@ -528,6 +542,12 @@ class UsrDict(DictBase):
                 return
         elements.insert(0, candidate)
         self.__dict_changed = True
+
+    def completer(self, midasi):
+        for _midasi in self.__midasi_history:
+            if _midasi.startswith(midasi):
+                yield _midasi
+        # TODO: complete from self.__dict?
 
 class SkkServ(DictBase):
     HOST='localhost'
@@ -626,7 +646,6 @@ class Context:
         self.reset()
         self.activate_input_mode(INPUT_MODE_HIRAGANA)
         self.kutouten_type = KUTOUTEN_JP
-        self.__comphist = dict()
 
     def __check_dict(self, _dict):
         if not isinstance(_dict, DictBase):
@@ -812,15 +831,6 @@ class Context:
                     pass
                 return u''
             # Stop TAB completion.
-            if self.__comp_state is not None and \
-                    len(self.__rom_kana_state[0]) > 0:
-                comphist = self.__comphist.setdefault(self.__comp_state[0],
-                                                      list())
-                try:
-                    comphist.remove(self.__rom_kana_state[0])
-                except:
-                    pass
-                comphist.insert(0, self.__rom_kana_state[0])
             self.__comp_state = None
 
             # Start okuri-nasi conversion.
@@ -883,7 +893,7 @@ class Context:
 
     def __init_completion(self, compkey):
         return (compkey,
-                itertools.chain(self.__comphist.get(compkey, list()),
+                itertools.chain(self.__usrdict.completer(compkey),
                                 self.__sysdict.completer(compkey)))
 
     def __delete_char_from_rom_kana_state(self, state):
