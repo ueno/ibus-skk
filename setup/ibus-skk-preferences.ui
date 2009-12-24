@@ -84,7 +84,7 @@
                                 <child>
                                   <object class="GtkEntry" id="skkserv_host">
                                     <property name="visible">True</property>
-				    <property name="sensitive">False</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="invisible_char">&#x2022;</property>
                                   </object>
@@ -110,7 +110,7 @@
                                 <child>
                                   <object class="GtkEntry" id="skkserv_port">
                                     <property name="visible">True</property>
-				    <property name="sensitive">False</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="invisible_char">&#x2022;</property>
                                   </object>
@@ -168,6 +168,7 @@
                             <child>
                               <object class="GtkTable" id="table2">
                                 <property name="visible">True</property>
+                                <property name="n_rows">2</property>
                                 <property name="n_columns">2</property>
                                 <child>
                                   <object class="GtkLabel" id="label11">
@@ -183,6 +184,29 @@
                                   <packing>
                                     <property name="left_attach">1</property>
                                     <property name="right_attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="label4">
+                                    <property name="visible">True</property>
+                                    <property name="tooltip_text" translatable="yes">Start conversion by some punctuations</property>
+                                    <property name="label" translatable="yes">Autoconversion</property>
+                                  </object>
+                                  <packing>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkComboBox" id="autoconversion_style">
+                                    <property name="visible">True</property>
+                                    <property name="model">autoconversion_style_liststore</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
                                   </packing>
                                 </child>
                               </object>
@@ -353,6 +377,26 @@
       </row>
       <row>
         <col id="0">&#xFF0E;&#x3001;</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="autoconversion_style_liststore">
+    <columns>
+      <!-- column-name column1 -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">none</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">, .</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">, . ' "</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">, . ' " [ ] ( ) { }</col>
       </row>
     </data>
   </object>

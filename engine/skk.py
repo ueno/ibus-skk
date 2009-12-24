@@ -300,6 +300,11 @@ KUTOUTEN_EN_JP = range(4)
 
 KUTOUTEN_RULE = ((u'。', u'、'), (u'．', u'，'), (u'。', u'，'), (u'．', u'、'))
 
+AUTOCONVERSION_CHARS = [[],
+                        [u',', u'.'],
+                        [u',', u'.', u'\'', u'\"'],
+                        [u',', u'.', u'\'', u'\"', u'(', u')', u'[', u']', u'{', u'}']]
+
 CONV_STATE_NONE, \
 CONV_STATE_START, \
 CONV_STATE_SELECT = range(3)
@@ -646,6 +651,7 @@ class Context:
         self.reset()
         self.activate_input_mode(INPUT_MODE_HIRAGANA)
         self.kutouten_type = KUTOUTEN_JP
+        self.autoconversion_lastchar = False
 
     def __check_dict(self, _dict):
         if not isinstance(_dict, DictBase):
@@ -735,6 +741,9 @@ class Context:
             output = self.__rom_kana_state[0]
         self.reset()
         self.activate_input_mode(input_mode)
+        if self.autoconversion_lastchar:
+            output += self.autoconversion_lastchar
+            self.autoconversion_lastchar = False
         return output
 
     def press_key(self, key):
@@ -834,7 +843,10 @@ class Context:
             self.__comp_state = None
 
             # Start okuri-nasi conversion.
-            if keyval == u' ':
+            if keyval == u' ' or keyval in AUTOCONVERSION_CHARS[self.autoconversion_type]:
+                if keyval != u' ':
+                    output = self.__convert_rom_kana(keyval,  self.__rom_kana_state)
+                    self.autoconversion_lastchar = output[0][-1]
                 self.__conv_state = CONV_STATE_SELECT
                 self.__rom_kana_state = self.__convert_nn(self.__rom_kana_state)
                 midasi = self.__katakana_to_hiragana(self.__rom_kana_state[0])

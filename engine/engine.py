@@ -71,6 +71,7 @@ class Engine(ibus.EngineBase):
         usrdict = skk.UsrDict(self.config.usrdict_path)
         self.__skk = skk.Context(usrdict, self.sysdict)
         self.__skk.kutouten_type = self.config.get_value('period_style', 0)
+        self.__skk.autoconversion_type = self.config.get_value('autoconversion_style', 0)
         self.__skk.set_candidate_selector(CandidateSelector(self))
         self.__prop_dict = dict()
         self.__prop_list = self.__init_props()
@@ -261,6 +262,7 @@ class Engine(ibus.EngineBase):
         if self.__skk.usrdict.path != self.config.usrdict_path:
             self.__skk.usrdict = skk.UsrDict(self.config.usrdict_path)
         self.__skk.kutouten_type = self.config.get_value('period_style', 0)
+        self.__skk.autoconversion_type = self.config.get_value('autoconversion_style', 0)
 
     def __update(self):
         preedit = self.__skk.preedit

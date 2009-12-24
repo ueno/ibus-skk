@@ -8,75 +8,99 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ibus-skk 1.2.0.20091108\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-11-09 18:27+0900\n"
-"PO-Revision-Date: 2009-11-08 08:14+0900\n"
-"Last-Translator: Daiki Ueno <ueno@unixuser.org>\n"
+"POT-Creation-Date: 2009-12-24 22:14+0900\n"
+"PO-Revision-Date:  2009-12-23 15:06+0900\n"
+"Last-Translator: IWS <iws1011@gmail.com>\n"
 "Language-Team: Japanese\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ../engine/engine.py:95
+#: ../engine/engine.py:94
 msgid "Switch input mode"
 msgstr "入力モード切替"
 
-#: ../engine/engine.py:101
+#: ../engine/engine.py:100
 msgid "Hiragana"
 msgstr "ひらがな"
 
-#: ../engine/engine.py:104
+#: ../engine/engine.py:103
 msgid "Katakana"
 msgstr "カタカナ"
 
-#: ../engine/engine.py:107
+#: ../engine/engine.py:106
 msgid "Latin"
 msgstr "英数"
 
-#: ../engine/engine.py:110
+#: ../engine/engine.py:109
 msgid "Wide Latin"
 msgstr "全角英数"
 
-#: ../engine/engine.py:122
+#: ../engine/engine.py:121
 msgid "Configure SKK"
 msgstr "SKKの設定"
 
-#: ../engine/factory.py:34 ../setup/ibus-skk-preferences.ui.h:6
+#: ../engine/factory.py:37 ../setup/ibus-skk-preferences.ui.h:10
 msgid "SKK"
 msgstr "SKK"
 
 #: ../setup/ibus-skk-preferences.ui.h:1
+msgid ", ."
+msgstr ""
+
+#: ../setup/ibus-skk-preferences.ui.h:2
+msgid ", . ' \""
+msgstr ""
+
+#: ../setup/ibus-skk-preferences.ui.h:3
+msgid ", . ' \" [ ] ( ) { }"
+msgstr ""
+
+#: ../setup/ibus-skk-preferences.ui.h:4
 msgid "<b>Dictionaries</b>"
 msgstr "<b>辞書</b>"
 
-#: ../setup/ibus-skk-preferences.ui.h:2
+#: ../setup/ibus-skk-preferences.ui.h:5
 msgid "<b>Others</b>"
 msgstr "<b>その他</b>"
 
-#: ../setup/ibus-skk-preferences.ui.h:3
+#: ../setup/ibus-skk-preferences.ui.h:6
 msgid "About"
 msgstr "情報"
 
-#: ../setup/ibus-skk-preferences.ui.h:4
+#: ../setup/ibus-skk-preferences.ui.h:7
+msgid "Autoconversion"
+msgstr "自動変換"
+
+#: ../setup/ibus-skk-preferences.ui.h:8
 msgid "Period Style"
 msgstr "句読点の形式"
 
-#: ../setup/ibus-skk-preferences.ui.h:5
+#: ../setup/ibus-skk-preferences.ui.h:9
 msgid "Port:"
 msgstr "ポート:"
 
-#: ../setup/ibus-skk-preferences.ui.h:7
+#: ../setup/ibus-skk-preferences.ui.h:11
 msgid "SKK input method for IBus"
 msgstr "IBus入力プラットフォーム用SKKエンジン"
 
-#: ../setup/ibus-skk-preferences.ui.h:8
+#: ../setup/ibus-skk-preferences.ui.h:12
+msgid "Start conversion by some punctuations"
+msgstr "区切り文字による自動変換"
+
+#: ../setup/ibus-skk-preferences.ui.h:13
 msgid "System Dictionary"
 msgstr "システム辞書"
 
-#: ../setup/ibus-skk-preferences.ui.h:9
+#: ../setup/ibus-skk-preferences.ui.h:14
 msgid "User Dictionary"
 msgstr "ユーザ辞書"
 
-#: ../setup/ibus-skk-preferences.ui.h:10
+#: ../setup/ibus-skk-preferences.ui.h:15
+msgid "none"
+msgstr "なし"
+
+#: ../setup/ibus-skk-preferences.ui.h:16
 msgid "skkserv"
 msgstr "skkserv"

@@ -24,7 +24,7 @@ class PreferencesDialog:
         self.__skkserv_host = self.__builder.get_object('skkserv_host')
         self.__skkserv_port = self.__builder.get_object('skkserv_port')
         self.__period_style = self.__builder.get_object('period_style')
-
+        self.__autoconversion_style = self.__builder.get_object('autoconversion_style')
         self.__usrdict.set_filename(self.__config.usrdict_path)
 
         sysdict_type = self.__config.get_value('sysdict_type', 'file')
@@ -47,11 +47,18 @@ class PreferencesDialog:
         self.__period_style.set_active(\
             self.__config.get_value('period_style', 0))
 
+        renderer = gtk.CellRendererText()
+        self.__autoconversion_style.pack_start(renderer)
+        self.__autoconversion_style.set_attributes(renderer, text=0)
+        self.__autoconversion_style.set_active(\
+            self.__config.get_value('autoconversion_style', 0))
+
         self.__usrdict.connect('file-set', self.__usrdict_file_set_cb)
         self.__sysdict_file.connect('toggled', self.__sysdict_toggle_cb)
         self.__sysdict_skkserv.connect('toggled', self.__sysdict_toggle_cb)
         self.__sysdict.connect('file-set', self.__sysdict_file_set_cb)
         self.__period_style.connect('changed', self.__period_style_changed_cb)
+        self.__autoconversion_style.connect('changed', self.__autoconversion_style_changed_cb)
 
     def __sysdict_toggle_cb(self, widget):
         sysdict_type = 'file' if self.__sysdict_file.get_active() else 'skkserv'
@@ -76,6 +83,9 @@ class PreferencesDialog:
         
     def __period_style_changed_cb(self, widget):
         self.__config.set_value('period_style', widget.get_active())
+
+    def __autoconversion_style_changed_cb(self, widget):
+        self.__config.set_value('autoconversion_style', widget.get_active())
 
     def run(self):
         return self.__dialog.run()
