@@ -519,7 +519,7 @@ class UsrDict(DictBase):
     def select_candidate(self, midasi, candidate):
         del(self.__midasi_history[self.HISTSIZE:])
         _midasi = None
-        for index, _midasi in self.__midasi_history:
+        for index, _midasi in enumerate(self.__midasi_history):
             if _midasi == midasi:
                 if index > 0:
                     first = self.__midasi_history[0]
