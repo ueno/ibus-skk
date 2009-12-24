@@ -31,6 +31,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 EXTRA_DIST = \
 	autogen.sh \
+	ibus-skk.spec.in \
 	python-config.py \
 	$(NULL)
 

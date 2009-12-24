@@ -37,3 +37,4 @@ intltool-extract.in
 intltool-merge.in
 intltool-update.in
 mkinstalldirs
+ibus-skk.spec

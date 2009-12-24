@@ -1,0 +1,51 @@
+Name:		@PACKAGE_NAME@
+Version:	@PACKAGE_VERSION@
+Release:	1%{?dist}
+Summary:	Japanese SKK input method for ibus
+
+Group:		System Environment/Libraries
+License:	GPLv2+
+URL:		http://github.com/ueno/ibus-skk
+Source0:	http://cloud.github.com/downloads/ueno/ibus-skk/%{name}-%{version}.tar.gz
+
+BuildRequires:	intltool
+Requires:	ibus, skkdic
+
+%description
+A Japanese Simple Kana Kanji Input Method Engine for ibus.
+
+%prep
+%setup -q
+
+
+%build
+%configure
+make %{?_smp_mflags}
+
+
+%install
+make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
+
+%find_lang %{name}
+
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+
+%files -f %{name}.lang
+%defattr(-,root,root,-)
+%doc AUTHORS COPYING README TODO
+%{_datadir}/ibus-skk
+%{_libexecdir}/ibus-*-skk
+%{_datadir}/ibus/component/skk.xml
+
+
+
+%changelog
+* @DATE_DISPLAY@ Daiki Ueno <ueno@unixuser.org> - @PACKAGE_VERSION@-1
+- current version
+* Thu Dec 24 2009 Daiki Ueno <ueno@unixuser.org> - 0.0.2-1
+- new upstream release
+* Fri Dec 11 2009 Jens Petersen <petersen@redhat.com> - 0.0.1-1
+- initial packaging for fedora

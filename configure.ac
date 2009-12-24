@@ -75,6 +75,7 @@ AM_GLIB_GNU_GETTEXT
 # OUTPUT files
 AC_CONFIG_FILES([ po/Makefile.in
 Makefile
+ibus-skk.spec
 engine/Makefile
 engine/ibus-engine-skk
 engine/skk.xml.in
