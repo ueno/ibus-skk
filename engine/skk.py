@@ -651,6 +651,7 @@ class Context:
         self.reset()
         self.activate_input_mode(INPUT_MODE_HIRAGANA)
         self.kutouten_type = KUTOUTEN_JP
+        self.autoconversion_type = 0
         self.autoconversion_lastchar = False
 
     def __check_dict(self, _dict):
