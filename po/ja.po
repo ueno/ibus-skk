@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ibus-skk 1.2.0.20091108\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-12-26 12:18+0900\n"
+"POT-Creation-Date: 2009-12-26 14:51+0900\n"
 "PO-Revision-Date:  2009-12-23 15:06+0900\n"
 "Last-Translator: Daiki Ueno <ueno@unixuser.org>\n"
 "Language-Team: Japanese\n"
@@ -17,31 +17,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ../engine/engine.py:96
+#: ../engine/engine.py:97
 msgid "Switch input mode"
 msgstr "入力モード切替"
 
-#: ../engine/engine.py:102
+#: ../engine/engine.py:103
 msgid "Hiragana"
 msgstr "ひらがな"
 
-#: ../engine/engine.py:105
+#: ../engine/engine.py:106
 msgid "Katakana"
 msgstr "カタカナ"
 
-#: ../engine/engine.py:108
+#: ../engine/engine.py:109
 msgid "Latin"
 msgstr "英数"
 
-#: ../engine/engine.py:111
+#: ../engine/engine.py:112
 msgid "Wide Latin"
 msgstr "全角英数"
 
-#: ../engine/engine.py:123
+#: ../engine/engine.py:124
 msgid "Configure SKK"
 msgstr "SKKの設定"
 
-#: ../engine/factory.py:37 ../setup/ibus-skk-preferences.ui.h:7
+#: ../engine/factory.py:37 ../setup/ibus-skk-preferences.ui.h:9
 msgid "SKK"
 msgstr "SKK"
 
@@ -58,36 +58,49 @@ msgid "About"
 msgstr "情報"
 
 #: ../setup/ibus-skk-preferences.ui.h:4
-msgid "Auto-start Conversion Keywords"
-msgstr "自動変換を開始するキーワード"
+msgid "Auto-start Conversion Characters"
+msgstr "自動変換を開始する文字"
 
 #: ../setup/ibus-skk-preferences.ui.h:5
+msgid "File"
+msgstr "ファイル"
+
+#: ../setup/ibus-skk-preferences.ui.h:6
+msgid "Host:"
+msgstr "ホスト:"
+
+#: ../setup/ibus-skk-preferences.ui.h:7
 msgid "Period Style"
 msgstr "句読点の形式"
 
-#: ../setup/ibus-skk-preferences.ui.h:6
+#: ../setup/ibus-skk-preferences.ui.h:8
 msgid "Port:"
 msgstr "ポート:"
 
-#: ../setup/ibus-skk-preferences.ui.h:8
+#: ../setup/ibus-skk-preferences.ui.h:10
+msgid "SKK Server"
+msgstr "SKK サーバ"
+
+#: ../setup/ibus-skk-preferences.ui.h:11
 msgid "SKK input method for IBus"
 msgstr "IBus入力プラットフォーム用SKKエンジン"
 
-#: ../setup/ibus-skk-preferences.ui.h:9
+#: ../setup/ibus-skk-preferences.ui.h:12
+msgid "Setup - IBus-SKK"
+msgstr "IBus-SKKの設定"
+
+#: ../setup/ibus-skk-preferences.ui.h:13
 msgid "Start conversion by some keywords"
 msgstr "キーワードによる自動変換の開始"
 
-#: ../setup/ibus-skk-preferences.ui.h:10
-msgid "System Dictionary"
-msgstr "システム辞書"
+#: ../setup/ibus-skk-preferences.ui.h:14
+msgid "System Dictionary File"
+msgstr "システム辞書ファイル"
 
-#: ../setup/ibus-skk-preferences.ui.h:11
-msgid "User Dictionary"
-msgstr "ユーザ辞書"
+#: ../setup/ibus-skk-preferences.ui.h:15
+msgid "System Dictionary Type"
+msgstr "システム辞書の形式"
 
-#: ../setup/ibus-skk-preferences.ui.h:12
-msgid "skkserv"
-msgstr "skkserv"
-
-#~ msgid "none"
-#~ msgstr "なし"
+#: ../setup/ibus-skk-preferences.ui.h:16
+msgid "User Dictionary File"
+msgstr "ユーザ辞書ファイル"
