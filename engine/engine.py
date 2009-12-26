@@ -70,7 +70,8 @@ class Engine(ibus.EngineBase):
         
         usrdict = skk.UsrDict(self.config.usrdict_path)
         self.__skk = skk.Context(usrdict, self.sysdict)
-        self.__skk.kutouten_type = self.config.get_value('period_style', 0)
+        self.__skk.kutouten_type = self.config.get_value('period_style',
+                                                         skk.KUTOUTEN_JP)
         self.__skk.auto_start_henkan_keywords = \
             list(iter(self.config.get_value('auto_start_henkan_keywords',
                                             ''.join(skk.AUTO_START_HENKAN_KEYWORDS))))

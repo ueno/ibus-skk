@@ -27,7 +27,8 @@ class PreferencesDialog:
         self.__skkserv_host = self.__builder.get_object('skkserv_host')
         self.__skkserv_port = self.__builder.get_object('skkserv_port')
         self.__period_style = self.__builder.get_object('period_style')
-        self.__auto_start_henkan_keywords = self.__builder.get_object('auto_start_henkan_keywords')
+        self.__auto_start_henkan_keywords = \
+            self.__builder.get_object('auto_start_henkan_keywords')
         self.__usrdict.set_filename(self.__config.usrdict_path)
 
         sysdict_type = self.__config.get_value('sysdict_type', 'file')
@@ -40,15 +41,15 @@ class PreferencesDialog:
         self.__set_sysdict_widgets_sensitivity(sysdict_type)
         self.__sysdict.set_filename(self.__config.sysdict_path)
         self.__skkserv_host.set_text(\
-            self.__config.get_value('skkserv_host', 'localhost'))
+            self.__config.get_value('skkserv_host', skk.SkkServ.HOST))
         self.__skkserv_port.set_text(\
-            self.__config.get_value('skkserv_port', '1178'))
+            self.__config.get_value('skkserv_port', skk.SkkServ.PORT))
 
         renderer = gtk.CellRendererText()
         self.__period_style.pack_start(renderer)
         self.__period_style.set_attributes(renderer, text=0)
         self.__period_style.set_active(\
-            self.__config.get_value('period_style', 0))
+            self.__config.get_value('period_style', skk.KUTOUTEN_JP))
 
         self.__auto_start_henkan_keywords.set_text(\
             self.__config.get_value('auto_start_henkan_keywords',
@@ -58,8 +59,11 @@ class PreferencesDialog:
         self.__sysdict_file.connect('toggled', self.__sysdict_toggle_cb)
         self.__sysdict_skkserv.connect('toggled', self.__sysdict_toggle_cb)
         self.__sysdict.connect('file-set', self.__sysdict_file_set_cb)
+        self.__skkserv_host.connect('changed', self.__skkserv_host_changed_cb)
+        self.__skkserv_port.connect('changed', self.__skkserv_port_changed_cb)
         self.__period_style.connect('changed', self.__period_style_changed_cb)
-        self.__auto_start_henkan_keywords.connect('changed', self.__auto_start_henkan_keywords_changed_cb)
+        self.__auto_start_henkan_keywords.connect(\
+            'changed', self.__auto_start_henkan_keywords_changed_cb)
 
     def __sysdict_toggle_cb(self, widget):
         sysdict_type = 'file' if self.__sysdict_file.get_active() else 'skkserv'
@@ -82,6 +86,12 @@ class PreferencesDialog:
     def __usrdict_file_set_cb(self, widget):
         self.__config.set_value('usrdict', widget.get_filename())
         
+    def __skkserv_host_changed_cb(self, widget):
+        self.__config.set_value('skkserv_host', widget.get_text())
+
+    def __skkserv_port_changed_cb(self, widget):
+        self.__config.set_value('skkserv_port', widget.get_text())
+
     def __period_style_changed_cb(self, widget):
         self.__config.set_value('period_style', widget.get_active())
 
