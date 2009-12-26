@@ -189,8 +189,8 @@
                                 <child>
                                   <object class="GtkLabel" id="label4">
                                     <property name="visible">True</property>
-                                    <property name="tooltip_text" translatable="yes">Start conversion by some punctuations</property>
-                                    <property name="label" translatable="yes">Autoconversion</property>
+                                    <property name="tooltip_text" translatable="yes">Start conversion by some keywords</property>
+                                    <property name="label" translatable="yes">Auto-start Conversion Keywords</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">1</property>
@@ -198,9 +198,10 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkComboBox" id="autoconversion_style">
+                                  <object class="GtkEntry" id="auto_start_henkan_keywords">
                                     <property name="visible">True</property>
-                                    <property name="model">autoconversion_style_liststore</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="invisible_char">&#x2022;</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -269,7 +270,7 @@
                         <child>
                           <object class="GtkLabel" id="label7">
                             <property name="visible">True</property>
-                            <property name="label">&lt;big&gt;&lt;b&gt;IBus SKK 0.0.1&lt;/b&gt;&lt;/big&gt;</property>
+                            <property name="label">&lt;big&gt;&lt;b&gt;IBus SKK 0.0.3&lt;/b&gt;&lt;/big&gt;</property>
                             <property name="use_markup">True</property>
                           </object>
                           <packing>
@@ -377,26 +378,6 @@
       </row>
       <row>
         <col id="0">&#xFF0E;&#x3001;</col>
-      </row>
-    </data>
-  </object>
-  <object class="GtkListStore" id="autoconversion_style_liststore">
-    <columns>
-      <!-- column-name column1 -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">none</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">, .</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">, . ' "</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">, . ' " [ ] ( ) { }</col>
       </row>
     </data>
   </object>

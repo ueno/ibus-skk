@@ -126,31 +126,21 @@ class TestSKK(unittest.TestCase):
     def testautoconvesion(self):
         self.__skk.reset()
         self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
-        self.__skk.autoconversion_type = 0
         self.__skk.press_key(u'shift+a')
         self.assertEqual(self.__skk.preedit, u'▽あ')
         self.__skk.press_key(u'i')
         self.assertEqual(self.__skk.preedit, u'▽あい')
         self.__skk.press_key(u',')
-        self.assertEqual(self.__skk.preedit, u'▽あい、')
+        self.assertEqual(self.__skk.preedit, u'▼愛、')
+        self.__skk.press_key(u' ')
+        self.assertEqual(self.__skk.preedit, u'▼哀、')
         self.__skk.reset()
         self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
-        self.__skk.autoconversion_type = 1
         self.__skk.press_key(u'shift+a')
-        self.assertEqual(self.__skk.preedit, u'▽あ')
         self.__skk.press_key(u'i')
-        self.assertEqual(self.__skk.preedit, u'▽あい')
-        self.__skk.press_key(u',')
-        self.assertEqual(self.__skk.preedit, u'▼愛')
-        self.__skk.reset()
-        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
-        self.__skk.autoconversion_type = 3
-        self.__skk.press_key(u'shift+a')
-        self.assertEqual(self.__skk.preedit, u'▽あ')
-        self.__skk.press_key(u'i')
-        self.assertEqual(self.__skk.preedit, u'▽あい')
-        self.__skk.press_key(u'(')
-        self.assertEqual(self.__skk.preedit, u'▼愛')
+        self.__skk.press_key(u'w')
+        self.__skk.press_key(u'o')
+        self.assertEqual(self.__skk.preedit, u'▼愛を')
 
     def testdelete(self):
         self.__skk.reset()
