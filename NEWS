@@ -2,6 +2,8 @@
 
 * Version 0.0.3 (unreleased)
 
+** Show annotations on the auxilary text area.
+
 ** Start conversion automatically when some punctuation characters are typed.
 Thanks iws <iws1011@gmail.com> for the initial implementation.
 
@@ -10,7 +12,7 @@ Contributed by Jens Petersen <petersen@redhat.com>.
 
 * Version 0.0.2 (released 2009-12-23)
 
-** Support for keyword completion with TAB key.
+** Keyword completion with TAB key.
 
 ** `delete-char' behavior fix.
 Thanks Kazuhiro NISHIYAMA for providing a test case.
