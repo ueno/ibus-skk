@@ -190,13 +190,6 @@ class Engine(ibus.EngineBase):
                 return True
             return False
                 
-        if self.__skk.conv_state == skk.CONV_STATE_START:
-            keychr = unichr(keyval)
-            if state & modifier.CONTROL_MASK and keychr == u'i':
-                self.__skk.press_key(u'\t')
-                self.__update()
-                return True
-
         if self.__skk.conv_state == skk.CONV_STATE_SELECT:
             if keyval == keysyms.Page_Up or keyval == keysyms.KP_Page_Up:
                 self.page_up()
@@ -205,34 +198,27 @@ class Engine(ibus.EngineBase):
                 self.page_down()
                 return True
             elif keyval == keysyms.Up:
-                self.__skk.previous_candidate()
-                self.__update()
-                return True
-            elif keyval == keysyms.Down or keyval == keysyms.space:
-                self.__skk.next_candidate()
-                self.__update()
-                return True
+                keyval = keysyms.x
+            elif keyval == keysyms.Down:
+                keyval = keysyms.space
 
-        if 0x20 <= keyval and keyval <= 0x7E:
-            keychr = unichr(keyval)
-            if keychr.isalpha():
-                keychr = keychr.lower()
-            if state & modifier.SHIFT_MASK:
-                keychr = u'shift+' + keychr
-            if state & modifier.CONTROL_MASK:
-                # XXX: acceptable keys should be checked in press_key().
-                if keychr not in (u'j', u'g'):
-                    return False
-                keychr = u'ctrl+' + keychr
-            output = self.__skk.press_key(keychr)
+        keychr = unichr(keyval)
+        if keyval == keysyms.Tab:
+            keychr = u'\t'
+        elif 0x20 > ord(keychr) or ord(keychr) > 0x7E:
+            return False
+        if keychr.isalpha():
+            keychr = keychr.lower()
+        if state & modifier.SHIFT_MASK:
+            keychr = u'shift+' + keychr
+        if state & modifier.CONTROL_MASK:
+            keychr = u'ctrl+' + keychr
+        handled, output = self.__skk.press_key(keychr)
+        if handled:
             if output:
                 self.commit_text(ibus.Text(output))
             self.__update()
             return True
-        elif keyval < 128:
-            self.commit_text(ibus.Text(unichr(keyval)))
-            return True
-
         return False
 
     def __invalidate(self):

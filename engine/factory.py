@@ -59,12 +59,15 @@ class EngineFactory(ibus.EngineFactoryBase):
 
     def __load_sysdict(self, _config):
         sysdict_type = _config.get_value('sysdict_type', 'file')
-        if sysdict_type == 'file':
-            return skk.SysDict(_config.sysdict_path)
-        else:
-            host = _config.get_value('skkserv_host', 'localhost')
-            port = int(_config.get_value('skkserv_port', '1178'))
-            return skk.SkkServ(host, port)
+        try:
+            if sysdict_type == 'file':
+                return skk.SysDict(_config.sysdict_path)
+            else:
+                host = _config.get_value('skkserv_host', 'localhost')
+                port = int(_config.get_value('skkserv_port', '1178'))
+                return skk.SkkServ(host, port)
+        except:
+            return skk.EmptyDict()
 
     def __config_reloaded_cb(self, bus_config):
         engine.Engine.config = config.Config(self.__bus)

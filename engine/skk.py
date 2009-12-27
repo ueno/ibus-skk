@@ -363,8 +363,15 @@ class DictBase(object):
     def completer(self, midasi):
         raise NotImplemented
 
-    def save(self):
-        raise NotImplemented
+class EmptyDict(DictBase):
+    def reload(self):
+        pass
+
+    def lookup(self, midasi, okuri=False):
+        return list()
+        
+    def completer(self, midasi):
+        return iter(list())
 
 class SysDict(DictBase):
     def __init__(self, path, encoding=DictBase.ENCODING):
@@ -623,19 +630,25 @@ class CandidateSelectorBase(object):
 
     def set_candidates(self, candidates):
         self.__candidates = candidates
-        self.__candidate_index = -1
+        self.__candidate_index = 0
 
     def next_candidate(self):
-        if self.__candidates:
+        if 0 <= self.__candidate_index and \
+                self.__candidate_index < len(self.__candidates):
+            candidate = self.__candidates[self.__candidate_index]
             self.__candidate_index += 1
-            self.__candidate_index %= len(self.__candidates)
-            return self.__candidates[self.__candidate_index]
+            return candidate
+        self.__candidate_index = 0
+        return None
 
     def previous_candidate(self):
-        if self.__candidates:
+        if 0 <= self.__candidate_index and \
+                self.__candidate_index < len(self.__candidates):
+            candidate = self.__candidates[self.__candidate_index]
             self.__candidate_index -= 1
-            self.__candidate_index %= len(self.__candidates)
-            return self.__candidates[self.__candidate_index]
+            return candidate
+        self.__candidate_index = 0
+        return None
 
 class Context:
     def __init__(self, usrdict, sysdict):
@@ -747,9 +760,13 @@ class Context:
         return output
 
     def press_key(self, key):
-        '''Process a key press event KEY and return a committable
-        string (if any).  KEY is in the format of
-        ["ctrl+"]["shift+"]<lower case ASCII letter>.'''
+        '''Process a key press event KEY.
+
+        KEY is in the format of ["ctrl+"]["shift+"]<lower case ASCII letter>.
+
+        The return value is a tuple (HANDLED, OUTPUT) where HANDLED is
+        True if the event was handled internally (otherwise False),
+        and OUTPUT is a committable string (if any).'''
         keyval = key
         is_ctrl = keyval.startswith('ctrl+')
         if is_ctrl:
@@ -776,7 +793,7 @@ class Context:
                 self.__kana_kan_state = None
                 self.clear_candidates()
                 self.__conv_state = CONV_STATE_START
-            return u''
+            return (True, u'')
 
         if self.__conv_state == CONV_STATE_NONE:
             input_mode = INPUT_MODE_TRANSITION_RULE.get(key, dict()).\
@@ -784,18 +801,22 @@ class Context:
             if input_mode is not None:
                 self.reset()
                 self.activate_input_mode(input_mode)
-                return u''
+                return (True, u'')
+
+            # Ignore ctrl+key and non-ASCII characters.
+            if is_ctrl or 0x20 > ord(letter) or ord(letter) > 0x7E:
+                return (False, u'')
 
             if self.__input_mode == INPUT_MODE_LATIN:
-                return letter
+                return (True, letter)
             elif self.__input_mode == INPUT_MODE_WIDE_LATIN:
-                return WIDE_LATIN_TABLE[ord(letter)]
+                return (True, WIDE_LATIN_TABLE[ord(letter)])
 
             # Start rom-kan mode.
             if keyval == '/':
                 self.__conv_state = CONV_STATE_START
                 self.__abbrev = True
-                return u''
+                return (True, u'')
 
             if is_shift and keyval.isalpha():
                 self.__conv_state = CONV_STATE_START
@@ -804,8 +825,8 @@ class Context:
                 self.__convert_rom_kana(keyval, self.__rom_kana_state)
             if self.__conv_state == CONV_STATE_NONE and \
                     len(self.__rom_kana_state[1]) == 0:
-                return self.kakutei()
-            return u''
+                return (True, self.kakutei())
+            return (True, u'')
 
         elif self.__conv_state == CONV_STATE_START:
             input_mode = INPUT_MODE_TRANSITION_RULE.get(key, dict()).\
@@ -815,17 +836,17 @@ class Context:
                 kana = self.__hiragana_to_katakana(self.__rom_kana_state[0])
                 self.kakutei()
                 self.activate_input_mode(input_mode)
-                return kana
+                return (True, kana)
             elif self.__input_mode == INPUT_MODE_KATAKANA and \
                     input_mode == INPUT_MODE_HIRAGANA:
                 kana = self.__katakana_to_hiragana(self.__rom_kana_state[0])
                 self.kakutei()
                 self.activate_input_mode(input_mode)
-                return kana
+                return (True, kana)
             elif input_mode is not None and not self.__abbrev:
                 output = self.kakutei()
                 self.activate_input_mode(input_mode)
-                return output
+                return (True, output)
 
             # Start TAB completion.
             if keyval == u'\t':
@@ -838,7 +859,7 @@ class Context:
                                              u'', u'')
                 except StopIteration:
                     pass
-                return u''
+                return (True, u'')
             # Stop TAB completion.
             self.__comp_state = None
 
@@ -861,13 +882,13 @@ class Context:
                                                      sys_candidates)
                 self.__candidate_selector.set_candidates(candidates)
                 self.next_candidate()
-                return u''
+                return (True, u'')
 
             if is_shift and \
                     len(self.__rom_kana_state[1]) == 0 and \
                     not self.__okuri_rom_kana_state:
-                self.__okuri_rom_kana_state = \
-                    (u'', u'', self.__rom_kana_rule_tree)
+                self.__okuri_rom_kana_state = (u'', u'',
+                                               self.__rom_kana_rule_tree)
 
             if self.__okuri_rom_kana_state:
                 okuri = (self.__okuri_rom_kana_state[1] or keyval)[0]
@@ -886,7 +907,11 @@ class Context:
                                                          sys_candidates)
                     self.__candidate_selector.set_candidates(candidates)
                     self.next_candidate()
-                return u''
+                return (True, u'')
+
+            # Ignore ctrl+key and non-ASCII characters.
+            if is_ctrl or 0x20 > ord(letter) or ord(letter) > 0x7E:
+                return (False, u'')
 
             if self.__abbrev:
                 self.__rom_kana_state = (self.__rom_kana_state[0] + keyval,
@@ -894,18 +919,20 @@ class Context:
             else:
                 self.__rom_kana_state = \
                     self.__convert_rom_kana(keyval, self.__rom_kana_state)
-            return u''
+            return (True, u'')
 
         elif self.__conv_state == CONV_STATE_SELECT:
             if letter.isspace():
-                self.next_candidate()
+                if self.next_candidate() is None:
+                    self.__conv_state = CONV_STATE_START
+                return (True, u'')
             elif key == 'x':
-                self.previous_candidate()
+                if self.previous_candidate() is None:
+                    self.__conv_state = CONV_STATE_START
+                return (True, u'')
             elif key == 'ctrl+j' or key == 'return':
-                return self.kakutei()
-            else:
-                return self.kakutei() + self.press_key(key)
-            return u''
+                return (True, self.kakutei())
+            return (True, self.kakutei() + self.press_key(key)[1])
 
     def __init_completion(self, compkey):
         return (compkey,
@@ -961,11 +988,13 @@ class Context:
         '''Select the next candidate.'''
         candidate = self.__candidate_selector.next_candidate()
         self.__kana_kan_state = (self.__kana_kan_state[0], candidate)
+        return candidate
             
     def previous_candidate(self):
         '''Select the previous candidate.'''
         candidate = self.__candidate_selector.previous_candidate()
         self.__kana_kan_state = (self.__kana_kan_state[0], candidate)
+        return candidate
 
     def __merge_candidates(self, usr_candidates, sys_candidates):
         return usr_candidates + \
