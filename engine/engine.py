@@ -45,17 +45,27 @@ class CandidateSelector(skk.CandidateSelectorBase):
         super(CandidateSelector, self).set_candidates(candidates)
 
     def next_candidate(self):
+        last_candidate = self.__candidate
+        self.__candidate = super(CandidateSelector, self).next_candidate()
         if self.__candidate:
-            self.__engine.cursor_down()
-        self.__candidate = \
-            super(CandidateSelector, self).next_candidate()
+            if last_candidate is None:
+                self.__engine.show_lookup_table()
+            else:
+                self.__engine.cursor_down()
+        else:
+            self.__engine.hide_lookup_table()
         return self.__candidate
 
     def previous_candidate(self):
+        last_candidate = self.__candidate
+        self.__candidate = super(CandidateSelector, self).previous_candidate()
         if self.__candidate:
-            self.__engine.cursor_up()
-        self.__candidate = \
-            super(CandidateSelector, self).previous_candidate()
+            if last_candidate is None:
+                self.__engine.show_lookup_table()
+            else:
+                self.__engine.cursor_up()
+        else:
+            self.__engine.hide_lookup_table()
         return self.__candidate
 
     def current_candidate(self):
@@ -66,7 +76,9 @@ class Engine(ibus.EngineBase):
     sysdict = None
     __setup_pid = 0
 
-    __labels = [u'a', u's', u'd', u'f', u'j', u'k', u'l']
+    __labels = [u'a', u's', u'd', u'f', u'j', u'k', u'l',
+                u'q', u'w', u'e', u'r', u'u', u'i', u'o',
+                u'z', u'x', u'c', u'v', u'm', u',', u'.']
      
     def __init__(self, bus, object_path):
         super(Engine, self).__init__(bus, object_path)
@@ -294,11 +306,12 @@ class Engine(ibus.EngineBase):
         preedit = ''.join((prefix, midasi, suffix))
         self.update_preedit_text(ibus.Text(preedit, attrs),
                                  len(preedit), len(preedit) > 0)
-        visible = self.__lookup_table.get_number_of_candidates() > 1
         current_candidate = self.__candidate_selector.current_candidate()
         annotation = current_candidate[1] if current_candidate else None
-        self.update_auxiliary_text(ibus.Text(annotation or u''), visible)
-        self.update_lookup_table(self.__lookup_table, visible)
+        self.update_auxiliary_text(ibus.Text(annotation or u''),
+                                   self.lookup_table_visible())
+        self.update_lookup_table(self.__lookup_table,
+                                 self.lookup_table_visible())
         self.__input_mode_activate(self.__input_modes[self.__skk.input_mode],
                                    ibus.PROP_STATE_CHECKED)
 
@@ -312,6 +325,19 @@ class Engine(ibus.EngineBase):
         self.__lookup_table.clean()
         for candidate in candidates:
             self.__lookup_table.append_candidate(ibus.Text(candidate))
+        self.__lookup_table_hidden = False
+
+    def lookup_table_visible(self):
+        return not self.__lookup_table_hidden and \
+            self.__lookup_table.get_number_of_candidates() > 1
+
+    def show_lookup_table(self):
+        self.__lookup_table_hidden = False
+        super(Engine, self).show_lookup_table()
+
+    def hide_lookup_table(self):
+        self.__lookup_table_hidden = True
+        super(Engine, self).hide_lookup_table()
 
     def __start_setup(self):
         if Engine.__setup_pid != 0:

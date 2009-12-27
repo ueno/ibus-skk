@@ -1042,7 +1042,7 @@ class Context:
                 output += u'ん'
             elif self.__input_mode == INPUT_MODE_KATAKANA:
                 output += u'ン'
-            return (output, pending, tree)
+            return (output, pending[:-1], tree)
         return state
         
     def __convert_rom_kana(self, letter, state):
