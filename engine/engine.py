@@ -66,10 +66,16 @@ class Engine(ibus.EngineBase):
     sysdict = None
     __setup_pid = 0
 
+    __labels = [u'a', u's', u'd', u'f', u'j', u'k', u'l']
+     
     def __init__(self, bus, object_path):
         super(Engine, self).__init__(bus, object_path)
         self.__is_invalidate = False
-        self.__lookup_table = ibus.LookupTable(round=True)
+        labels = [ibus.Text(label) for label in self.__labels]
+        page_size = self.config.get_value('page_size', 7)
+        self.__lookup_table = ibus.LookupTable(page_size=page_size,
+                                               labels=labels,
+                                               round=False)
         
         usrdict = skk.UsrDict(self.config.usrdict_path)
         self.__skk = skk.Context(usrdict, self.sysdict)
@@ -201,6 +207,15 @@ class Engine(ibus.EngineBase):
                 keyval = keysyms.x
             elif keyval == keysyms.Down:
                 keyval = keysyms.space
+            elif unichr(keyval) in self.__labels:
+                pos = self.__labels.index(unichr(keyval))
+                if self.__lookup_table.set_cursor_pos_in_current_page(pos):
+                    candidate = self.__lookup_table.get_current_candidate().text
+                    self.__skk.kakutei()
+                    self.__lookup_table.clean()
+                    self.commit_text(ibus.Text(candidate))
+                    self.__update()
+                    return True
 
         keychr = unichr(keyval)
         if keyval == keysyms.Tab:
