@@ -972,38 +972,39 @@ class Context:
             [candidate for candidate in sys_candidates
              if candidate not in usr_candidates]
 
-    def __preedit(self):
+    def split_preedit(self):
         if self.__conv_state == CONV_STATE_NONE:
             if self.__rom_kana_state:
-                return self.__rom_kana_state[1]
-            return u''
+                return (u'', self.__rom_kana_state[1], u'')
+            return (u'', u'', u'')
         elif self.__conv_state == CONV_STATE_START:
             if self.__okuri_rom_kana_state:
-                return u'▽' + self.__rom_kana_state[0] + u'*' + \
-                    self.__okuri_rom_kana_state[0] + \
-                    self.__okuri_rom_kana_state[1]
+                return (u'▽', self.__rom_kana_state[0],
+                        u'*' + self.__okuri_rom_kana_state[0] + \
+                            self.__okuri_rom_kana_state[1])
             else:
-                return u'▽' + self.__rom_kana_state[0] + \
-                    self.__rom_kana_state[1]
+                return (u'▽', self.__rom_kana_state[0] + \
+                            self.__rom_kana_state[1], u'')
         else:
             if self.__okuri_rom_kana_state:
                 if self.__kana_kan_state:
                     candidate = self.__kana_kan_state[1]
                     if candidate:
-                        return u'▼' + candidate[0] + \
-                            self.__okuri_rom_kana_state[0]
-                return u'▼' + self.__rom_kana_state[0] + \
-                    self.__okuri_rom_kana_state[0]
+                        return (u'▼', candidate[0],
+                                self.__okuri_rom_kana_state[0])
+                return (u'▼', self.__rom_kana_state[0],
+                        self.__okuri_rom_kana_state[0])
             else:
                 if self.__kana_kan_state:
                     candidate = self.__kana_kan_state[1]
                     if candidate:
-                        return u'▼' + candidate[0] + \
-                            (self.__auto_start_henkan_keyword or u'')
-                return u'▼' + self.__rom_kana_state[0] + \
-                    (self.__auto_start_henkan_keyword or u'')
+                        return (u'▼', candidate[0],
+                                (self.__auto_start_henkan_keyword or u''))
+                return (u'▼', self.__rom_kana_state[0],
+                        (self.__auto_start_henkan_keyword or u''))
+        return (u'', u'', u'')
 
-    preedit = property(lambda self: self.__preedit())
+    preedit = property(lambda self: ''.join(self.split_preedit()))
 
     def __convert_nn(self, state):
         output, pending, tree = state

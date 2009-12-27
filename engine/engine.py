@@ -274,10 +274,23 @@ class Engine(ibus.EngineBase):
                                             ''.join(skk.AUTO_START_HENKAN_KEYWORDS))))
 
     def __update(self):
-        preedit = self.__skk.preedit
+        prefix, midasi, suffix = self.__skk.split_preedit()
+        midasi_start = len(prefix)
+        suffix_start = midasi_start + len(midasi)
+        suffix_end = suffix_start + len(suffix)
         attrs = ibus.AttrList()
-        attrs.append(ibus.AttributeUnderline(pango.UNDERLINE_SINGLE, 0,
-                                             len(preedit)))
+        if self.__skk.conv_state == skk.CONV_STATE_SELECT:
+            # Use colors from skk-henkan-face-default (black/darkseagreen2).
+            attrs.append(ibus.AttributeForeground(ibus.RGB(0, 0, 0),
+                                                  midasi_start, suffix_start))
+            attrs.append(ibus.AttributeBackground(ibus.RGB(180, 238, 180),
+                                                  midasi_start, suffix_start))
+            attrs.append(ibus.AttributeUnderline(pango.UNDERLINE_SINGLE,
+                                                 suffix_start, suffix_end))
+        else:
+            attrs.append(ibus.AttributeUnderline(pango.UNDERLINE_SINGLE,
+                                                 midasi_start, suffix_end))
+        preedit = ''.join((prefix, midasi, suffix))
         self.update_preedit_text(ibus.Text(preedit, attrs),
                                  len(preedit), len(preedit) > 0)
         visible = self.__lookup_table.get_number_of_candidates() > 1
