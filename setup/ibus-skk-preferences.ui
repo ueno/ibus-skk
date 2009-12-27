@@ -134,25 +134,17 @@
                                       <object class="GtkHBox" id="hbox1">
                                         <property name="visible">True</property>
                                         <child>
-                                          <object class="GtkLabel" id="label12">
-                                            <property name="visible">True</property>
-                                            <property name="label" translatable="yes">Host:</property>
-                                          </object>
-                                          <packing>
-                                            <property name="position">0</property>
-                                          </packing>
-                                        </child>
-                                        <child>
                                           <object class="GtkEntry" id="skkserv_host">
                                             <property name="visible">True</property>
                                             <property name="sensitive">False</property>
                                             <property name="can_focus">True</property>
                                             <property name="invisible_char">&#x2022;</property>
+                                            <property name="width_chars">16</property>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
                                             <property name="fill">False</property>
-                                            <property name="position">1</property>
+                                            <property name="position">0</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -161,7 +153,7 @@
                                             <property name="label" translatable="yes">Port:</property>
                                           </object>
                                           <packing>
-                                            <property name="position">2</property>
+                                            <property name="position">1</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -169,12 +161,11 @@
                                             <property name="visible">True</property>
                                             <property name="sensitive">False</property>
                                             <property name="can_focus">True</property>
-                                            <property name="invisible_char">&#x2022;</property>
+                                            <property name="invisible_char">&#x25CF;</property>
+                                            <property name="width_chars">5</property>
                                           </object>
                                           <packing>
-                                            <property name="expand">False</property>
-                                            <property name="fill">False</property>
-                                            <property name="position">3</property>
+                                            <property name="position">2</property>
                                           </packing>
                                         </child>
                                       </object>
@@ -190,13 +181,15 @@
                                 <child>
                                   <object class="GtkLabel" id="label5">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">User Dictionary File</property>
+                                    <property name="label" translatable="yes">User Dictionary File (_U):</property>
+                                    <property name="use_underline">True</property>
                                   </object>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="label10">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">System Dictionary Type</property>
+                                    <property name="label" translatable="yes">System Dictionary Type (_T):</property>
+                                    <property name="use_underline">True</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">1</property>
@@ -206,7 +199,8 @@
                                 <child>
                                   <object class="GtkLabel" id="label13">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">System Dictionary File</property>
+                                    <property name="label" translatable="yes">System Dictionary File (_F):</property>
+                                    <property name="use_underline">True</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">2</property>
@@ -216,7 +210,8 @@
                                 <child>
                                   <object class="GtkLabel" id="label14">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">SKK Server</property>
+                                    <property name="label" translatable="yes">SKK Server (_S):</property>
+                                    <property name="use_underline">True</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">3</property>
@@ -258,14 +253,16 @@
                                 <child>
                                   <object class="GtkLabel" id="label11">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">Period Style</property>
+                                    <property name="label" translatable="yes">Period Style (_P):</property>
+                                    <property name="use_underline">True</property>
                                   </object>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="label4">
                                     <property name="visible">True</property>
                                     <property name="tooltip_text" translatable="yes">Start conversion by some characters</property>
-                                    <property name="label" translatable="yes">Auto-start Conversion Characters</property>
+                                    <property name="label" translatable="yes">Auto-start Conversion Characters (_A):</property>
+                                    <property name="use_underline">True</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">1</property>

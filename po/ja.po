@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ibus-skk 1.2.0.20091108\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-12-26 14:51+0900\n"
+"POT-Creation-Date: 2009-12-27 10:37+0900\n"
 "PO-Revision-Date:  2009-12-23 15:06+0900\n"
 "Last-Translator: Daiki Ueno <ueno@unixuser.org>\n"
 "Language-Team: Japanese\n"
@@ -41,7 +41,7 @@ msgstr "全角英数"
 msgid "Configure SKK"
 msgstr "SKKの設定"
 
-#: ../engine/factory.py:37 ../setup/ibus-skk-preferences.ui.h:9
+#: ../engine/factory.py:37 ../setup/ibus-skk-preferences.ui.h:8
 msgid "SKK"
 msgstr "SKK"
 
@@ -58,28 +58,28 @@ msgid "About"
 msgstr "情報"
 
 #: ../setup/ibus-skk-preferences.ui.h:4
-msgid "Auto-start Conversion Characters"
-msgstr "自動変換を開始する文字"
+msgid "Auto-start Conversion Characters (_A):"
+msgstr "自動変換を開始する文字 (_A):"
 
 #: ../setup/ibus-skk-preferences.ui.h:5
 msgid "File"
 msgstr "ファイル"
 
 #: ../setup/ibus-skk-preferences.ui.h:6
-msgid "Host:"
-msgstr "ホスト:"
+msgid "Period Style (_P):"
+msgstr "句読点の形式 (_P):"
 
 #: ../setup/ibus-skk-preferences.ui.h:7
-msgid "Period Style"
-msgstr "句読点の形式"
-
-#: ../setup/ibus-skk-preferences.ui.h:8
 msgid "Port:"
 msgstr "ポート:"
 
-#: ../setup/ibus-skk-preferences.ui.h:10
+#: ../setup/ibus-skk-preferences.ui.h:9
 msgid "SKK Server"
 msgstr "SKK サーバ"
+
+#: ../setup/ibus-skk-preferences.ui.h:10
+msgid "SKK Server (_S):"
+msgstr "SKK サーバ (_S):"
 
 #: ../setup/ibus-skk-preferences.ui.h:11
 msgid "SKK input method for IBus"
@@ -90,17 +90,17 @@ msgid "Setup - IBus-SKK"
 msgstr "IBus-SKKの設定"
 
 #: ../setup/ibus-skk-preferences.ui.h:13
-msgid "Start conversion by some keywords"
+msgid "Start conversion by some characters"
 msgstr "キーワードによる自動変換の開始"
 
 #: ../setup/ibus-skk-preferences.ui.h:14
-msgid "System Dictionary File"
-msgstr "システム辞書ファイル"
+msgid "System Dictionary File (_F):"
+msgstr "システム辞書ファイル (_F):"
 
 #: ../setup/ibus-skk-preferences.ui.h:15
-msgid "System Dictionary Type"
-msgstr "システム辞書の形式"
+msgid "System Dictionary Type (_T):"
+msgstr "システム辞書の形式 (_T):"
 
 #: ../setup/ibus-skk-preferences.ui.h:16
-msgid "User Dictionary File"
-msgstr "ユーザ辞書ファイル"
+msgid "User Dictionary File (_U):"
+msgstr "ユーザ辞書ファイル (_U):"
