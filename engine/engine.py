@@ -58,6 +58,9 @@ class CandidateSelector(skk.CandidateSelectorBase):
             super(CandidateSelector, self).previous_candidate()
         return self.__candidate
 
+    def current_candidate(self):
+        return self.__candidate
+
 class Engine(ibus.EngineBase):
     config = None
     sysdict = None
@@ -75,7 +78,8 @@ class Engine(ibus.EngineBase):
         self.__skk.auto_start_henkan_keywords = \
             list(iter(self.config.get_value('auto_start_henkan_keywords',
                                             ''.join(skk.AUTO_START_HENKAN_KEYWORDS))))
-        self.__skk.set_candidate_selector(CandidateSelector(self))
+        self.__candidate_selector = CandidateSelector(self)
+        self.__skk.set_candidate_selector(self.__candidate_selector)
         self.__prop_dict = dict()
         self.__prop_list = self.__init_props()
         self.__input_modes = {
@@ -272,14 +276,14 @@ class Engine(ibus.EngineBase):
     def __update(self):
         preedit = self.__skk.preedit
         attrs = ibus.AttrList()
-        # self.update_auxiliary_text(ibus.Text(self.__skk.auxiliary_string,
-        #                                      attrs),
-        #                            len(preedit) > 0)
         attrs.append(ibus.AttributeUnderline(pango.UNDERLINE_SINGLE, 0,
                                              len(preedit)))
         self.update_preedit_text(ibus.Text(preedit, attrs),
                                  len(preedit), len(preedit) > 0)
         visible = self.__lookup_table.get_number_of_candidates() > 1
+        current_candidate = self.__candidate_selector.current_candidate()
+        annotation = current_candidate[1] if current_candidate else None
+        self.update_auxiliary_text(ibus.Text(annotation or u'', attrs), visible)
         self.update_lookup_table(self.__lookup_table, visible)
         self.__input_mode_activate(self.__input_modes[self.__skk.input_mode],
                                    ibus.PROP_STATE_CHECKED)
