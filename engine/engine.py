@@ -283,7 +283,7 @@ class Engine(ibus.EngineBase):
         visible = self.__lookup_table.get_number_of_candidates() > 1
         current_candidate = self.__candidate_selector.current_candidate()
         annotation = current_candidate[1] if current_candidate else None
-        self.update_auxiliary_text(ibus.Text(annotation or u'', attrs), visible)
+        self.update_auxiliary_text(ibus.Text(annotation or u''), visible)
         self.update_lookup_table(self.__lookup_table, visible)
         self.__input_mode_activate(self.__input_modes[self.__skk.input_mode],
                                    ibus.PROP_STATE_CHECKED)
