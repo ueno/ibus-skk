@@ -313,7 +313,7 @@
                         <child type="label">
                           <object class="GtkLabel" id="label6">
                             <property name="visible">True</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Others&lt;/b&gt;</property>
+                            <property name="label" translatable="yes">&lt;b&gt;Behavior&lt;/b&gt;</property>
                             <property name="use_markup">True</property>
                           </object>
                         </child>
