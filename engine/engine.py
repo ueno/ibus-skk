@@ -85,7 +85,7 @@ class Engine(ibus.EngineBase):
     def __init__(self, bus, object_path):
         super(Engine, self).__init__(bus, object_path)
         self.__is_invalidate = False
-        labels = [ibus.Text(label) for label in self.__labels]
+        labels = [ibus.Text(label.upper() + u':') for label in self.__labels]
         page_size = self.config.get_value('page_size',
                                           skk.CandidateSelector.PAGE_SIZE)
         pagination_start = \
