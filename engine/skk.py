@@ -647,7 +647,7 @@ class CandidateSelector(object):
             index = self.__index + 1
         if 0 <= index and index < len(self.__candidates):
             self.__index = index
-            return self.__candidates[self.__index]
+            return self.candidate()
         self.__index = -1
         return None
 
@@ -658,7 +658,7 @@ class CandidateSelector(object):
             index = self.__index - 1
         if 0 <= index and index < len(self.__candidates):
             self.__index = index
-            return self.__candidates[self.__index]
+            return self.candidate()
         self.__index = -1
         return None
 
@@ -666,11 +666,6 @@ class CandidateSelector(object):
         if self.__index < 0:
             return None
         return self.__candidates[self.__index] + (True,)
-
-    def annotation(self):
-        if self.__index < 0:
-            return None
-        return self.__candidates[self.__index][1]
 
     def index(self):
         return self.__index
@@ -768,7 +763,8 @@ class Context:
                 if self.__okuri_rom_kana_state:
                     output += self.__okuri_rom_kana_state[0]
                 if candidate[2]:
-                    self.__usrdict.select_candidate(self.__midasi, candidate)
+                    self.__usrdict.select_candidate(self.__midasi,
+                                                    candidate[:2])
             else:
                 output = self.__rom_kana_state[0]
         else:

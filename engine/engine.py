@@ -245,15 +245,16 @@ class Engine(ibus.EngineBase):
             elif keyval == keysyms.Page_Down or keyval == keysyms.KP_Page_Down:
                 self.page_down()
                 return True
-            elif keyval == keysyms.Up:
+            elif keyval in (keysyms.Up, keysyms.Left):
                 self.__candidate_selector.previous_candidate(False)
                 self.__update()
                 return True
-            elif keyval == keysyms.Down:
+            elif keyval in (keysyms.Down, keysyms.Right):
                 self.__candidate_selector.next_candidate(False)
                 self.__update()
                 return True
-            elif unichr(keyval) in self.__labels:
+            elif self.__candidate_selector.lookup_table_visible() and \
+                    unichr(keyval) in self.__labels:
                 pos = self.__labels.index(unichr(keyval))
                 if self.__lookup_table.set_cursor_pos_in_current_page(pos):
                     candidate = self.__lookup_table.get_current_candidate().text
@@ -357,7 +358,8 @@ class Engine(ibus.EngineBase):
                                  len(preedit), len(preedit) > 0)
         visible = self.__candidate_selector.lookup_table_visible()
         if self.config.get_value('show_annotation', False):
-            annotation = self.__candidate_selector.annotation()
+            candidate = self.__candidate_selector.candidate()
+            annotation = candidate[1] if candidate else None
             self.update_auxiliary_text(ibus.Text(annotation or u''), visible)
         self.update_lookup_table(self.__lookup_table, visible)
         self.__input_mode_activate(self.__input_modes[self.__skk.input_mode],
