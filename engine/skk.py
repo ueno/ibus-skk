@@ -665,7 +665,7 @@ class CandidateSelector(object):
     def candidate(self):
         if self.__index < 0:
             return None
-        return self.__candidates[self.__index]
+        return self.__candidates[self.__index] + (True,)
 
     def annotation(self):
         if self.__index < 0:
@@ -767,7 +767,8 @@ class Context:
                 output = candidate[0]
                 if self.__okuri_rom_kana_state:
                     output += self.__okuri_rom_kana_state[0]
-                self.__usrdict.select_candidate(self.__midasi, candidate)
+                if candidate[2]:
+                    self.__usrdict.select_candidate(self.__midasi, candidate)
             else:
                 output = self.__rom_kana_state[0]
         else:

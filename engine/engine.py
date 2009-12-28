@@ -73,6 +73,26 @@ class CandidateSelector(skk.CandidateSelector):
                 self.__lookup_table.page_up()
         return candidate
 
+    __emacsclient_paths = ('/usr/bin/emacsclient',
+                           '/usr/local/bin/emacsclient')
+                     
+    def candidate(self):
+        candidate = super(CandidateSelector, self).candidate()
+        if candidate is None:
+            return None
+        output, annotation, save = candidate
+        if output.startswith(u'(') and output.endswith(u')'):
+            for path in self.__emacsclient_paths:
+                if os.system('%s --eval \'(ignore)\'' % path) == 0:
+                    pw, pr = os.popen2('%s --eval \'\
+(read (encode-coding-string (prin1-to-string %s) (quote utf-8)))\'' %
+                                       (path, output))
+                    output = pr.read().decode('UTF-8').strip()
+                    if output.startswith('"') and output.endswith('"'):
+                        output = output[1:-1]
+                    return (output, annotation, False)
+        return candidate
+
 class Engine(ibus.EngineBase):
     config = None
     sysdict = None
@@ -196,7 +216,8 @@ class Engine(ibus.EngineBase):
             if keyval == keysyms.Return or \
                     (keyval in (keysyms.j, keysyms.J) and \
                          state & modifier.CONTROL_MASK != 0):
-                self.commit_text(ibus.Text(self.__skk.kakutei()))
+                output = self.__skk.kakutei()
+                self.commit_text(ibus.Text(output))
                 gobject.idle_add(self.__skk.usrdict.save,
                                  priority = gobject.PRIORITY_LOW)
                 self.__lookup_table.clean()
