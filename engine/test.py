@@ -20,7 +20,8 @@ class TestSKK(unittest.TestCase):
             raise RuntimeError('SKK-JISYO.S not found; do "wget http://openlab.ring.gr.jp/skk/skk/dic/SKK-JISYO.S"')
 
         self.__skk = skk.Context(usrdict=skk.UsrDict(usrdict_path),
-                                 sysdict=skk.SysDict(sysdict_path))
+                                 sysdict=skk.SysDict(sysdict_path),
+                                 candidate_selector=skk.CandidateSelector())
 
     def testromkana(self):
         self.__skk.reset()

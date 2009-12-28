@@ -157,12 +157,10 @@
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkEntry" id="skkserv_port">
+                                          <object class="GtkSpinButton" id="skkserv_port">
                                             <property name="visible">True</property>
-                                            <property name="sensitive">False</property>
                                             <property name="can_focus">True</property>
                                             <property name="invisible_char">&#x25CF;</property>
-                                            <property name="width_chars">5</property>
                                           </object>
                                           <packing>
                                             <property name="position">2</property>
@@ -181,14 +179,14 @@
                                 <child>
                                   <object class="GtkLabel" id="label5">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">User Dictionary File (_U):</property>
+                                    <property name="label" translatable="yes">_User Dictionary File:</property>
                                     <property name="use_underline">True</property>
                                   </object>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="label10">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">System Dictionary Type (_T):</property>
+                                    <property name="label" translatable="yes">System Dictionary _Type:</property>
                                     <property name="use_underline">True</property>
                                   </object>
                                   <packing>
@@ -199,7 +197,7 @@
                                 <child>
                                   <object class="GtkLabel" id="label13">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">System Dictionary File (_F):</property>
+                                    <property name="label" translatable="yes">System Dictionary _File:</property>
                                     <property name="use_underline">True</property>
                                   </object>
                                   <packing>
@@ -210,7 +208,7 @@
                                 <child>
                                   <object class="GtkLabel" id="label14">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">SKK Server (_S):</property>
+                                    <property name="label" translatable="yes">SKK _Server:</property>
                                     <property name="use_underline">True</property>
                                   </object>
                                   <packing>
@@ -246,22 +244,15 @@
                             <child>
                               <object class="GtkTable" id="table2">
                                 <property name="visible">True</property>
-                                <property name="n_rows">2</property>
+                                <property name="n_rows">5</property>
                                 <property name="n_columns">2</property>
                                 <property name="column_spacing">6</property>
                                 <property name="row_spacing">6</property>
                                 <child>
-                                  <object class="GtkLabel" id="label11">
-                                    <property name="visible">True</property>
-                                    <property name="label" translatable="yes">Period Style (_P):</property>
-                                    <property name="use_underline">True</property>
-                                  </object>
-                                </child>
-                                <child>
                                   <object class="GtkLabel" id="label4">
                                     <property name="visible">True</property>
                                     <property name="tooltip_text" translatable="yes">Start conversion by some characters</property>
-                                    <property name="label" translatable="yes">Auto-start Conversion Characters (_A):</property>
+                                    <property name="label" translatable="yes">_Auto-start Conversion Characters:</property>
                                     <property name="use_underline">True</property>
                                   </object>
                                   <packing>
@@ -290,6 +281,13 @@
                                   </packing>
                                 </child>
                                 <child>
+                                  <object class="GtkLabel" id="label11">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">_Period Style:</property>
+                                    <property name="use_underline">True</property>
+                                  </object>
+                                </child>
+                                <child>
                                   <object class="GtkAlignment" id="alignment14">
                                     <property name="visible">True</property>
                                     <property name="xalign">1</property>
@@ -304,6 +302,83 @@
                                   <packing>
                                     <property name="left_attach">1</property>
                                     <property name="right_attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="label12">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">Candidate _Window Page Size:</property>
+                                    <property name="use_underline">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="top_attach">2</property>
+                                    <property name="bottom_attach">3</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkAlignment" id="alignment6">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">1</property>
+                                    <property name="xscale">0.5</property>
+                                    <child>
+                                      <object class="GtkSpinButton" id="page_size">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="invisible_char">&#x25CF;</property>
+                                        <property name="width_chars">4</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                    <property name="top_attach">2</property>
+                                    <property name="bottom_attach">3</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="label15">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">Candidate Window Pa_gination Start:</property>
+                                    <property name="use_underline">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="top_attach">3</property>
+                                    <property name="bottom_attach">4</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkAlignment" id="alignment7">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">1</property>
+                                    <property name="xscale">0.5</property>
+                                    <child>
+                                      <object class="GtkSpinButton" id="pagination_start">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="invisible_char">&#x25CF;</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                    <property name="top_attach">3</property>
+                                    <property name="bottom_attach">4</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkCheckButton" id="show_annotation">
+                                    <property name="label" translatable="yes">Show Annotation</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="draw_indicator">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="right_attach">2</property>
+                                    <property name="top_attach">4</property>
+                                    <property name="bottom_attach">5</property>
                                   </packing>
                                 </child>
                               </object>

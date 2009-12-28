@@ -32,44 +32,46 @@ from gettext import dgettext
 _  = lambda a : dgettext("ibus-skk", a)
 N_ = lambda a : a
 
-class CandidateSelector(skk.CandidateSelectorBase):
-    def __init__(self, engine):
-        self.__engine = engine
-        super(CandidateSelector, self).__init__()
+class CandidateSelector(skk.CandidateSelector):
+    def __init__(self, lookup_table, page_size, pagination_start):
+        self.__lookup_table = lookup_table
+        super(CandidateSelector, self).__init__(page_size, pagination_start)
 
     def set_candidates(self, candidates):
-        self.__engine.fill_lookup_table(map(lambda (candidate, annotation):
-                                                candidate,
-                                            candidates))
-        self.__candidate = None
         super(CandidateSelector, self).set_candidates(candidates)
+        if len(candidates) > self.pagination_start:
+            self.__lookup_table.clean()
+            for candidate, annotation in candidates[self.pagination_start:]:
+                self.__lookup_table.append_candidate(ibus.Text(candidate))
 
-    def next_candidate(self):
-        last_candidate = self.__candidate
-        self.__candidate = super(CandidateSelector, self).next_candidate()
-        if self.__candidate:
-            if last_candidate is None:
-                self.__engine.show_lookup_table()
+    def lookup_table_visible(self):
+        if self.index() >= self.pagination_start:
+            return True
+        return False
+        
+    def next_candidate(self, pagination=True):
+        candidate = super(CandidateSelector, self).next_candidate(pagination)
+        if self.lookup_table_visible():
+            if self.index() == self.pagination_start:
+                self.__lookup_table.set_cursor_pos(0)
+            elif not pagination:
+                self.__lookup_table.set_cursor_pos(self.index() -
+                                                   self.pagination_start)
             else:
-                self.__engine.cursor_down()
-        else:
-            self.__engine.hide_lookup_table()
-        return self.__candidate
+                self.__lookup_table.page_down()
+        return candidate
 
-    def previous_candidate(self):
-        last_candidate = self.__candidate
-        self.__candidate = super(CandidateSelector, self).previous_candidate()
-        if self.__candidate:
-            if last_candidate is None:
-                self.__engine.show_lookup_table()
+    def previous_candidate(self, pagination=True):
+        candidate = super(CandidateSelector, self).previous_candidate(pagination)
+        if self.lookup_table_visible():
+            if self.index() == self.pagination_start:
+                self.__lookup_table.set_cursor_pos(0)
+            elif not pagination:
+                self.__lookup_table.set_cursor_pos(self.index() -
+                                                   self.pagination_start)
             else:
-                self.__engine.cursor_up()
-        else:
-            self.__engine.hide_lookup_table()
-        return self.__candidate
-
-    def current_candidate(self):
-        return self.__candidate
+                self.__lookup_table.page_up()
+        return candidate
 
 class Engine(ibus.EngineBase):
     config = None
@@ -84,20 +86,27 @@ class Engine(ibus.EngineBase):
         super(Engine, self).__init__(bus, object_path)
         self.__is_invalidate = False
         labels = [ibus.Text(label) for label in self.__labels]
-        page_size = self.config.get_value('page_size', 7)
+        page_size = self.config.get_value('page_size',
+                                          skk.CandidateSelector.PAGE_SIZE)
+        pagination_start = \
+            self.config.get_value('pagination_start',
+                                  skk.CandidateSelector.PAGINATION_START)
         self.__lookup_table = ibus.LookupTable(page_size=page_size,
                                                labels=labels,
                                                round=False)
-        
+        self.__candidate_selector = CandidateSelector(self.__lookup_table,
+                                                      page_size,
+                                                      pagination_start)
         usrdict = skk.UsrDict(self.config.usrdict_path)
-        self.__skk = skk.Context(usrdict, self.sysdict)
+        self.__skk = skk.Context(usrdict, self.sysdict,
+                                 self.__candidate_selector)
         self.__skk.kutouten_type = self.config.get_value('period_style',
                                                          skk.KUTOUTEN_JP)
+        auto_start_henkan_keywords = \
+            self.config.get_value('auto_start_henkan_keywords',
+                                  ''.join(skk.AUTO_START_HENKAN_KEYWORDS))
         self.__skk.auto_start_henkan_keywords = \
-            list(iter(self.config.get_value('auto_start_henkan_keywords',
-                                            ''.join(skk.AUTO_START_HENKAN_KEYWORDS))))
-        self.__candidate_selector = CandidateSelector(self)
-        self.__skk.set_candidate_selector(self.__candidate_selector)
+            list(iter(auto_start_henkan_keywords))
         self.__prop_dict = dict()
         self.__prop_list = self.__init_props()
         self.__input_modes = {
@@ -216,9 +225,13 @@ class Engine(ibus.EngineBase):
                 self.page_down()
                 return True
             elif keyval == keysyms.Up:
-                keyval = keysyms.x
+                self.__candidate_selector.previous_candidate(False)
+                self.__update()
+                return True
             elif keyval == keysyms.Down:
-                keyval = keysyms.space
+                self.__candidate_selector.next_candidate(False)
+                self.__update()
+                return True
             elif unichr(keyval) in self.__labels:
                 pos = self.__labels.index(unichr(keyval))
                 if self.__lookup_table.set_cursor_pos_in_current_page(pos):
@@ -286,6 +299,14 @@ class Engine(ibus.EngineBase):
             list(iter(self.config.get_value('auto_start_henkan_keywords',
                                             ''.join(skk.AUTO_START_HENKAN_KEYWORDS))))
 
+    ABBREV_CURSOR_COLOR = (65, 105, 225)
+    INPUT_MODE_CURSOR_COLORS = {
+        skk.INPUT_MODE_HIRAGANA: (139, 62, 47),
+        skk.INPUT_MODE_KATAKANA: (34, 139, 34),
+        skk.INPUT_MODE_LATIN: (139, 139, 131),
+        skk.INPUT_MODE_WIDE_LATIN: (255, 215, 0)
+        }
+
     def __update(self):
         prefix, midasi, suffix = self.__skk.split_preedit()
         midasi_start = len(prefix)
@@ -303,15 +324,21 @@ class Engine(ibus.EngineBase):
         else:
             attrs.append(ibus.AttributeUnderline(pango.UNDERLINE_SINGLE,
                                                  midasi_start, suffix_end))
-        preedit = ''.join((prefix, midasi, suffix))
+        if self.__skk.abbrev:
+            cursor_color = self.ABBREV_CURSOR_COLOR
+        else:
+            cursor_color = self.INPUT_MODE_CURSOR_COLORS.get(\
+                self.__skk.input_mode)
+        attrs.append(ibus.AttributeBackground(ibus.RGB(*cursor_color),
+                                              suffix_end, suffix_end + 1))
+        preedit = ''.join((prefix, midasi, suffix, u' '))
         self.update_preedit_text(ibus.Text(preedit, attrs),
                                  len(preedit), len(preedit) > 0)
-        current_candidate = self.__candidate_selector.current_candidate()
-        annotation = current_candidate[1] if current_candidate else None
-        self.update_auxiliary_text(ibus.Text(annotation or u''),
-                                   self.lookup_table_visible())
-        self.update_lookup_table(self.__lookup_table,
-                                 self.lookup_table_visible())
+        visible = self.__candidate_selector.lookup_table_visible()
+        if self.config.get_value('show_annotation', False):
+            annotation = self.__candidate_selector.annotation()
+            self.update_auxiliary_text(ibus.Text(annotation or u''), visible)
+        self.update_lookup_table(self.__lookup_table, visible)
         self.__input_mode_activate(self.__input_modes[self.__skk.input_mode],
                                    ibus.PROP_STATE_CHECKED)
 

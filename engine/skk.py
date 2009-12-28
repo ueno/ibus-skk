@@ -624,43 +624,68 @@ def compile_rom_kana_rule(rule):
         _compile_rom_kana_rule(tree, input_state, rule[input_state])
     return tree
 
-class CandidateSelectorBase(object):
-    def __init__(self):
+class CandidateSelector(object):
+    PAGE_SIZE = 7
+    PAGINATION_START = 4
+
+    def __init__(self, page_size=PAGE_SIZE, pagination_start=PAGINATION_START):
+        self.__page_size = page_size
+        self.__pagination_start = pagination_start
         self.set_candidates(list())
+
+    page_size = property(lambda self: self.__page_size)
+    pagination_start = property(lambda self: self.__pagination_start)
 
     def set_candidates(self, candidates):
         self.__candidates = candidates
-        self.__candidate_index = 0
+        self.__index = -1
 
-    def next_candidate(self):
-        if 0 <= self.__candidate_index and \
-                self.__candidate_index < len(self.__candidates):
-            candidate = self.__candidates[self.__candidate_index]
-            self.__candidate_index += 1
-            return candidate
-        self.__candidate_index = 0
+    def next_candidate(self, pagination=True):
+        if pagination and self.__index >= self.__pagination_start:
+            index = self.__index + self.__page_size
+        else:
+            index = self.__index + 1
+        if 0 <= index and index < len(self.__candidates):
+            self.__index = index
+            return self.__candidates[self.__index]
+        self.__index = -1
         return None
 
-    def previous_candidate(self):
-        if 0 <= self.__candidate_index and \
-                self.__candidate_index < len(self.__candidates):
-            candidate = self.__candidates[self.__candidate_index]
-            self.__candidate_index -= 1
-            return candidate
-        self.__candidate_index = 0
+    def previous_candidate(self, pagination=True):
+        if pagination and self.__index >= self.__pagination_start:
+            index = self.__index - self.__page_size
+        else:
+            index = self.__index - 1
+        if 0 <= index and index < len(self.__candidates):
+            self.__index = index
+            return self.__candidates[self.__index]
+        self.__index = -1
         return None
+
+    def candidate(self):
+        if self.__index < 0:
+            return None
+        return self.__candidates[self.__index]
+
+    def annotation(self):
+        if self.__index < 0:
+            return None
+        return self.__candidates[self.__index][1]
+
+    def index(self):
+        return self.__index
 
 class Context:
-    def __init__(self, usrdict, sysdict):
+    def __init__(self, usrdict, sysdict, candidate_selector):
         '''Create an SKK context.
 
         USRDICT is a user dictionary and SYSDICT is a system
         dictionary (or a connection to SKKServ).'''
         self.__usrdict = usrdict
         self.__sysdict = sysdict
+        self.__candidate_selector = candidate_selector
 
         self.__rom_kana_rule_tree = compile_rom_kana_rule(ROM_KANA_RULE)
-        self.set_candidate_selector(CandidateSelectorBase())
         self.reset()
         self.activate_input_mode(INPUT_MODE_HIRAGANA)
         self.kutouten_type = KUTOUTEN_JP
@@ -697,24 +722,19 @@ class Context:
         self.__rom_kana_state = None
         self.__okuri_rom_kana_state = None
 
-        # kana-kan state is either None or a tuple
-        #
-        # (MIDASI, CANDIDATE)
-        #
-        # where MIDASI is a kana string used as a key for dict search
-        # and CANDIDATE is the current candidate selected (if any).
-        self.__kana_kan_state = None
+        self.__midasi = None
+        self.__candidate_selector.set_candidates(list())
 
         self.__abbrev = False
 
         self.__conv_state = CONV_STATE_NONE
-        self.clear_candidates()
 
         self.__comp_state = None
         self.__auto_start_henkan_keyword = None
 
     conv_state = property(lambda self: self.__conv_state)
     input_mode = property(lambda self: self.__input_mode)
+    abbrev = property(lambda self: self.__abbrev)
 
     def __hiragana_to_katakana(self, kana):
         diff = ord(u'ア') - ord(u'あ')
@@ -741,14 +761,13 @@ class Context:
     def kakutei(self):
         '''Fix the current candidate as a commitable string.'''
         input_mode = self.__input_mode
-        if self.__kana_kan_state:
-            candidate = self.__kana_kan_state[1]
+        if self.__midasi:
+            candidate = self.__candidate_selector.candidate()
             if candidate:
                 output = candidate[0]
                 if self.__okuri_rom_kana_state:
                     output += self.__okuri_rom_kana_state[0]
-                self.__usrdict.select_candidate(self.__kana_kan_state[0],
-                                                candidate)
+                self.__usrdict.select_candidate(self.__midasi, candidate)
             else:
                 output = self.__rom_kana_state[0]
         else:
@@ -790,8 +809,8 @@ class Context:
                                              u'', self.__rom_kana_rule_tree)
                     self.__okuri_rom_kana_state = None
                 # Stop kana-kan conversion.
-                self.__kana_kan_state = None
-                self.clear_candidates()
+                self.__midasi = None
+                self.__candidate_selector.set_candidates(list())
                 self.__conv_state = CONV_STATE_START
             return (True, u'')
 
@@ -875,7 +894,7 @@ class Context:
                 self.__conv_state = CONV_STATE_SELECT
                 self.__rom_kana_state = self.__convert_nn(self.__rom_kana_state)
                 midasi = self.__katakana_to_hiragana(self.__rom_kana_state[0])
-                self.__kana_kan_state = (midasi, None)
+                self.__midasi = midasi
                 usr_candidates = self.__usrdict.lookup(midasi)
                 sys_candidates = self.__sysdict.lookup(midasi)
                 candidates = self.__merge_candidates(usr_candidates,
@@ -900,7 +919,7 @@ class Context:
                     self.__conv_state = CONV_STATE_SELECT
                     midasi = self.__katakana_to_hiragana(\
                         self.__rom_kana_state[0] + okuri)
-                    self.__kana_kan_state = (midasi, None)
+                    self.__midasi = midasi
                     usr_candidates = self.__usrdict.lookup(midasi)
                     sys_candidates = self.__sysdict.lookup(midasi, okuri=True)
                     candidates = self.__merge_candidates(usr_candidates,
@@ -975,26 +994,13 @@ class Context:
             return (True, u'')
         return (False, u'')
 
-    def set_candidate_selector(self, candidate_selector):
-        '''Set candidate selector.'''
-        self.__candidate_selector = candidate_selector
-
-    def clear_candidates(self):
-        '''Clear the current candidates.'''
-        self.__candidate_selector.set_candidates(list())
-        self.__kana_kan_state = None
-        
     def next_candidate(self):
         '''Select the next candidate.'''
-        candidate = self.__candidate_selector.next_candidate()
-        self.__kana_kan_state = (self.__kana_kan_state[0], candidate)
-        return candidate
+        return self.__candidate_selector.next_candidate()
             
     def previous_candidate(self):
         '''Select the previous candidate.'''
-        candidate = self.__candidate_selector.previous_candidate()
-        self.__kana_kan_state = (self.__kana_kan_state[0], candidate)
-        return candidate
+        return self.__candidate_selector.previous_candidate()
 
     def __merge_candidates(self, usr_candidates, sys_candidates):
         return usr_candidates + \
@@ -1016,16 +1022,16 @@ class Context:
                             self.__rom_kana_state[1], u'')
         else:
             if self.__okuri_rom_kana_state:
-                if self.__kana_kan_state:
-                    candidate = self.__kana_kan_state[1]
+                if self.__midasi:
+                    candidate = self.__candidate_selector.candidate()
                     if candidate:
                         return (u'▼', candidate[0],
                                 self.__okuri_rom_kana_state[0])
                 return (u'▼', self.__rom_kana_state[0],
                         self.__okuri_rom_kana_state[0])
             else:
-                if self.__kana_kan_state:
-                    candidate = self.__kana_kan_state[1]
+                if self.__midasi:
+                    candidate = self.__candidate_selector.candidate()
                     if candidate:
                         return (u'▼', candidate[0],
                                 (self.__auto_start_henkan_keyword or u''))
