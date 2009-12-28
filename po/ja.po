@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ibus-skk 1.2.0.20091108\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-12-27 14:50+0900\n"
+"POT-Creation-Date: 2009-12-29 01:37+0900\n"
 "PO-Revision-Date:  2009-12-23 15:06+0900\n"
 "Last-Translator: Daiki Ueno <ueno@unixuser.org>\n"
 "Language-Team: Japanese\n"
@@ -17,27 +17,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ../engine/engine.py:101
+#: ../engine/engine.py:148
 msgid "Switch input mode"
 msgstr "入力モード切替"
 
-#: ../engine/engine.py:107
+#: ../engine/engine.py:154
 msgid "Hiragana"
 msgstr "ひらがな"
 
-#: ../engine/engine.py:110
+#: ../engine/engine.py:157
 msgid "Katakana"
 msgstr "カタカナ"
 
-#: ../engine/engine.py:113
+#: ../engine/engine.py:160
 msgid "Latin"
 msgstr "英数"
 
-#: ../engine/engine.py:116
+#: ../engine/engine.py:163
 msgid "Wide Latin"
 msgstr "全角英数"
 
-#: ../engine/engine.py:128
+#: ../engine/engine.py:175
 msgid "Configure SKK"
 msgstr "SKKの設定"
 
@@ -58,16 +58,16 @@ msgid "About"
 msgstr "情報"
 
 #: ../setup/ibus-skk-preferences.ui.h:4
-msgid "Auto-start Conversion Characters (_A):"
-msgstr "自動変換を開始する文字 (_A):"
+msgid "Candidate Window Pa_gination Start:"
+msgstr "候補ウィンドウの表示開始位置(_G):"
 
 #: ../setup/ibus-skk-preferences.ui.h:5
-msgid "File"
-msgstr "ファイル"
+msgid "Candidate _Window Page Size:"
+msgstr "候補ウィンドウの項目数(_W):"
 
 #: ../setup/ibus-skk-preferences.ui.h:6
-msgid "Period Style (_P):"
-msgstr "句読点の形式 (_P):"
+msgid "File"
+msgstr "ファイル"
 
 #: ../setup/ibus-skk-preferences.ui.h:7
 msgid "Port:"
@@ -78,8 +78,8 @@ msgid "SKK Server"
 msgstr "SKK サーバ"
 
 #: ../setup/ibus-skk-preferences.ui.h:10
-msgid "SKK Server (_S):"
-msgstr "SKK サーバ (_S):"
+msgid "SKK _Server:"
+msgstr "SKK サーバ(_S):"
 
 #: ../setup/ibus-skk-preferences.ui.h:11
 msgid "SKK input method for IBus"
@@ -90,17 +90,29 @@ msgid "Setup - IBus-SKK"
 msgstr "IBus-SKKの設定"
 
 #: ../setup/ibus-skk-preferences.ui.h:13
+msgid "Show Annotation"
+msgstr "アノテーションを表示"
+
+#: ../setup/ibus-skk-preferences.ui.h:14
 msgid "Start conversion by some characters"
 msgstr "キーワードによる自動変換の開始"
 
-#: ../setup/ibus-skk-preferences.ui.h:14
-msgid "System Dictionary File (_F):"
-msgstr "システム辞書ファイル (_F):"
-
 #: ../setup/ibus-skk-preferences.ui.h:15
-msgid "System Dictionary Type (_T):"
-msgstr "システム辞書の形式 (_T):"
+msgid "System Dictionary _File:"
+msgstr "システム辞書ファイル(_F):"
 
 #: ../setup/ibus-skk-preferences.ui.h:16
-msgid "User Dictionary File (_U):"
-msgstr "ユーザ辞書ファイル (_U):"
+msgid "System Dictionary _Type:"
+msgstr "システム辞書の形式(_T):"
+
+#: ../setup/ibus-skk-preferences.ui.h:17
+msgid "_Auto-start Conversion Characters:"
+msgstr "自動変換を開始する文字(_A):"
+
+#: ../setup/ibus-skk-preferences.ui.h:18
+msgid "_Period Style:"
+msgstr "句読点の形式(_P):"
+
+#: ../setup/ibus-skk-preferences.ui.h:19
+msgid "_User Dictionary File:"
+msgstr "ユーザ辞書ファイル(_U):"
