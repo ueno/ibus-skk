@@ -511,13 +511,17 @@ class UsrDict(DictBase):
 
     def reload(self):
         self.__dict = dict()
-        with open(self.__path, 'a+') as fp:
-            for line in fp:
-                if line.startswith(';'):
-                    continue
-                line = line.decode(self.__encoding)
-                midasi, candidates = line.split(' ', 1)
-                self.__dict[midasi] = self.split_candidates(candidates)
+        try:
+            with open(self.__path, 'a+') as fp:
+                for line in fp:
+                    if line.startswith(';'):
+                        continue
+                    line = line.decode(self.__encoding)
+                    midasi, candidates = line.split(' ', 1)
+                    self.__dict[midasi] = self.split_candidates(candidates)
+            self.__read_only = False
+        except:
+            self.__read_only = True
         self.__dict_changed = False
         self.__selection_history = list()
 
@@ -532,7 +536,7 @@ class UsrDict(DictBase):
         
     def save(self):
         '''Save the changes to the user dictionary.'''
-        if not self.__dict_changed:
+        if not self.__dict_changed or self.__read_only:
             return
         with open(self.__path, 'w+') as fp:
             for midasi in sorted(self.__dict):
