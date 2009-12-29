@@ -59,6 +59,7 @@ class CandidateSelector(skk.CandidateSelector):
                                                    self.pagination_start)
             else:
                 self.__lookup_table.page_down()
+                self.__lookup_table.set_cursor_pos_in_current_page(0)
         return candidate
 
     def previous_candidate(self, pagination=True):
@@ -71,6 +72,7 @@ class CandidateSelector(skk.CandidateSelector):
                                                    self.pagination_start)
             else:
                 self.__lookup_table.page_up()
+                self.__lookup_table.set_cursor_pos_in_current_page(0)
         return candidate
 
     __emacsclient_paths = ('/usr/bin/emacsclient',
