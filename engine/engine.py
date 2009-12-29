@@ -116,6 +116,7 @@ class Engine(ibus.EngineBase):
         self.__lookup_table = ibus.LookupTable(page_size=page_size,
                                                labels=labels,
                                                round=False)
+        self.__lookup_table.set_orientation(1)
         self.__candidate_selector = CandidateSelector(self.__lookup_table,
                                                       page_size,
                                                       pagination_start)
@@ -248,11 +249,23 @@ class Engine(ibus.EngineBase):
                 self.page_down()
                 return True
             elif keyval in (keysyms.Up, keysyms.Left):
-                self.__candidate_selector.previous_candidate(False)
+                orientation = self.__lookup_table.get_orientation()
+                if (orientation == 1 and keyval == keysyms.Up) or \
+                        (orientation == 2 and keyval == keysyms.Left):
+                    pagination = True
+                else:
+                    pagination = False
+                self.__candidate_selector.previous_candidate(pagination)
                 self.__update()
                 return True
             elif keyval in (keysyms.Down, keysyms.Right):
-                self.__candidate_selector.next_candidate(False)
+                orientation = self.__lookup_table.get_orientation()
+                if (orientation == 1 and keyval == keysyms.Down) or \
+                        (orientation == 2 and keyval == keysyms.Right):
+                    pagination = True
+                else:
+                    pagination = False
+                self.__candidate_selector.next_candidate(pagination)
                 self.__update()
                 return True
             elif self.__candidate_selector.lookup_table_visible() and \
