@@ -2,6 +2,10 @@
 
 * Version 0.0.3 (unreleased)
 
+** Move over pages of the candidate window by shortcut key (Up/Down, x, space).
+
+** Call `emacsclient' for S-exp candidates being eval'ed within Emacs.
+
 ** Show annotations on the auxilary text area.
 
 ** Start conversion automatically when some punctuation characters are typed.
