@@ -658,11 +658,8 @@ class CandidateSelector(object):
             index -= (index - self.__pagination_start) % self.__page_size
         else:
             index = self.__index + 1
-        if 0 <= index and index < len(self.__candidates):
-            self.__index = index
-            return self.candidate()
-        self.__index = -1
-        return None
+        self.set_index(index)
+        return self.candidate()
 
     def previous_candidate(self, move_over_pages=True):
         '''Move the cursor forward.  If MOVE_OVER_PAGES is
@@ -673,11 +670,8 @@ class CandidateSelector(object):
             index -= (index - self.__pagination_start) % self.__page_size
         else:
             index = self.__index - 1
-        if 0 <= index and index < len(self.__candidates):
-            self.__index = index
-            return self.candidate()
-        self.__index = -1
-        return None
+        self.set_index(index)
+        return self.candidate()
 
     def candidate(self):
         '''Return the current candidate.'''
@@ -686,8 +680,15 @@ class CandidateSelector(object):
         return self.__candidates[self.__index] + (True,)
 
     def index(self):
-        '''Return the current index.'''
+        '''Return the current candidate index.'''
         return self.__index
+
+    def set_index(self, index):
+        '''Set the current candidate index.'''
+        if 0 <= index and index < len(self.__candidates):
+            self.__index = index
+        else:
+            self.__index = -1
 
 class Context:
     def __init__(self, usrdict, sysdict, candidate_selector):

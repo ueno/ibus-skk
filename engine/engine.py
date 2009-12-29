@@ -33,8 +33,9 @@ _  = lambda a : dgettext("ibus-skk", a)
 N_ = lambda a : a
 
 class CandidateSelector(skk.CandidateSelector):
-    def __init__(self, lookup_table, page_size, pagination_start):
+    def __init__(self, lookup_table, keys, page_size, pagination_start):
         self.__lookup_table = lookup_table
+        self.__keys = keys
         super(CandidateSelector, self).__init__(page_size, pagination_start)
 
     def set_candidates(self, candidates):
@@ -49,31 +50,31 @@ class CandidateSelector(skk.CandidateSelector):
             return True
         return False
         
-    def next_candidate(self, pagination=True):
-        candidate = super(CandidateSelector, self).next_candidate(pagination)
+    def next_candidate(self, move_over_pages=True):
+        super(CandidateSelector, self).next_candidate(move_over_pages)
         if self.lookup_table_visible():
             if self.index() == self.pagination_start:
                 self.__lookup_table.set_cursor_pos(0)
-            elif not pagination:
+            elif not move_over_pages:
                 self.__lookup_table.set_cursor_pos(self.index() -
                                                    self.pagination_start)
             else:
                 self.__lookup_table.page_down()
                 self.__lookup_table.set_cursor_pos_in_current_page(0)
-        return candidate
+        return self.candidate()
 
-    def previous_candidate(self, pagination=True):
-        candidate = super(CandidateSelector, self).previous_candidate(pagination)
+    def previous_candidate(self, move_over_pages=True):
+        super(CandidateSelector, self).previous_candidate(move_over_pages)
         if self.lookup_table_visible():
             if self.index() == self.pagination_start:
                 self.__lookup_table.set_cursor_pos(0)
-            elif not pagination:
+            elif not move_over_pages:
                 self.__lookup_table.set_cursor_pos(self.index() -
                                                    self.pagination_start)
             else:
                 self.__lookup_table.page_up()
                 self.__lookup_table.set_cursor_pos_in_current_page(0)
-        return candidate
+        return self.candidate()
 
     __emacsclient_paths = ('/usr/bin/emacsclient',
                            '/usr/local/bin/emacsclient')
@@ -95,19 +96,30 @@ class CandidateSelector(skk.CandidateSelector):
                     return (output, annotation, False)
         return candidate
 
+    def select_candidate(self, key):
+        if key not in self.__keys:
+            return None
+        pos = self.__keys.index(key)
+        if self.__lookup_table.set_cursor_pos_in_current_page(pos):
+            index = self.__lookup_table.get_cursor_pos()
+            self.set_index(self.__pagination_start + index)
+            self.__lookup_table.clean()
+            return self.candidate()
+        return None
+
 class Engine(ibus.EngineBase):
     config = None
     sysdict = None
     __setup_pid = 0
 
-    __labels = [u'a', u's', u'd', u'f', u'j', u'k', u'l',
-                u'q', u'w', u'e', u'r', u'u', u'i', u'o',
-                u'z', u'x', u'c', u'v', u'm', u',', u'.']
+    __select_keys = [u'a', u's', u'd', u'f', u'j', u'k', u'l',
+                     u'q', u'w', u'e', u'r', u'u', u'i', u'o',
+                     u'z', u'x', u'c', u'v', u'm', u',', u'.']
      
     def __init__(self, bus, object_path):
         super(Engine, self).__init__(bus, object_path)
         self.__is_invalidate = False
-        labels = [ibus.Text(label.upper() + u':') for label in self.__labels]
+        labels = [ibus.Text(c.upper() + u':') for c in self.__select_keys]
         page_size = self.config.get_value('page_size',
                                           skk.CandidateSelector.PAGE_SIZE)
         pagination_start = \
@@ -118,6 +130,7 @@ class Engine(ibus.EngineBase):
                                                round=False)
         self.__lookup_table.set_orientation(1)
         self.__candidate_selector = CandidateSelector(self.__lookup_table,
+                                                      self.__select_keys,
                                                       page_size,
                                                       pagination_start)
         usrdict = skk.UsrDict(self.config.usrdict_path)
@@ -264,14 +277,12 @@ class Engine(ibus.EngineBase):
                 self.__candidate_selector.next_candidate(move_over_pages)
                 self.__update()
                 return True
-            elif self.__candidate_selector.lookup_table_visible() and \
-                    unichr(keyval) in self.__labels:
-                pos = self.__labels.index(unichr(keyval))
-                if self.__lookup_table.set_cursor_pos_in_current_page(pos):
-                    candidate = self.__lookup_table.get_current_candidate().text
+            elif self.__candidate_selector.lookup_table_visible():
+                candidate = self.__candidate_selector.\
+                    select_candidate(unichr(keyval).lower())
+                if candidate:
                     self.__skk.kakutei()
-                    self.__lookup_table.clean()
-                    self.commit_text(ibus.Text(candidate))
+                    self.commit_text(ibus.Text(candidate[0]))
                     self.__update()
                     return True
 
