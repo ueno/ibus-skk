@@ -724,7 +724,7 @@ class Context:
 
         self.__conv_state = CONV_STATE_NONE
 
-        self.__comp_state = None
+        self.__completer = None
         self.__auto_start_henkan_keyword = None
 
     conv_state = property(lambda self: self.__conv_state)
@@ -867,17 +867,19 @@ class Context:
             # Start TAB completion.
             if keyval == u'\t':
                 self.__rom_kana_state = self.__convert_nn(self.__rom_kana_state)
-                if self.__comp_state is None:
-                    self.__comp_state = self.__init_completion(\
-                        self.__rom_kana_state[0])
-                try:
-                    self.__rom_kana_state = (self.__comp_state[1].next(),
-                                             u'', u'')
-                except StopIteration:
-                    pass
+                if self.__completer is None:
+                    compkey = self.__rom_kana_state[0]
+                    self.__completer = self.__init_completer(compkey)
+                    self.__midasi_seen = set((compkey,))
+                for midasi in self.__completer:
+                    if midasi not in self.__midasi_seen:
+                        self.__rom_kana_state = (midasi, u'', u'')
+                        self.__midasi_seen.add(midasi)
+                        break
                 return (True, u'')
             # Stop TAB completion.
-            self.__comp_state = None
+            self.__completer = None
+            self.__midasi_seen = None
 
             # Start okuri-nasi conversion.
             auto_start_henkan_keyword = None
@@ -950,10 +952,9 @@ class Context:
                 return (True, self.kakutei())
             return (True, self.kakutei() + self.press_key(key)[1])
 
-    def __init_completion(self, compkey):
-        return (compkey,
-                itertools.chain(self.__usrdict.completer(compkey),
-                                self.__sysdict.completer(compkey)))
+    def __init_completer(self, compkey):
+        return itertools.chain(self.__usrdict.completer(compkey),
+                               self.__sysdict.completer(compkey))
 
     def __delete_char_from_rom_kana_state(self, state):
         tree = self.__rom_kana_rule_tree
