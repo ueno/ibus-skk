@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import with_statement
 import unittest
 import os, os.path
 import skk
@@ -22,6 +23,20 @@ class TestSKK(unittest.TestCase):
         self.__skk = skk.Context(usrdict=skk.UsrDict(usrdict_path),
                                  sysdict=skk.SysDict(sysdict_path),
                                  candidate_selector=skk.CandidateSelector())
+
+    def testusrdict(self):
+        usrdict_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                    ".skk-ibus-jisyo-corrupted")
+        with open(usrdict_path, 'w+') as fp:
+            fp.write(u'あい /愛/\n'.encode('EUC-JP'))
+        try:
+            usrdict = skk.UsrDict(usrdict_path, 'UTF-8')
+            self.assertNotEqual(usrdict, None)
+            self.assertTrue(usrdict.read_only)
+        except:
+            self.fail("can't open user dictionary")
+        finally:
+            os.unlink(usrdict_path)
 
     def testromkana(self):
         self.__skk.reset()
