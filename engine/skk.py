@@ -640,8 +640,8 @@ class CandidateSelector(object):
         self.__candidates = candidates
         self.__index = -1
 
-    def next_candidate(self, pagination=True):
-        if pagination and self.__index >= self.__pagination_start:
+    def next_candidate(self, move_over_pages=True):
+        if move_over_pages and self.__index >= self.__pagination_start:
             index = self.__index + self.__page_size
             # Align to the beginning of the page.
             index -= (index - self.__pagination_start) % self.__page_size
@@ -653,8 +653,8 @@ class CandidateSelector(object):
         self.__index = -1
         return None
 
-    def previous_candidate(self, pagination=True):
-        if pagination and self.__index >= self.__pagination_start:
+    def previous_candidate(self, move_over_pages=True):
+        if move_over_pages and self.__index >= self.__pagination_start:
             index = self.__index - self.__page_size
             # Align to the beginning of the page.
             index -= (index - self.__pagination_start) % self.__page_size

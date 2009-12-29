@@ -250,22 +250,18 @@ class Engine(ibus.EngineBase):
                 return True
             elif keyval in (keysyms.Up, keysyms.Left):
                 orientation = self.__lookup_table.get_orientation()
-                if (orientation == 1 and keyval == keysyms.Up) or \
-                        (orientation == 2 and keyval == keysyms.Left):
-                    pagination = True
-                else:
-                    pagination = False
-                self.__candidate_selector.previous_candidate(pagination)
+                move_over_pages = \
+                    (orientation == 1 and keyval == keysyms.Up) or \
+                    (orientation == 2 and keyval == keysyms.Left)
+                self.__candidate_selector.previous_candidate(move_over_pages)
                 self.__update()
                 return True
             elif keyval in (keysyms.Down, keysyms.Right):
                 orientation = self.__lookup_table.get_orientation()
-                if (orientation == 1 and keyval == keysyms.Down) or \
-                        (orientation == 2 and keyval == keysyms.Right):
-                    pagination = True
-                else:
-                    pagination = False
-                self.__candidate_selector.next_candidate(pagination)
+                move_over_pages = \
+                    (orientation == 1 and keyval == keysyms.Down) or \
+                    (orientation == 2 and keyval == keysyms.Right)
+                self.__candidate_selector.next_candidate(move_over_pages)
                 self.__update()
                 return True
             elif self.__candidate_selector.lookup_table_visible() and \
@@ -372,7 +368,7 @@ class Engine(ibus.EngineBase):
         self.update_preedit_text(ibus.Text(preedit, attrs),
                                  len(preedit), len(preedit) > 0)
         visible = self.__candidate_selector.lookup_table_visible()
-        if self.config.get_value('show_annotation', False):
+        if self.config.get_value('show_annotation', True):
             candidate = self.__candidate_selector.candidate()
             annotation = candidate[1] if candidate else None
             self.update_auxiliary_text(ibus.Text(annotation or u''), visible)

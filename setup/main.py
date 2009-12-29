@@ -71,7 +71,7 @@ class PreferencesDialog:
             int(self.__config.get_value('pagination_start',
                                         skk.CandidateSelector.PAGINATION_START)))
         self.__show_annotation.set_active(\
-            self.__config.get_value('show_annotation', False))
+            self.__config.get_value('show_annotation', True))
 
         self.__usrdict.connect('file-set', self.__usrdict_file_set_cb)
         self.__sysdict_file.connect('toggled', self.__sysdict_toggle_cb)
