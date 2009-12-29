@@ -337,6 +337,7 @@ class DictBase(object):
     ENCODING = 'EUC-JP'
 
     def split_candidates(self, line):
+        '''Parse a single candidate line into a list of candidates.'''
         def seperate_annotation(candidate):
             index = candidate.find(u';')
             if index >= 0:
@@ -346,6 +347,7 @@ class DictBase(object):
         return map(seperate_annotation, line.strip()[1:-1].split(u'/'))
 
     def join_candidates(self, candidates):
+        '''Make a single candidate line from a list of candidates.'''
         def append_annotation(candidate_annotation):
             candidate, annotation = candidate_annotation
             if annotation is not None:
@@ -355,12 +357,15 @@ class DictBase(object):
         return u'/'.join(map(append_annotation, candidates))
 
     def reload(self):
+        '''Reload the dictionary.'''
         raise NotImplemented
 
     def lookup(self, midasi, okuri=False):
+        '''Lookup MIDASI in the dictionary.'''
         raise NotImplemented
         
     def completer(self, midasi):
+        '''Return an iterator to complete MIDASI.'''
         raise NotImplemented
 
 class EmptyDict(DictBase):
@@ -514,9 +519,19 @@ class UsrDict(DictBase):
                 midasi, candidates = line.split(' ', 1)
                 self.__dict[midasi] = self.split_candidates(candidates)
         self.__dict_changed = False
-        self.__midasi_history = list()
+        self.__selection_history = list()
 
+    def lookup(self, midasi, okuri=False):
+        return self.__dict.get(midasi, list())
+
+    def completer(self, midasi):
+        for _midasi in self.__selection_history:
+            if _midasi.startswith(midasi):
+                yield _midasi
+        # TODO: complete from __dict?
+        
     def save(self):
+        '''Save the changes to the user dictionary.'''
         if not self.__dict_changed:
             return
         with open(self.__path, 'w+') as fp:
@@ -525,21 +540,20 @@ class UsrDict(DictBase):
                     self.join_candidates(self.__dict[midasi]) + '/\n'
                 fp.write(line.encode(self.__encoding))
 
-    def lookup(self, midasi, okuri=False):
-        return self.__dict.get(midasi, list())
-        
     def select_candidate(self, midasi, candidate):
-        del(self.__midasi_history[self.HISTSIZE:])
+        '''Mark CANDIDATE was selected as the conversion result of MIDASI.'''
+        del(self.__selection_history[self.HISTSIZE:])
         _midasi = None
-        for index, _midasi in enumerate(self.__midasi_history):
+        for index, _midasi in enumerate(self.__selection_history):
             if _midasi == midasi:
                 if index > 0:
-                    first = self.__midasi_history[0]
-                    self.__midasi_history[0] = self.__midasi_history[index]
-                    self.__midasi_history[index] = first
+                    first = self.__selection_history[0]
+                    self.__selection_history[0] =\
+                        self.__selection_history[index]
+                    self.__selection_history[index] = first
                 break
         if _midasi is not midasi:
-            self.__midasi_history.insert(0, midasi)
+            self.__selection_history.insert(0, midasi)
 
         if midasi not in self.__dict:
             self.__dict[midasi] = list()
@@ -554,12 +568,6 @@ class UsrDict(DictBase):
                 return
         elements.insert(0, candidate)
         self.__dict_changed = True
-
-    def completer(self, midasi):
-        for _midasi in self.__midasi_history:
-            if _midasi.startswith(midasi):
-                yield _midasi
-        # TODO: complete from self.__dict?
 
 class SkkServ(DictBase):
     HOST='localhost'
@@ -637,13 +645,16 @@ class CandidateSelector(object):
     pagination_start = property(lambda self: self.__pagination_start)
 
     def set_candidates(self, candidates):
+        '''Set the list of candidates.'''
         self.__candidates = candidates
         self.__index = -1
 
     def next_candidate(self, move_over_pages=True):
+        '''Move the cursor forward.  If MOVE_OVER_PAGES is True, skip
+        to the next page instead of the next candidate.'''
         if move_over_pages and self.__index >= self.__pagination_start:
             index = self.__index + self.__page_size
-            # Align to the beginning of the page.
+            # Place the cursor at the beginning of the page.
             index -= (index - self.__pagination_start) % self.__page_size
         else:
             index = self.__index + 1
@@ -654,9 +665,11 @@ class CandidateSelector(object):
         return None
 
     def previous_candidate(self, move_over_pages=True):
+        '''Move the cursor forward.  If MOVE_OVER_PAGES is
+        True, skip to the previous page instead of the previous candidate.'''
         if move_over_pages and self.__index >= self.__pagination_start:
             index = self.__index - self.__page_size
-            # Align to the beginning of the page.
+            # Place the cursor at the beginning of the page.
             index -= (index - self.__pagination_start) % self.__page_size
         else:
             index = self.__index - 1
@@ -667,11 +680,13 @@ class CandidateSelector(object):
         return None
 
     def candidate(self):
+        '''Return the current candidate.'''
         if self.__index < 0:
             return None
         return self.__candidates[self.__index] + (True,)
 
     def index(self):
+        '''Return the current index.'''
         return self.__index
 
 class Context:
@@ -715,20 +730,25 @@ class Context:
         #
         # where OUTPUT is a kana string, PENDING is a string in
         # rom-kana conversion, and TREE is a subtree of
-        # __ROM_KANA_RULE_TREE.
+        # __rom_kana_rule_tree.
         #
-        # See __convert_rom_kana for the state transition algorithm.
+        # See __convert_rom_kana() for the state transition algorithm.
         self.__rom_kana_state = None
         self.__okuri_rom_kana_state = None
 
+        # Current midasi in conversion.
         self.__midasi = None
+
         self.__candidate_selector.set_candidates(list())
 
+        # Whether or not we are in the abbrev mode.
         self.__abbrev = False
 
         self.__conv_state = CONV_STATE_NONE
 
         self.__completer = None
+
+        # Last used keyword which triggered auto-start-henkan.
         self.__auto_start_henkan_keyword = None
 
     conv_state = property(lambda self: self.__conv_state)
@@ -874,16 +894,16 @@ class Context:
                 if self.__completer is None:
                     compkey = self.__rom_kana_state[0]
                     self.__completer = self.__init_completer(compkey)
-                    self.__midasi_seen = set((compkey,))
+                    self.__completion_seen = set((compkey,))
                 for midasi in self.__completer:
-                    if midasi not in self.__midasi_seen:
+                    if midasi not in self.__completion_seen:
                         self.__rom_kana_state = (midasi, u'', u'')
-                        self.__midasi_seen.add(midasi)
+                        self.__completion_seen.add(midasi)
                         break
                 return (True, u'')
             # Stop TAB completion.
             self.__completer = None
-            self.__midasi_seen = None
+            self.__completion_seen = None
 
             # Start okuri-nasi conversion.
             auto_start_henkan_keyword = None
