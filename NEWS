@@ -2,7 +2,10 @@
 
 * Version 0.0.3 (unreleased)
 
-** Move over pages of the candidate window by shortcut key (Up/Down, x, space).
+** Shortcut key to move over pages of the candidate window.
+Up/Down (if the orientation is landscape) are assigned to move over
+pages rather than candidates.  x/space behave similarly after the
+first 4 candidates are seen.
 
 ** Show annotations on the auxilary text area.
 
@@ -12,10 +15,14 @@ Thanks iws <iws1011@gmail.com> for the initial implementation.
 ** RPM spec file is included in the distribution.
 Contributed by Jens Petersen <petersen@redhat.com>.
 
-** Call `emacsclient' for S-exp candidates being eval'ed within Emacs.
+** Support for encodings other than EUC-JP for the user dictionary.
+The encoding of the user dictionary is now determined by an Emacs-like
+coding cookie (something like ";;; -*- coding: utf-8 -*-").
 
-** Accept encodings other than EUC-JP for the user dictionary.
-Respect a coding cookie (something like ";;; -*- coding: utf-8 -*-").
+** Elisp candidates evaluation.
+IBus-SKK calls emacsclient to evaluate elisp candidates (such as
+"(current-time-string)" for "now") with the help of external Emacs
+process.
 
 * Version 0.0.2 (released 2009-12-23)
 
