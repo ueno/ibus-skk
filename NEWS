@@ -4,8 +4,6 @@
 
 ** Move over pages of the candidate window by shortcut key (Up/Down, x, space).
 
-** Call `emacsclient' for S-exp candidates being eval'ed within Emacs.
-
 ** Show annotations on the auxilary text area.
 
 ** Start conversion automatically when some punctuation characters are typed.
@@ -13,6 +11,11 @@ Thanks iws <iws1011@gmail.com> for the initial implementation.
 
 ** RPM spec file is included in the distribution.
 Contributed by Jens Petersen <petersen@redhat.com>.
+
+** Call `emacsclient' for S-exp candidates being eval'ed within Emacs.
+
+** Accept encodings other than EUC-JP for the user dictionary.
+Respect a coding cookie (something like ";;; -*- coding: utf-8 -*-").
 
 * Version 0.0.2 (released 2009-12-23)
 
