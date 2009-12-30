@@ -543,10 +543,12 @@ class UsrDict(DictBase):
                     midasi, candidates = line.split(' ', 1)
                     self.__dict[midasi] = self.split_candidates(candidates)
             self.__read_only = False
-        except Exception, e:
+        except Exception:
             self.__read_only = True
         self.__dict_changed = False
         self.__selection_history = list()
+
+    read_only = property(lambda self: self.__read_only)
 
     def lookup(self, midasi, okuri=False):
         return self.__dict.get(midasi, list())

@@ -33,8 +33,8 @@ class TestSKK(unittest.TestCase):
             usrdict = skk.UsrDict(usrdict_path, 'UTF-8')
             self.assertNotEqual(usrdict, None)
             self.assertTrue(usrdict.read_only)
-        except:
-            self.fail("can't open user dictionary")
+        except Exception, e:
+            self.fail("can't open user dictionary: %s" % e.message)
         finally:
             os.unlink(usrdict_path)
 
