@@ -24,6 +24,7 @@ from __future__ import with_statement
 import itertools
 import os.path
 import socket
+import re
 
 # Converted from skk-rom-kana-base-rule in skk-vars.el.
 ROM_KANA_RULE = {
@@ -502,6 +503,17 @@ class UsrDict(DictBase):
     PATH = '~/.skk-ibus-jisyo'
     HISTSIZE = 128
 
+    __encoding_to_coding_system = {
+        'UTF-8': 'utf-8',
+        'EUC-JP': 'euc-jp',
+        'Shift_JIS': 'shift_jis',
+        'ISO-2022-JP': 'iso-2022-jp'
+        }
+
+    __coding_system_to_encoding = dict()
+    for encoding, coding_system in __encoding_to_coding_system.items():
+        __coding_system_to_encoding[coding_system] = encoding
+
     def __init__(self, path=PATH, encoding=DictBase.ENCODING):
         self.__path = os.path.expanduser(path)
         self.__encoding = encoding
@@ -509,10 +521,21 @@ class UsrDict(DictBase):
 
     path = property(lambda self: self.__path)
 
+    __coding_cookie_pattern = \
+        re.compile('\A\s*;+\s*-\*-\s*coding:\s*(\S+?)\s*-\*-')
     def reload(self):
         self.__dict = dict()
         try:
             with open(self.__path, 'a+') as fp:
+                line = fp.readline()
+                if line:
+                    match = re.match(self.__coding_cookie_pattern, line)
+                    if match:
+                        encoding = self.__coding_system_to_encoding.\
+                            get(match.group(1))
+                        if encoding:
+                            self.__encoding = encoding
+                fp.seek(0)
                 for line in fp:
                     if line.startswith(';'):
                         continue
@@ -520,7 +543,7 @@ class UsrDict(DictBase):
                     midasi, candidates = line.split(' ', 1)
                     self.__dict[midasi] = self.split_candidates(candidates)
             self.__read_only = False
-        except:
+        except Exception, e:
             self.__read_only = True
         self.__dict_changed = False
         self.__selection_history = list()
@@ -539,6 +562,10 @@ class UsrDict(DictBase):
         if not self.__dict_changed or self.__read_only:
             return
         with open(self.__path, 'w+') as fp:
+            coding_system = self.__encoding_to_coding_system.\
+                get(self.__encoding)
+            if coding_system:
+                fp.write(';;; -*- coding: %s -*-\n' % coding_system)
             for midasi in sorted(self.__dict):
                 line = midasi + u' /' + \
                     self.join_candidates(self.__dict[midasi]) + '/\n'
