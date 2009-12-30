@@ -735,7 +735,6 @@ class Context:
 
         self.__rom_kana_rule_tree = compile_rom_kana_rule(ROM_KANA_RULE)
         self.reset()
-        self.activate_input_mode(INPUT_MODE_HIRAGANA)
         self.kutouten_type = KUTOUTEN_JP
         self.auto_start_henkan_keywords = AUTO_START_HENKAN_KEYWORDS
 
@@ -757,19 +756,8 @@ class Context:
     sysdict = property(lambda self: self.__sysdict, set_sysdict)
 
     def reset(self):
-        '''Reset the internal state of the context.'''
-        # rom-kana state is either None or a tuple
-        #
-        # (OUTPUT, PENDING, TREE)
-        #
-        # where OUTPUT is a kana string, PENDING is a string in
-        # rom-kana conversion, and TREE is a subtree of
-        # __rom_kana_rule_tree.
-        #
-        # See __convert_rom_kana() for the state transition algorithm.
-        self.__rom_kana_state = None
-        self.__okuri_rom_kana_state = None
-
+        '''Reset the internal state of the context.  The initial state
+        is INPUT_MODE_HIRAGANA/CONV_STATE_NONE.'''
         # Current midasi in conversion.
         self.__midasi = None
 
@@ -784,6 +772,18 @@ class Context:
 
         # Last used keyword which triggered auto-start-henkan.
         self.__auto_start_henkan_keyword = None
+
+        # rom-kana state is either None or a tuple
+        #
+        # (OUTPUT, PENDING, TREE)
+        #
+        # where OUTPUT is a kana string, PENDING is a string in
+        # rom-kana conversion, and TREE is a subtree of
+        # __rom_kana_rule_tree.
+        #
+        # See __convert_rom_kana() for the state transition algorithm.
+        self.__okuri_rom_kana_state = None
+        self.activate_input_mode(INPUT_MODE_HIRAGANA)
 
     conv_state = property(lambda self: self.__conv_state)
     input_mode = property(lambda self: self.__input_mode)
@@ -810,10 +810,11 @@ class Context:
         self.__input_mode = input_mode
         if self.__input_mode in (INPUT_MODE_HIRAGANA, INPUT_MODE_KATAKANA):
             self.__rom_kana_state = (u'', u'', self.__rom_kana_rule_tree)
+        else:
+            self.__rom_kana_state = None
 
     def kakutei(self):
         '''Fix the current candidate as a commitable string.'''
-        input_mode = self.__input_mode
         if self.__midasi:
             candidate = self.__candidate_selector.candidate()
             if candidate:
@@ -829,6 +830,7 @@ class Context:
             output = self.__rom_kana_state[0]
         if self.__auto_start_henkan_keyword:
             output += self.__auto_start_henkan_keyword
+        input_mode = self.__input_mode
         self.reset()
         self.activate_input_mode(input_mode)
         return output
@@ -855,8 +857,9 @@ class Context:
 
         if key == 'ctrl+g':
             if self.__conv_state in (CONV_STATE_NONE, CONV_STATE_START):
+                input_mode = self.__input_mode
                 self.reset()
-                self.activate_input_mode(self.__input_mode)
+                self.activate_input_mode(input_mode)
             else:
                 if self.__okuri_rom_kana_state:
                     self.__rom_kana_state = (self.__rom_kana_state[0] + \
@@ -1044,9 +1047,7 @@ class Context:
                 self.__rom_kana_state = state
                 return (True, u'')
         if self.__conv_state == CONV_STATE_START:
-            self.__conv_state = CONV_STATE_NONE
             self.reset()
-            self.activate_input_mode(INPUT_MODE_HIRAGANA)
             return (True, u'')
         return (False, u'')
 

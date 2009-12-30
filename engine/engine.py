@@ -428,7 +428,6 @@ class Engine(ibus.EngineBase):
 
     def reset(self):
         self.__skk.reset()
-        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
 
     def property_activate(self, prop_name, state):
         # print "PropertyActivate(%s, %d)" % (prop_name, state)
