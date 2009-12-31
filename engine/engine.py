@@ -126,9 +126,9 @@ class Engine(ibus.EngineBase):
             self.config.get_value('pagination_start',
                                   skk.CandidateSelector.PAGINATION_START)
         self.__lookup_table = ibus.LookupTable(page_size=page_size,
-                                               labels=labels,
-                                               round=False)
-        self.__lookup_table.set_orientation(0)
+                                               round=False,
+                                               orientation=0,
+                                               labels=labels)
         self.__candidate_selector = CandidateSelector(self.__lookup_table,
                                                       self.__select_keys,
                                                       page_size,
