@@ -367,14 +367,18 @@ class Engine(ibus.EngineBase):
         else:
             attrs.append(ibus.AttributeUnderline(ibus.ATTR_UNDERLINE_SINGLE,
                                                  midasi_start, suffix_end))
-        if self.__skk.abbrev:
-            cursor_color = self.ABBREV_CURSOR_COLOR
-        else:
-            cursor_color = self.INPUT_MODE_CURSOR_COLORS.get(\
-                self.__skk.input_mode)
-        attrs.append(ibus.AttributeBackground(ibus.RGB(*cursor_color),
-                                              suffix_end, suffix_end + 1))
-        preedit = ''.join((prefix, midasi, suffix, u' '))
+        # Color cursor, currently disabled.
+        #
+        # if self.__skk.abbrev:
+        #     cursor_color = self.ABBREV_CURSOR_COLOR
+        # else:
+        #     cursor_color = self.INPUT_MODE_CURSOR_COLORS.get(\
+        #         self.__skk.input_mode)
+        # attrs.append(ibus.AttributeBackground(ibus.RGB(*cursor_color),
+        #                                       suffix_end, suffix_end + 1))
+        # preedit = ''.join((prefix, midasi, suffix, u' '))
+        #
+        preedit = ''.join((prefix, midasi, suffix))
         self.update_preedit_text(ibus.Text(preedit, attrs),
                                  len(preedit), len(preedit) > 0)
         visible = self.__candidate_selector.lookup_table_visible()
