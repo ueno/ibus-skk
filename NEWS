@@ -1,6 +1,6 @@
 -*- outline -*-
 
-* Version 0.0.3 (unreleased)
+* Version 0.0.3 (released 2009-12-31)
 
 ** Shortcut key to move over pages of the candidate window.
 Up/Down (if the orientation is landscape) are assigned to move over
@@ -16,7 +16,7 @@ Thanks iws <iws1011@gmail.com> for the initial implementation.
 Contributed by Jens Petersen <petersen@redhat.com>.
 
 ** Support for encodings other than EUC-JP for the user dictionary.
-The encoding of the user dictionary is now determined by an Emacs-like
+The encoding of the user dictionary is determined by an Emacs-like
 coding cookie (something like ";;; -*- coding: utf-8 -*-").
 
 ** Elisp candidates evaluation.
