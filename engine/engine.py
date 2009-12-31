@@ -21,7 +21,6 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import gobject
-import pango
 import ibus
 from ibus import keysyms
 from ibus import modifier
@@ -363,10 +362,10 @@ class Engine(ibus.EngineBase):
                                                   midasi_start, suffix_start))
             attrs.append(ibus.AttributeBackground(ibus.RGB(180, 238, 180),
                                                   midasi_start, suffix_start))
-            attrs.append(ibus.AttributeUnderline(pango.UNDERLINE_SINGLE,
+            attrs.append(ibus.AttributeUnderline(ibus.ATTR_UNDERLINE_SINGLE,
                                                  suffix_start, suffix_end))
         else:
-            attrs.append(ibus.AttributeUnderline(pango.UNDERLINE_SINGLE,
+            attrs.append(ibus.AttributeUnderline(ibus.ATTR_UNDERLINE_SINGLE,
                                                  midasi_start, suffix_end))
         if self.__skk.abbrev:
             cursor_color = self.ABBREV_CURSOR_COLOR
