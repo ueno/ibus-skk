@@ -128,7 +128,7 @@ class Engine(ibus.EngineBase):
         self.__lookup_table = ibus.LookupTable(page_size=page_size,
                                                labels=labels,
                                                round=False)
-        self.__lookup_table.set_orientation(1)
+        self.__lookup_table.set_orientation(0)
         self.__candidate_selector = CandidateSelector(self.__lookup_table,
                                                       self.__select_keys,
                                                       page_size,
