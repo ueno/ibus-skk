@@ -260,20 +260,12 @@ class Engine(ibus.EngineBase):
             elif keyval == keysyms.Page_Down or keyval == keysyms.KP_Page_Down:
                 self.page_down()
                 return True
-            elif keyval in (keysyms.Up, keysyms.Left):
-                orientation = self.__lookup_table.get_orientation()
-                move_over_pages = \
-                    (orientation == 0 and keyval == keysyms.Up) or \
-                    (orientation == 1 and keyval == keysyms.Left)
-                self.__candidate_selector.previous_candidate(move_over_pages)
+            elif keyval == keysyms.Up:
+                self.__candidate_selector.previous_candidate(False)
                 self.__update()
                 return True
-            elif keyval in (keysyms.Down, keysyms.Right):
-                orientation = self.__lookup_table.get_orientation()
-                move_over_pages = \
-                    (orientation == 0 and keyval == keysyms.Down) or \
-                    (orientation == 1 and keyval == keysyms.Right)
-                self.__candidate_selector.next_candidate(move_over_pages)
+            elif keyval == keysyms.Down:
+                self.__candidate_selector.next_candidate(False)
                 self.__update()
                 return True
             elif self.__candidate_selector.lookup_table_visible():
