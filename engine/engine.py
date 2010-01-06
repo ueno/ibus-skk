@@ -31,6 +31,10 @@ from gettext import dgettext
 _  = lambda a : dgettext("ibus-skk", a)
 N_ = lambda a : a
 
+# Work-around for older IBus releases.
+if not hasattr(ibus, 'ORIENTATION_HORIZONTAL'):
+    ibus.ORIENTATION_HORIZONTAL = 0
+
 class CandidateSelector(skk.CandidateSelector):
     def __init__(self, lookup_table, keys, page_size, pagination_start):
         self.__lookup_table = lookup_table
