@@ -130,8 +130,10 @@ class Engine(ibus.EngineBase):
                                   skk.CandidateSelector.PAGINATION_START)
         self.__lookup_table = ibus.LookupTable(page_size=page_size,
                                                round=False,
-                                               orientation=ibus.ORIENTATION_HORIZONTAL,
                                                labels=labels)
+        if hasattr(self.__lookup_table, 'set_orientation'):
+            self.__lookup_table.set_orientation(ibus.ORIENTATION_HORIZONTAL)
+
         self.__candidate_selector = CandidateSelector(self.__lookup_table,
                                                       self.__select_keys,
                                                       page_size,
