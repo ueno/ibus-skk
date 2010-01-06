@@ -156,7 +156,6 @@ class Engine(ibus.EngineBase):
             skk.INPUT_MODE_LATIN : u"InputMode.Latin",
             skk.INPUT_MODE_WIDE_LATIN : u"InputMode.WideLatin"
             }
-        self.__input_mode = self.__skk.input_mode
         self.__input_mode_activate(self.__input_modes[self.__skk.input_mode],
                                    ibus.PROP_STATE_CHECKED)
 
@@ -215,10 +214,6 @@ class Engine(ibus.EngineBase):
         self.update_property(self.__prop_dict[prop_name])
 
         mode, label = input_modes[prop_name]
-        if self.__input_mode == mode:
-            return True
-
-        self.__input_mode = mode
         prop = self.__prop_dict[u"InputMode"]
         prop.label = label
         self.update_property(prop)
