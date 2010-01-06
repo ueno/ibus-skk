@@ -119,6 +119,24 @@ class Engine(ibus.EngineBase):
                      u'q', u'w', u'e', u'r', u'u', u'i', u'o',
                      u'z', u'x', u'c', u'v', u'm', u',', u'.']
      
+    __input_mode_prop_names = {
+        skk.INPUT_MODE_HIRAGANA : u"InputMode.Hiragana",
+        skk.INPUT_MODE_KATAKANA : u"InputMode.Katakana",
+        skk.INPUT_MODE_LATIN : u"InputMode.Latin",
+        skk.INPUT_MODE_WIDE_LATIN : u"InputMode.WideLatin"
+        }
+
+    __prop_name_input_modes = dict()
+    for key, val in __input_mode_prop_names.items():
+        __prop_name_input_modes[val] = key
+
+    __input_mode_labels = {
+        skk.INPUT_MODE_HIRAGANA : u"あ",
+        skk.INPUT_MODE_KATAKANA : u"ア",
+        skk.INPUT_MODE_LATIN : u"_A",
+        skk.INPUT_MODE_WIDE_LATIN : u"Ａ"
+        }
+
     def __init__(self, bus, object_path):
         super(Engine, self).__init__(bus, object_path)
         self.__is_invalidate = False
@@ -150,14 +168,8 @@ class Engine(ibus.EngineBase):
             list(iter(auto_start_henkan_keywords))
         self.__prop_dict = dict()
         self.__prop_list = self.__init_props()
-        self.__input_modes = {
-            skk.INPUT_MODE_HIRAGANA : u"InputMode.Hiragana",
-            skk.INPUT_MODE_KATAKANA : u"InputMode.Katakana",
-            skk.INPUT_MODE_LATIN : u"InputMode.Latin",
-            skk.INPUT_MODE_WIDE_LATIN : u"InputMode.WideLatin"
-            }
-        self.__input_mode_activate(self.__input_modes[self.__skk.input_mode],
-                                   ibus.PROP_STATE_CHECKED)
+        self.__input_mode = self.__skk.input_mode
+        self.__update_input_mode()
 
     def __init_props(self):
         skk_props = ibus.PropList()
@@ -196,26 +208,15 @@ class Engine(ibus.EngineBase):
 
         return skk_props
 
-    def __input_mode_activate(self, prop_name, state):
-        if not prop_name.startswith(u"InputMode."):
+    def __update_input_mode(self):
+        if self.__input_mode == self.__skk.input_mode:
             return False
-
-        input_modes = {
-            u"InputMode.Hiragana" : (skk.INPUT_MODE_HIRAGANA, u"あ"),
-            u"InputMode.Katakana" : (skk.INPUT_MODE_KATAKANA, u"ア"),
-            u"InputMode.Latin" : (skk.INPUT_MODE_LATIN, u"_A"),
-            u"InputMode.WideLatin" : (skk.INPUT_MODE_WIDE_LATIN, u"Ａ"),
-        }
-
-        if prop_name not in input_modes:
-            print >> sys.stderr, "Unknow prop_name = %s" % prop_name
-            return True
-        self.__prop_dict[prop_name].set_state(state)
+        self.__input_mode = self.__skk.input_mode
+        prop_name = self.__input_mode_prop_names[self.__input_mode]
+        self.__prop_dict[prop_name].set_state(ibus.PROP_STATE_CHECKED)
         self.update_property(self.__prop_dict[prop_name])
-
-        mode, label = input_modes[prop_name]
         prop = self.__prop_dict[u"InputMode"]
-        prop.label = label
+        prop.label = self.__input_mode_labels[self.__input_mode]
         self.update_property(prop)
         self.__invalidate()
 
@@ -335,13 +336,13 @@ class Engine(ibus.EngineBase):
             list(iter(self.config.get_value('auto_start_henkan_keywords',
                                             ''.join(skk.AUTO_START_HENKAN_KEYWORDS))))
 
-    ABBREV_CURSOR_COLOR = (65, 105, 225)
-    INPUT_MODE_CURSOR_COLORS = {
-        skk.INPUT_MODE_HIRAGANA: (139, 62, 47),
-        skk.INPUT_MODE_KATAKANA: (34, 139, 34),
-        skk.INPUT_MODE_LATIN: (139, 139, 131),
-        skk.INPUT_MODE_WIDE_LATIN: (255, 215, 0)
-        }
+    # ABBREV_CURSOR_COLOR = (65, 105, 225)
+    # INPUT_MODE_CURSOR_COLORS = {
+    #     skk.INPUT_MODE_HIRAGANA: (139, 62, 47),
+    #     skk.INPUT_MODE_KATAKANA: (34, 139, 34),
+    #     skk.INPUT_MODE_LATIN: (139, 139, 131),
+    #     skk.INPUT_MODE_WIDE_LATIN: (255, 215, 0)
+    #     }
 
     def __update(self):
         prefix, midasi, suffix = self.__skk.split_preedit()
@@ -380,8 +381,7 @@ class Engine(ibus.EngineBase):
             annotation = candidate[1] if candidate else None
             self.update_auxiliary_text(ibus.Text(annotation or u''), visible)
         self.update_lookup_table(self.__lookup_table, visible)
-        self.__input_mode_activate(self.__input_modes[self.__skk.input_mode],
-                                   ibus.PROP_STATE_CHECKED)
+        self.__update_input_mode()
 
         if self.__skk.conv_state is not skk.CONV_STATE_SELECT:
             gobject.idle_add(self.__possibly_update_config,
@@ -418,6 +418,7 @@ class Engine(ibus.EngineBase):
 
     def focus_in(self):
         self.register_properties(self.__prop_list)
+        self.__update_input_mode()
 
     def focus_out(self):
         self.reset()
@@ -428,7 +429,9 @@ class Engine(ibus.EngineBase):
     def property_activate(self, prop_name, state):
         # print "PropertyActivate(%s, %d)" % (prop_name, state)
         if state == ibus.PROP_STATE_CHECKED:
-            self.__input_mode_activate(prop_name, state)
+            input_mode = self.__prop_name_input_modes[prop_name]
+            self.__skk.activate_input_mode(input_mode)
+            self.__update_input_mode()
         else:
             if prop_name == 'setup':
                 self.__start_setup()
