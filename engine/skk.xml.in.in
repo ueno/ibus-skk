@@ -17,7 +17,7 @@
 			<language>ja</language>
 			<license>GPL</license>
 			<author>Daiki Ueno &lt;ueno@unixuser.org&gt;</author>
-			<icon>${pkgdatadir}/icons/ibus-skk.png</icon>
+			<icon>${pkgdatadir}/icons/ibus-skk.svg</icon>
 			<layout>jp</layout>
 			<longname>SKK</longname>
 			<description>SKK Input Method</description>

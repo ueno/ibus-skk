@@ -21,11 +21,11 @@
 # Boston, MA  02111-1307  USA
 
 icons_DATA = \
-	ibus-skk.png \
+	ibus-skk.svg \
 	$(NULL)
 
 iconsdir = $(pkgdatadir)/icons
 
 EXTRA_DIST = \
-	ibus-skk.png \
+	ibus-skk.svg \
 	$(NULL)

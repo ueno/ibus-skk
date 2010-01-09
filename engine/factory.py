@@ -36,7 +36,7 @@ class EngineFactory(ibus.EngineFactoryBase):
     ENGINE_PATH = "/com/redhat/IBus/engines/SKK/Engine"
     NAME = _("SKK")
     LANG = "ja"
-    ICON = os.getenv("IBUS_SKK_PKGDATADIR") + "/icons/ibus-skk.png"
+    ICON = os.getenv("IBUS_SKK_PKGDATADIR") + "/icons/ibus-skk.svg"
     AUTHORS = "Daiki Ueno <ueno@unixuser.org>"
     CREDITS = "GPLv2"
 
