@@ -262,11 +262,11 @@ class Engine(ibus.EngineBase):
             elif keyval == keysyms.Page_Down or keyval == keysyms.KP_Page_Down:
                 self.page_down()
                 return True
-            elif keyval == keysyms.Up:
+            elif keyval == keysyms.Up or keyval == keysyms.Left:
                 self.__candidate_selector.previous_candidate(False)
                 self.__update()
                 return True
-            elif keyval == keysyms.Down:
+            elif keyval == keysyms.Down or keyval == keysyms.Right:
                 self.__candidate_selector.next_candidate(False)
                 self.__update()
                 return True
