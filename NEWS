@@ -1,5 +1,16 @@
 -*- outline -*-
 
+* Version 0.0.4 (released 2010-01-11)
+
+** New icon in the SVG format.
+
+** Fix mouse operation on the tool-bar.
+
+** Compatility fix for older IBus versions.
+Run-time check for new IBus features are added, such as candidate
+panel orientation handling.
+Thanks Kazuhiro NISHIYAMA for providing a test case.
+
 * Version 0.0.3 (released 2009-12-31)
 
 ** Shortcut key to move over pages of the candidate window.
