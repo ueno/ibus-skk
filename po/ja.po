@@ -1,6 +1,6 @@
 # Japanese translations for ibus-skk package
 # ibus-skk パッケージに対する英訳.
-# Copyright (C) 2009 Daiki Ueno <ueno@unixuser.org>
+# Copyright (C) 2009-2010 Daiki Ueno <ueno@unixuser.org>
 # This file is distributed under the same license as the ibus-skk package.
 # Daiki Ueno <ueno@unixuser.org>, 2009.
 #
