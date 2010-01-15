@@ -8,7 +8,7 @@ License:	GPLv2+
 URL:		http://github.com/ueno/ibus-skk
 Source0:	http://cloud.github.com/downloads/ueno/ibus-skk/%{name}-%{version}.tar.gz
 
-BuildRequires:	intltool, python-devel
+BuildRequires:	gettext-devel, python-devel, pkgconfig, intltool
 Requires:	ibus, skkdic
 
 %description
