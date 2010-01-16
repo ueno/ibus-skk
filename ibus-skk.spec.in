@@ -8,6 +8,8 @@ License:	GPLv2+
 URL:		http://github.com/ueno/ibus-skk
 Source0:	http://cloud.github.com/downloads/ueno/ibus-skk/%{name}-%{version}.tar.gz
 
+BuildArch:	noarch
+
 BuildRequires:	gettext-devel, python-devel, pkgconfig, intltool
 Requires:	ibus, skkdic
 
@@ -45,7 +47,9 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * @DATE_DISPLAY@ Daiki Ueno <ueno@unixuser.org> - @PACKAGE_VERSION@-1
 - current version
+
 * Thu Dec 24 2009 Daiki Ueno <ueno@unixuser.org> - 0.0.2-1
 - new upstream release
+
 * Fri Dec 11 2009 Jens Petersen <petersen@redhat.com> - 0.0.1-1
 - initial packaging for fedora
