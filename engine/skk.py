@@ -4,6 +4,7 @@
 # ibus-skk - The SKK engine for IBus
 #
 # Copyright (C) 2009-2010 Daiki Ueno <ueno@unixuser.org>
+#   changed: 2010-04-13 tagomoris <tagomoris@intellilink.co.jp>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -872,6 +873,9 @@ class Context:
                 self.__conv_state = CONV_STATE_START
             return (True, u'')
 
+        if key == 'ctrl+h':
+            return self.delete_char()
+
         if self.__conv_state == CONV_STATE_NONE:
             input_mode = INPUT_MODE_TRANSITION_RULE.get(key, dict()).\
                 get(self.__input_mode)
@@ -912,21 +916,19 @@ class Context:
                     input_mode == INPUT_MODE_KATAKANA:
                 kana = self.__hiragana_to_katakana(self.__rom_kana_state[0])
                 self.kakutei()
-                self.activate_input_mode(input_mode)
                 return (True, kana)
             elif self.__input_mode == INPUT_MODE_KATAKANA and \
                     input_mode == INPUT_MODE_HIRAGANA:
                 kana = self.__katakana_to_hiragana(self.__rom_kana_state[0])
                 self.kakutei()
-                self.activate_input_mode(input_mode)
                 return (True, kana)
             elif input_mode is not None and not self.__abbrev:
                 output = self.kakutei()
                 self.activate_input_mode(input_mode)
                 return (True, output)
 
-            # Start TAB completion.
-            if keyval == u'\t':
+            # Start TAB(\C-i) completion.
+            if keyval == u'\t' or (is_ctrl and letter == 'i'):
                 self.__rom_kana_state = self.__convert_nn(self.__rom_kana_state)
                 if self.__completer is None:
                     compkey = self.__rom_kana_state[0]
