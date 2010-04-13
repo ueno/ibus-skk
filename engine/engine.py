@@ -170,6 +170,7 @@ class Engine(ibus.EngineBase):
         self.__prop_list = self.__init_props()
         self.__input_mode = self.__skk.input_mode
         self.__update_input_mode()
+        self.__suspended_mode = None
 
     def __init_props(self):
         skk_props = ibus.PropList()
@@ -418,9 +419,18 @@ class Engine(ibus.EngineBase):
 
     def focus_in(self):
         self.register_properties(self.__prop_list)
+        # skipped at first focus_in after ibus startup
+        if self.__suspended_mode is not None:
+            self.__skk.activate_input_mode(self.__suspended_mode)
+            self.__suspended_mode = None
         self.__update_input_mode()
 
     def focus_out(self):
+        self.__suspended_mode = self.__skk.input_mode
+        self.__skk.kakutei()
+        self.commit_text(ibus.Text(u''))
+        self.__lookup_table.clean()
+        self.__update()
         self.reset()
 
     def reset(self):
