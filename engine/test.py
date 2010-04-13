@@ -38,6 +38,81 @@ class TestSKK(unittest.TestCase):
         finally:
             os.unlink(usrdict_path)
 
+    def testinputmodechange(self):
+        self.__skk.reset()
+        self.assertEqual(self.__skk.conv_state, skk.CONV_STATE_NONE)
+        self.assertEqual(self.__skk.input_mode, skk.INPUT_MODE_HIRAGANA)
+        # catch ctrl-j in HIRAGANA
+        handled, output = self.__skk.press_key(u'ctrl+j')
+        self.assert_(handled)
+        self.assertEqual(output, u'')
+        self.assertEqual(self.__skk.conv_state, skk.CONV_STATE_NONE)
+        self.assertEqual(self.__skk.preedit, u'')
+        self.assertEqual(self.__skk.input_mode, skk.INPUT_MODE_HIRAGANA)
+        # HIRAGANA to KATAKANA
+        handled, output = self.__skk.press_key(u'q')
+        self.assert_(handled)
+        self.assertEqual(output, u'')
+        self.assertEqual(self.__skk.conv_state, skk.CONV_STATE_NONE)
+        self.assertEqual(self.__skk.preedit, u'')
+        self.assertEqual(self.__skk.input_mode, skk.INPUT_MODE_KATAKANA)
+        # catch ctrl-j in KATAKANA, and be still in KATAKANA
+        self.__skk.press_key(u'ctrl+j')
+        self.assert_(handled)
+        self.assertEqual(output, u'')
+        self.assertEqual(self.__skk.conv_state, skk.CONV_STATE_NONE)
+        self.assertEqual(self.__skk.preedit, u'')
+        self.assertEqual(self.__skk.input_mode, skk.INPUT_MODE_KATAKANA)
+        # KATAKANA to HIRAGANA
+        handled, output = self.__skk.press_key(u'q')
+        self.assert_(handled)
+        self.assertEqual(output, u'')
+        self.assertEqual(self.__skk.conv_state, skk.CONV_STATE_NONE)
+        self.assertEqual(self.__skk.preedit, u'')
+        self.assertEqual(self.__skk.input_mode, skk.INPUT_MODE_HIRAGANA)
+        # HIRAGANA to LATIN
+        handled, output = self.__skk.press_key(u'l')
+        self.assert_(handled)
+        self.assertEqual(output, u'')
+        self.assertEqual(self.__skk.conv_state, skk.CONV_STATE_NONE)
+        self.assertEqual(self.__skk.preedit, u'')
+        self.assertEqual(self.__skk.input_mode, skk.INPUT_MODE_LATIN)
+        # 'q' letter in LATIN
+        handled, output = self.__skk.press_key(u'q')
+        self.assert_(handled)
+        self.assertEqual(output, u'q')
+        self.assertEqual(self.__skk.conv_state, skk.CONV_STATE_NONE)
+        self.assertEqual(self.__skk.preedit, u'')
+        self.assertEqual(self.__skk.input_mode, skk.INPUT_MODE_LATIN)
+        # LATIN to HIRAGANA
+        handled, output = self.__skk.press_key(u'ctrl+j')
+        self.assert_(handled)
+        self.assertEqual(output, u'')
+        self.assertEqual(self.__skk.conv_state, skk.CONV_STATE_NONE)
+        self.assertEqual(self.__skk.preedit, u'')
+        self.assertEqual(self.__skk.input_mode, skk.INPUT_MODE_HIRAGANA)
+        # HIRAGANA to WIDE-LATIN
+        handled, output = self.__skk.press_key(u'shift+l')
+        self.assert_(handled)
+        self.assertEqual(output, u'')
+        self.assertEqual(self.__skk.conv_state, skk.CONV_STATE_NONE)
+        self.assertEqual(self.__skk.preedit, u'')
+        self.assertEqual(self.__skk.input_mode, skk.INPUT_MODE_WIDE_LATIN)
+        # 'q' letter in WIDE-LATIN
+        handled, output = self.__skk.press_key(u'q')
+        self.assert_(handled)
+        self.assertEqual(output, u'ｑ')
+        self.assertEqual(self.__skk.conv_state, skk.CONV_STATE_NONE)
+        self.assertEqual(self.__skk.preedit, u'')
+        self.assertEqual(self.__skk.input_mode, skk.INPUT_MODE_WIDE_LATIN)
+        # WIDE-LATIN to HIRAGANA
+        handled, output = self.__skk.press_key(u'ctrl+j')
+        self.assert_(handled)
+        self.assertEqual(output, u'')
+        self.assertEqual(self.__skk.conv_state, skk.CONV_STATE_NONE)
+        self.assertEqual(self.__skk.preedit, u'')
+        self.assertEqual(self.__skk.input_mode, skk.INPUT_MODE_HIRAGANA)
+
     def testromkana(self):
         self.__skk.reset()
         # ka -> か
