@@ -20,6 +20,8 @@ class TestSKK(unittest.TestCase):
         if not os.path.exists(sysdict_path):
             raise RuntimeError('SKK-JISYO.S not found; do "wget http://openlab.ring.gr.jp/skk/skk/dic/SKK-JISYO.S"')
 
+        os.system('grep -q "^\#" SKK-JISYO.S || patch -p0 < SKK-JISYO.S-numeric.patch')
+
         self.__skk = skk.Context(usrdict=skk.UsrDict(usrdict_path),
                                  sysdict=skk.SysDict(sysdict_path),
                                  candidate_selector=skk.CandidateSelector())
@@ -295,6 +297,20 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(output, u'挨')
         handled, output = self.__skk.press_key(u'ctrl+h')
         self.assertFalse(handled)
+
+    def testnumeric(self):
+        self.__skk.reset()
+        self.__skk.press_key(u'shift+q')
+        self.assertEqual(self.__skk.preedit, u'▽')
+        self.__skk.press_key(u'5')
+        self.__skk.press_key(u'h')
+        self.__skk.press_key(u'i')
+        self.__skk.press_key(u'k')
+        self.__skk.press_key(u'i')
+        self.__skk.press_key(u' ')
+        self.assertEqual(self.__skk.preedit, u'▼５匹')
+        self.__skk.press_key(u' ')
+        self.assertEqual(self.__skk.preedit, u'▼五匹')
 
 if __name__ == '__main__':
     unittest.main()

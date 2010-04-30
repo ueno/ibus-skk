@@ -295,6 +295,29 @@ WIDE_LATIN_TABLE = (None, None, None, None, None, None, None, None,
                     u'ｐ', u'ｑ', u'ｒ', u'ｓ', u'ｔ', u'ｕ', u'ｖ', u'ｗ', 
                     u'ｘ', u'ｙ', u'ｚ', u'｛', u'｜', u'｝', u'〜', None)
 
+# skk-num-alist-type1
+NUM_WIDE_LATIN_TABLE = {u'0': u'０', u'1': u'１', u'2': u'２', u'3': u'３',
+                        u'4': u'４', u'5': u'５', u'6': u'６', u'7': u'７',
+                        u'8': u'８', u'9': u'９', u'.': u'．', u' ': u''}
+
+# skk-num-alist-type2
+NUM_KANJI_TABLE1 = {u'0': u'〇', u'1': u'一', u'2': u'二', u'3': u'三',
+                    u'4': u'四', u'5': u'五', u'6': u'六', u'7': u'七',
+                    u'8': u'八', u'9': u'九', u' ': u''}
+
+# skk-num-alist-type5
+NUM_KANJI_TABLE2 = {u'0': u'零', u'1': u'壱', u'2': u'弐', u'3': u'参',
+                    u'4': u'四', u'5': u'伍', u'6': u'六', u'7': u'七',
+                    u'8': u'八', u'9': u'九', u' ': u''}
+
+# skk-num-alist-type3
+NUM_KANJI_KURAIDORI_TABLE1 = {1: u'十', 2: u'百', 3: u'千',
+                              4: u'万', 8: u'億', 12: u'兆', 16: u'京'}
+
+# skk-num-alist-type5
+NUM_KANJI_KURAIDORI_TABLE2 = {1: u'拾', 2: u'百', 3: u'阡',
+                              4: u'萬', 8: u'億', 12: u'兆', 16: u'京'}
+
 KUTOUTEN_JP, \
 KUTOUTEN_EN, \
 KUTOUTEN_JP_EN, \
@@ -792,6 +815,57 @@ class Context:
     input_mode = property(lambda self: self.__input_mode)
     abbrev = property(lambda self: self.__abbrev)
 
+    def __num_to_latin(self, num):
+        return num
+
+    def __num_to_jisx0208_latin(self, num):
+        return ''.join([NUM_WIDE_LATIN_TABLE[c] for c in num])
+
+    def __num_to_type2_kanji(self, num):
+        return ''.join([NUM_KANJI_TABLE1[c] for c in num])
+
+    def __num_to_kanji(self, num, digit_table, kurai_table):
+        ndigits = len(num)
+        result = list()
+        for index, digit in enumerate(num):
+            if int(digit) > 0:
+                result.append(digit_table[digit])
+            else:
+                index = ndigits - index - 1
+                kurai = kurai_table.get(index, None)
+                if kurai:
+                    result.append(kurai)
+                elif index % 4 > 0:
+                    result.append(kurai_table[index % 4])
+        return ''.join(result)
+
+    def __num_to_type3_kanji(self, num):
+        return self.__num_to_kanji(num, NUM_KANJI_TABLE1, NUM_KANJI_KURAIDORI_TABLE1)
+
+    def __num_to_type5_kanji(self, num):
+        return self.__num_to_kanji(num, NUM_KANJI_TABLE2, NUM_KANJI_KURAIDORI_TABLE2)
+
+    __num_converters = (__num_to_latin,
+                        __num_to_jisx0208_latin,
+                        __num_to_type2_kanji,
+                        __num_to_type3_kanji,
+                        __num_to_latin,
+                        __num_to_type5_kanji)
+
+    def __replace_num_with_hash(self, midasi):
+        return (re.sub('[0-9]+', '#', midasi),
+                [num.group() for num in re.finditer('[0-9]+', midasi)])
+
+    def __substitute_num(self, candidate, num_list):
+        def replace_hash_with_num(match, num_index):
+            converter = self.__num_converters[int(match.group(1))]
+            result = converter(self, num_list[num_index])
+            return result
+        num_index = 0
+        return re.sub('#([0-%d])' % (len(self.__num_converters) - 1),
+                      lambda match: replace_hash_with_num(match, num_index),
+                      candidate)
+
     def __hiragana_to_katakana(self, kana):
         diff = ord(u'ア') - ord(u'あ')
         def to_katakana(letter):
@@ -895,12 +969,19 @@ class Context:
             elif self.__input_mode == INPUT_MODE_WIDE_LATIN:
                 return (True, WIDE_LATIN_TABLE[ord(letter)])
 
-            # Start rom-kan mode.
+            # Start rom-kan mode with abbrev enabled (/).
             if keyval == '/':
                 self.__conv_state = CONV_STATE_START
                 self.__abbrev = True
                 return (True, u'')
 
+            # Start rom-kan mode (shift+q).
+            if is_shift and keyval == u'q':
+                self.__conv_state = CONV_STATE_START
+                return (True, u'')
+
+            # Start rom-kan mode and insert a character which
+            # triggered the transition.
             if is_shift and keyval.isalpha():
                 self.__conv_state = CONV_STATE_START
 
@@ -958,11 +1039,17 @@ class Context:
                 self.__conv_state = CONV_STATE_SELECT
                 self.__rom_kana_state = self.__convert_nn(self.__rom_kana_state)
                 midasi = self.__katakana_to_hiragana(self.__rom_kana_state[0])
+                midasi, num_list = self.__replace_num_with_hash(midasi)
                 self.__midasi = midasi
                 usr_candidates = self.__usrdict.lookup(midasi)
                 sys_candidates = self.__sysdict.lookup(midasi)
                 candidates = self.__merge_candidates(usr_candidates,
                                                      sys_candidates)
+                if num_list:
+                    candidates = [(self.__substitute_num(candidate[0],
+                                                         num_list),
+                                   candidate[1])
+                                  for candidate in candidates]
                 self.__candidate_selector.set_candidates(candidates)
                 self.next_candidate()
                 return (True, u'')
