@@ -26,6 +26,7 @@ import itertools
 import os.path
 import socket
 import re
+import kzik
 
 # Converted from skk-rom-kana-base-rule in skk-vars.el.
 ROM_KANA_RULE = {
@@ -760,6 +761,7 @@ class Context:
         self.__candidate_selector = candidate_selector
 
         self.__rom_kana_rule_tree = compile_rom_kana_rule(ROM_KANA_RULE)
+        self.__rom_kana_rule_tree = compile_rom_kana_rule(kzik.KZIK_RULE)
         self.reset()
         self.kutouten_type = KUTOUTEN_JP
         self.auto_start_henkan_keywords = AUTO_START_HENKAN_KEYWORDS
