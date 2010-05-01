@@ -830,7 +830,6 @@ class Context:
         for index, digit in enumerate(num):
             if int(digit) > 0:
                 result.append(digit_table[digit])
-            else:
                 index = ndigits - index - 1
                 kurai = kurai_table.get(index, None)
                 if kurai:
@@ -840,10 +839,14 @@ class Context:
         return ''.join(result)
 
     def __num_to_type3_kanji(self, num):
-        return self.__num_to_kanji(num, NUM_KANJI_TABLE1, NUM_KANJI_KURAIDORI_TABLE1)
+        return self.__num_to_kanji(num,
+                                   NUM_KANJI_TABLE1,
+                                   NUM_KANJI_KURAIDORI_TABLE1)
 
     def __num_to_type5_kanji(self, num):
-        return self.__num_to_kanji(num, NUM_KANJI_TABLE2, NUM_KANJI_KURAIDORI_TABLE2)
+        return self.__num_to_kanji(num,
+                                   NUM_KANJI_TABLE2,
+                                   NUM_KANJI_KURAIDORI_TABLE2)
 
     __num_converters = (__num_to_latin,
                         __num_to_jisx0208_latin,
@@ -857,13 +860,18 @@ class Context:
                 [num.group() for num in re.finditer('[0-9]+', midasi)])
 
     def __substitute_num(self, candidate, num_list):
-        def replace_hash_with_num(match, num_index):
+        if len(num_list) == 0:
+            return candidate
+        _num_index = [0]
+        def replace_hash_with_num(match):
+            if len(num_list) == 0:
+                return match.group(0)
             converter = self.__num_converters[int(match.group(1))]
-            result = converter(self, num_list[num_index])
+            result = converter(self, num_list[_num_index[0]])
+            _num_index[0] += 1
             return result
-        num_index = 0
         return re.sub('#([0-%d])' % (len(self.__num_converters) - 1),
-                      lambda match: replace_hash_with_num(match, num_index),
+                      replace_hash_with_num,
                       candidate)
 
     def __hiragana_to_katakana(self, kana):
@@ -1045,11 +1053,9 @@ class Context:
                 sys_candidates = self.__sysdict.lookup(midasi)
                 candidates = self.__merge_candidates(usr_candidates,
                                                      sys_candidates)
-                if num_list:
-                    candidates = [(self.__substitute_num(candidate[0],
-                                                         num_list),
-                                   candidate[1])
-                                  for candidate in candidates]
+                candidates = [(self.__substitute_num(candidate[0], num_list),
+                               candidate[1])
+                              for candidate in candidates]
                 self.__candidate_selector.set_candidates(candidates)
                 self.next_candidate()
                 return (True, u'')
