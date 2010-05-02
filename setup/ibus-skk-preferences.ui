@@ -244,7 +244,7 @@
                             <child>
                               <object class="GtkTable" id="table2">
                                 <property name="visible">True</property>
-                                <property name="n_rows">5</property>
+                                <property name="n_rows">6</property>
                                 <property name="n_columns">2</property>
                                 <property name="column_spacing">6</property>
                                 <property name="row_spacing">6</property>
@@ -379,6 +379,42 @@
                                     <property name="right_attach">2</property>
                                     <property name="top_attach">4</property>
                                     <property name="bottom_attach">5</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkAlignment" id="alignment8">
+                                    <property name="visible">True</property>
+                                    <child>
+                                      <object class="GtkLabel" id="label16">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">Rom/Kana Conversion _Table:</property>
+                                        <property name="use_underline">True</property>
+                                        <property name="width_chars">2</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="top_attach">5</property>
+                                    <property name="bottom_attach">6</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkAlignment" id="alignment9">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">1</property>
+                                    <property name="xscale">0.5</property>
+                                    <child>
+                                      <object class="GtkComboBox" id="rom_kana_rule">
+                                        <property name="visible">True</property>
+                                        <property name="model">rom_kana_rule_liststore</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                    <property name="top_attach">5</property>
+                                    <property name="bottom_attach">6</property>
                                   </packing>
                                 </child>
                               </object>
@@ -549,6 +585,24 @@
       </row>
       <row>
         <col id="0">&#xFF0E;&#x3001;</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="rom_kana_rule_liststore">
+    <columns>
+      <!-- column-name column1 -->
+      <column type="gchararray"/>
+      <!-- column-name column2 -->
+      <column type="gint"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Normal</col>
+        <col id="1">0</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">KZIK</col>
+        <col id="1">1</col>
       </row>
     </data>
   </object>

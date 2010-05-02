@@ -339,5 +339,16 @@ class TestSKK(unittest.TestCase):
         self.__skk.press_key(u' ')
         self.assertEqual(self.__skk.preedit, u'▼五万匹')
 
+    def testkzik(self):
+        self.__skk.rom_kana_rule = skk.ROM_KANA_KZIK
+        self.__skk.reset()
+        self.__skk.press_key(u'b')
+        self.__skk.press_key(u'g')
+        handled, output = self.__skk.press_key(u'd')
+        self.assertTrue(handled)
+        self.assertEqual(output, u'びぇん')
+        self.__skk.rom_kana_rule = skk.ROM_KANA_NORMAL
+        self.__skk.reset()
+
 if __name__ == '__main__':
     unittest.main()

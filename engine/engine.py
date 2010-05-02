@@ -166,6 +166,9 @@ class Engine(ibus.EngineBase):
                                   ''.join(skk.AUTO_START_HENKAN_KEYWORDS))
         self.__skk.auto_start_henkan_keywords = \
             list(iter(auto_start_henkan_keywords))
+        self.__skk.rom_kana_rule = self.config.get_value('rom_kana_rule',
+                                                         skk.ROM_KANA_NORMAL)
+        self.__skk.reset()
         self.__prop_dict = dict()
         self.__prop_list = self.__init_props()
         self.__input_mode = self.__skk.input_mode
@@ -332,7 +335,10 @@ class Engine(ibus.EngineBase):
     def __possibly_update_config(self):
         if self.__skk.usrdict.path != self.config.usrdict_path:
             self.__skk.usrdict = skk.UsrDict(self.config.usrdict_path)
-        self.__skk.kutouten_type = self.config.get_value('period_style', 0)
+        self.__skk.kutouten_type = self.config.get_value('period_style',
+                                                         skk.KUTOUTEN_JP)
+        self.__skk.rom_kana_rule = self.config.get_value('rom_kana_rule',
+                                                         skk.ROM_KANA_NORMAL)
         self.__skk.auto_start_henkan_keywords = \
             list(iter(self.config.get_value('auto_start_henkan_keywords',
                                             ''.join(skk.AUTO_START_HENKAN_KEYWORDS))))

@@ -23,6 +23,7 @@ engine_skk_PYTHON = \
 	factory.py \
 	main.py \
 	skk.py \
+	kzik.py \
 	$(NULL)
 engine_skkdir = $(pkgdatadir)/engine
 

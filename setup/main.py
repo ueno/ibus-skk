@@ -32,6 +32,7 @@ class PreferencesDialog:
         self.__show_annotation = self.__builder.get_object('show_annotation')
         self.__auto_start_henkan_keywords = \
             self.__builder.get_object('auto_start_henkan_keywords')
+        self.__rom_kana_rule = self.__builder.get_object('rom_kana_rule')
 
         self.__usrdict.set_filename(self.__config.usrdict_path)
         sysdict_type = self.__config.get_value('sysdict_type', 'file')
@@ -73,6 +74,12 @@ class PreferencesDialog:
         self.__show_annotation.set_active(\
             self.__config.get_value('show_annotation', True))
 
+        renderer = gtk.CellRendererText()
+        self.__rom_kana_rule.pack_start(renderer)
+        self.__rom_kana_rule.set_attributes(renderer, text=0)
+        self.__rom_kana_rule.set_active(\
+            self.__config.get_value('rom_kana_rule', skk.ROM_KANA_NORMAL))
+
         self.__usrdict.connect('file-set', self.__usrdict_file_set_cb)
         self.__sysdict_file.connect('toggled', self.__sysdict_toggle_cb)
         self.__sysdict_skkserv.connect('toggled', self.__sysdict_toggle_cb)
@@ -85,6 +92,7 @@ class PreferencesDialog:
         self.__page_size.connect('changed', self.__page_size_changed_cb)
         self.__pagination_start.connect('changed', self.__pagination_start_changed_cb)
         self.__show_annotation.connect('toggled', self.__show_annotation_changed_cb)
+        self.__rom_kana_rule.connect('changed', self.__rom_kana_rule_changed_cb)
 
     def __sysdict_toggle_cb(self, widget):
         sysdict_type = 'file' if self.__sysdict_file.get_active() else 'skkserv'
@@ -128,6 +136,9 @@ class PreferencesDialog:
 
     def __show_annotation_changed_cb(self, widget):
         self.__config.set_value('show_annotation', widget.get_active())
+
+    def __rom_kana_rule_changed_cb(self, widget):
+        self.__config.set_value('rom_kana_rule', widget.get_active())
 
     def run(self):
         return self.__dialog.run()

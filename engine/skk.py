@@ -26,7 +26,7 @@ import itertools
 import os.path
 import socket
 import re
-import kzik
+from kzik import KZIK_RULE
 
 # Converted from skk-rom-kana-base-rule in skk-vars.el.
 ROM_KANA_RULE = {
@@ -360,6 +360,11 @@ INPUT_MODE_TRANSITION_RULE = {
         INPUT_MODE_LATIN: INPUT_MODE_HIRAGANA
         }
     }
+
+ROM_KANA_NORMAL, \
+ROM_KANA_KZIK = range(2)
+
+ROM_KANA_RULES = (ROM_KANA_RULE, KZIK_RULE)
 
 class DictBase(object):
     ENCODING = 'EUC-JP'
@@ -750,21 +755,23 @@ class CandidateSelector(object):
         else:
             self.__index = -1
 
-class Context:
+class Context(object):
     def __init__(self, usrdict, sysdict, candidate_selector):
         '''Create an SKK context.
 
         USRDICT is a user dictionary and SYSDICT is a system
         dictionary (or a connection to SKKServ).'''
-        self.__usrdict = usrdict
-        self.__sysdict = sysdict
+        self.__usrdict = None
+        self.__sysdict = None
+        self.__rom_kana_rule = None
         self.__candidate_selector = candidate_selector
 
-        self.__rom_kana_rule_tree = compile_rom_kana_rule(ROM_KANA_RULE)
-        self.__rom_kana_rule_tree = compile_rom_kana_rule(kzik.KZIK_RULE)
-        self.reset()
+        self.usrdict = usrdict
+        self.sysdict = sysdict
+        self.rom_kana_rule = ROM_KANA_NORMAL
         self.kutouten_type = KUTOUTEN_JP
         self.auto_start_henkan_keywords = AUTO_START_HENKAN_KEYWORDS
+        self.reset()
 
     def __check_dict(self, _dict):
         if not isinstance(_dict, DictBase):
@@ -782,6 +789,15 @@ class Context:
 
     usrdict = property(lambda self: self.__usrdict, set_usrdict)
     sysdict = property(lambda self: self.__sysdict, set_sysdict)
+
+    def set_rom_kana_rule(self, rom_kana_rule):
+        if self.__rom_kana_rule != rom_kana_rule:
+            self.__rom_kana_rule = rom_kana_rule
+            self.__rom_kana_rule_tree = \
+                compile_rom_kana_rule(ROM_KANA_RULES[self.__rom_kana_rule])
+
+    rom_kana_rule = property(lambda self: self.__rom_kana_rule,
+                             set_rom_kana_rule)
 
     def reset(self):
         '''Reset the internal state of the context.  The initial state
