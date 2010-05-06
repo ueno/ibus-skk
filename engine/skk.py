@@ -954,10 +954,11 @@ class Context(object):
                                                      candidates)
 
     def leave_dict_edit(self):
-        self.__usrdict.select_candidate(self.__previous_state().midasi,
-                                        (self.__current_state().dict_edit_output,
-                                         None))
+        dict_edit_output = self.__current_state().dict_edit_output
         self.abort_dict_edit()
+        self.__current_state().candidates.insert(0, (dict_edit_output, None))
+        self.__candidate_selector.set_index(0)
+        return self.kakutei()
 
     def __num_to_latin(self, num):
         return num
@@ -1295,6 +1296,9 @@ class Context(object):
         if self.__conv_state == CONV_STATE_START:
             self.reset()
             return (True, u'')
+        if self.dict_edit_level() > 0:
+            self.__current_state().dict_edit_output = \
+                self.__current_state().dict_edit_output[:-1]
         return (False, u'')
 
     def next_candidate(self):
