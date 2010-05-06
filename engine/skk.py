@@ -367,6 +367,10 @@ ROM_KANA_KZIK = range(2)
 
 ROM_KANA_RULES = (ROM_KANA_RULE, KZIK_RULE)
 
+TRANSLATED_STRINGS = {
+    u'dict-edit-prompt': u'RegDict'
+}
+
 class DictBase(object):
     ENCODING = 'EUC-JP'
 
@@ -773,7 +777,7 @@ class Context(object):
         self.rom_kana_rule = ROM_KANA_NORMAL
         self.kutouten_type = KUTOUTEN_JP
         self.auto_start_henkan_keywords = AUTO_START_HENKAN_KEYWORDS
-        self.dict_edit_prompt_string = u'RegDict'
+        self.translated_strings = dict(TRANSLATED_STRINGS)
         self.reset()
 
     def __check_dict(self, _dict):
@@ -1260,7 +1264,7 @@ class Context(object):
         dict_edit_level = len(self.__dict_edit_stack)
         if dict_edit_level > 0:
             return u'%s%s%s %s ' % (u'[' * dict_edit_level,
-                                    self.dict_edit_prompt_string,
+                                    self.translated_strings['dict-edit-prompt'],
                                     u']' * dict_edit_level,
                                     self.__dict_edit_stack[-1][2])
         else:
