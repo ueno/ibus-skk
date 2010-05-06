@@ -43,7 +43,8 @@ class TestSKK(unittest.TestCase):
     def testinputmodechange(self):
         self.__skk.reset()
         self.assertEqual(self.__skk.conv_state, skk.CONV_STATE_NONE)
-        self.assertEqual(self.__skk.input_mode, skk.INPUT_MODE_HIRAGANA)
+        self.assertEqual(self.__skk.input_mode, skk.INPUT_MODE_NONE)
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         # catch ctrl-j in HIRAGANA
         handled, output = self.__skk.press_key(u'ctrl+j')
         self.assert_(handled)
@@ -117,6 +118,7 @@ class TestSKK(unittest.TestCase):
 
     def testromkana(self):
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         # ka -> か
         self.assertEqual(self.__skk.press_key(u'k'), (True, u''))
         self.assertEqual(self.__skk.preedit, u'k')
@@ -142,6 +144,7 @@ class TestSKK(unittest.TestCase):
 
     def testhiraganakatakana(self):
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.press_key(u'shift+a')
         self.assertEqual(self.__skk.conv_state, skk.CONV_STATE_START)
         self.__skk.press_key(u'i')
@@ -162,6 +165,7 @@ class TestSKK(unittest.TestCase):
         
     def testokurinasi(self):
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.assertEqual(self.__skk.press_key(u'shift+a'), (True, u''))
         self.assertEqual(self.__skk.preedit, u'▽あ')
         self.assertEqual(self.__skk.press_key(u'i'), (True, u''))
@@ -173,6 +177,7 @@ class TestSKK(unittest.TestCase):
 
     def testokuriari(self):
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.press_key(u'shift+k')
         self.__skk.press_key(u'a')
         self.__skk.press_key(u'n')
@@ -185,6 +190,7 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(self.__skk.press_key(u'u'), (True, u'る'))
 
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.press_key(u'shift+h')
         self.__skk.press_key(u'a')
         self.__skk.press_key(u'shift+z')
@@ -193,6 +199,7 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(self.__skk.preedit, u'▼恥ず')
 
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.press_key(u'shift+t')
         self.__skk.press_key(u'u')
         self.__skk.press_key(u'k')
@@ -203,6 +210,7 @@ class TestSKK(unittest.TestCase):
 
     def testcompletion(self):
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.press_key(u'shift+a')
         self.assertEqual(self.__skk.preedit, u'▽あ')
         self.__skk.press_key(u'\t')
@@ -225,6 +233,7 @@ class TestSKK(unittest.TestCase):
 
     def testautoconvesion(self):
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.press_key(u'shift+a')
         self.assertEqual(self.__skk.preedit, u'▽あ')
         self.__skk.press_key(u'i')
@@ -234,6 +243,7 @@ class TestSKK(unittest.TestCase):
         self.__skk.press_key(u' ')
         self.assertEqual(self.__skk.preedit, u'▼哀、')
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.press_key(u'shift+a')
         self.__skk.press_key(u'i')
         self.__skk.press_key(u'w')
@@ -242,6 +252,7 @@ class TestSKK(unittest.TestCase):
 
     def testdelete(self):
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.press_key(u'shift+a')
         self.assertEqual(self.__skk.preedit, u'▽あ')
         handled, output = self.__skk.delete_char()
@@ -252,6 +263,7 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(self.__skk.preedit, u'')
 
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.press_key(u'shift+a')
         self.assertEqual(self.__skk.preedit, u'▽あ')
         self.__skk.press_key(u'i')
@@ -271,6 +283,7 @@ class TestSKK(unittest.TestCase):
 
     def testdeleteshortcut(self):
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.press_key(u'shift+a')
         self.assertEqual(self.__skk.preedit, u'▽あ')
         handled, output = self.__skk.press_key(u'ctrl+h')
@@ -281,6 +294,7 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(self.__skk.preedit, u'')
 
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.press_key(u'shift+a')
         self.assertEqual(self.__skk.preedit, u'▽あ')
         self.__skk.press_key(u'i')
@@ -300,6 +314,7 @@ class TestSKK(unittest.TestCase):
 
     def testnumeric(self):
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.press_key(u'shift+q')
         self.assertEqual(self.__skk.preedit, u'▽')
         self.__skk.press_key(u'5')
@@ -307,9 +322,9 @@ class TestSKK(unittest.TestCase):
         self.__skk.press_key(u'1')
         self.__skk.press_key(u' ')
         self.assertEqual(self.__skk.preedit, u'▼5月1日')
-        self.__skk.kakutei()
 
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.press_key(u'shift+q')
         self.__skk.press_key(u'5')
         self.__skk.press_key(u'h')
@@ -320,9 +335,9 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(self.__skk.preedit, u'▼５匹')
         self.__skk.press_key(u' ')
         self.assertEqual(self.__skk.preedit, u'▼五匹')
-        self.__skk.kakutei()
 
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.press_key(u'shift+q')
         self.assertEqual(self.__skk.preedit, u'▽')
         self.__skk.press_key(u'5')
@@ -340,8 +355,9 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(self.__skk.preedit, u'▼五万匹')
 
     def testkzik(self):
-        self.__skk.rom_kana_rule = skk.ROM_KANA_KZIK
         self.__skk.reset()
+        self.__skk.rom_kana_rule = skk.ROM_KANA_KZIK
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.press_key(u'b')
         self.__skk.press_key(u'g')
         handled, output = self.__skk.press_key(u'd')

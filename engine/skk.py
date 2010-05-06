@@ -335,10 +335,11 @@ CONV_STATE_NONE, \
 CONV_STATE_START, \
 CONV_STATE_SELECT = range(3)
 
+INPUT_MODE_NONE, \
 INPUT_MODE_HIRAGANA, \
 INPUT_MODE_KATAKANA, \
 INPUT_MODE_LATIN, \
-INPUT_MODE_WIDE_LATIN = range(4)
+INPUT_MODE_WIDE_LATIN = range(5)
 
 INPUT_MODE_TRANSITION_RULE = {
     u'q': {
@@ -801,7 +802,10 @@ class Context(object):
 
     def reset(self):
         '''Reset the internal state of the context.  The initial state
-        is INPUT_MODE_HIRAGANA/CONV_STATE_NONE.'''
+        is INPUT_MODE_NONE/CONV_STATE_NONE.'''
+        self.__conv_state = CONV_STATE_NONE
+        self.__input_mode = INPUT_MODE_NONE
+
         # Current midasi in conversion.
         self.__midasi = None
 
@@ -809,8 +813,6 @@ class Context(object):
 
         # Whether or not we are in the abbrev mode.
         self.__abbrev = False
-
-        self.__conv_state = CONV_STATE_NONE
 
         self.__completer = None
 
@@ -826,8 +828,8 @@ class Context(object):
         # __rom_kana_rule_tree.
         #
         # See __convert_rom_kana() for the state transition algorithm.
+        self.__rom_kana_state = None
         self.__okuri_rom_kana_state = None
-        self.activate_input_mode(INPUT_MODE_HIRAGANA)
 
     conv_state = property(lambda self: self.__conv_state)
     input_mode = property(lambda self: self.__input_mode)

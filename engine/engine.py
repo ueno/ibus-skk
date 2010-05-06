@@ -169,6 +169,7 @@ class Engine(ibus.EngineBase):
         self.__skk.rom_kana_rule = self.config.get_value('rom_kana_rule',
                                                          skk.ROM_KANA_NORMAL)
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__prop_dict = dict()
         self.__prop_list = self.__init_props()
         self.__input_mode = self.__skk.input_mode
@@ -441,6 +442,7 @@ class Engine(ibus.EngineBase):
 
     def reset(self):
         self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
 
     def property_activate(self, prop_name, state):
         # print "PropertyActivate(%s, %d)" % (prop_name, state)
