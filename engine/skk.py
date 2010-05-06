@@ -368,7 +368,7 @@ ROM_KANA_KZIK = range(2)
 ROM_KANA_RULES = (ROM_KANA_RULE, KZIK_RULE)
 
 TRANSLATED_STRINGS = {
-    u'dict-edit-prompt': u'RegDict'
+    u'dict-edit-prompt': u'DictEdit'
 }
 
 class DictBase(object):

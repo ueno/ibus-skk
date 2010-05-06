@@ -18,7 +18,7 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../engine/engine.py:171
-msgid "RegDict"
+msgid "DictEdit"
 msgstr "辞書登録"
 
 #: ../engine/engine.py:186
