@@ -763,6 +763,7 @@ class CandidateSelector(object):
 class State(object):
     def __init__(self):
         self.reset()
+        self.dict_edit_output = u''
 
     def reset(self):
         self.conv_state = CONV_STATE_NONE
@@ -791,8 +792,6 @@ class State(object):
         # transition algorithm.
         self.rom_kana_state = None
         self.okuri_rom_kana_state = None
-
-        self.dict_edit_word = u''
 
         self.candidates = list()
 
@@ -926,12 +925,12 @@ class Context(object):
         self.__current_state().okuri_rom_kana_state = value
 
     @property
-    def __dict_edit_word(self):
-        return self.__current_state().dict_edit_word
+    def __dict_edit_output(self):
+        return self.__current_state().dict_edit_output
 
-    @__dict_edit_word.setter
-    def __dict_edit_word(self, value):
-        self.__current_state().dict_edit_word = value
+    @__dict_edit_output.setter
+    def __dict_edit_output(self, value):
+        self.__current_state().dict_edit_output = value
 
     def reset(self):
         self.__current_state().reset()
@@ -956,7 +955,7 @@ class Context(object):
 
     def leave_dict_edit(self):
         self.__usrdict.select_candidate(self.__previous_state().midasi,
-                                        (self.__current_state().dict_edit_word,
+                                        (self.__current_state().dict_edit_output,
                                          None))
         self.abort_dict_edit()
 
@@ -1064,7 +1063,7 @@ class Context(object):
         self.reset()
         self.activate_input_mode(input_mode)
         if len(self.__state_stack) > 1:
-            self.__dict_edit_word += output
+            self.__dict_edit_output += output
         return output
 
     def press_key(self, key):
@@ -1311,50 +1310,54 @@ class Context(object):
             [candidate for candidate in sys_candidates
              if candidate not in usr_candidates]
 
+    def dict_edit_level(self):
+        return len(self.__state_stack) - 1
+
+    def __dict_edit_prompt(self):
+        if self.dict_edit_level() > 0:
+            return u'%s%s%s %s ' % (u'[' * self.dict_edit_level(),
+                                    self.translated_strings['dict-edit-prompt'],
+                                    u']' * self.dict_edit_level(),
+                                    self.__previous_state().midasi)
+        else:
+            return u''
+
     def split_preedit(self):
+        prefix = self.__dict_edit_prompt()
+        if self.dict_edit_level() > 0:
+            prefix += self.__current_state().dict_edit_output
         if self.__conv_state == CONV_STATE_NONE:
             if self.__rom_kana_state:
-                return (u'', self.__rom_kana_state[1], u'')
-            return (u'', u'', u'')
+                return (prefix, self.__rom_kana_state[1], u'')
+            return (prefix, u'', u'')
         elif self.__conv_state == CONV_STATE_START:
             if self.__okuri_rom_kana_state:
-                return (u'▽', self.__rom_kana_state[0],
+                return (prefix + u'▽', self.__rom_kana_state[0],
                         u'*' + self.__okuri_rom_kana_state[0] + \
                             self.__okuri_rom_kana_state[1])
             else:
-                return (u'▽', self.__rom_kana_state[0] + \
+                return (prefix + u'▽', self.__rom_kana_state[0] + \
                             self.__rom_kana_state[1], u'')
         else:
             if self.__okuri_rom_kana_state:
                 if self.__midasi:
                     candidate = self.__candidate_selector.candidate()
                     if candidate:
-                        return (u'▼', candidate[0],
+                        return (prefix + u'▼', candidate[0],
                                 self.__okuri_rom_kana_state[0])
-                return (u'▼', self.__rom_kana_state[0],
+                return (prefix + u'▼', self.__rom_kana_state[0],
                         self.__okuri_rom_kana_state[0])
             else:
                 if self.__midasi:
                     candidate = self.__candidate_selector.candidate()
                     if candidate:
-                        return (u'▼', candidate[0],
+                        return (prefix + u'▼', candidate[0],
                                 (self.__auto_start_henkan_keyword or u''))
-                return (u'▼', self.__rom_kana_state[0],
+                return (prefix + u'▼', self.__rom_kana_state[0],
                         (self.__auto_start_henkan_keyword or u''))
-        return (u'', u'', u'')
+        return (prefix, u'', u'')
 
-    def dict_edit_prompt(self):
-        dict_edit_level = len(self.__state_stack) - 1
-        if dict_edit_level > 0:
-            return u'%s%s%s %s ' % (u'[' * dict_edit_level,
-                                    self.translated_strings['dict-edit-prompt'],
-                                    u']' * dict_edit_level,
-                                    self.__previous_state().midasi)
-        else:
-            return u''
-
-    preedit = property(lambda self: self.dict_edit_prompt() +
-                       ''.join(self.split_preedit()))
+    preedit = property(lambda self: ''.join(self.split_preedit()))
 
     def __convert_nn(self, state):
         output, pending, tree = state
