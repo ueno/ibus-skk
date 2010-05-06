@@ -760,6 +760,42 @@ class CandidateSelector(object):
         else:
             self.__index = -1
 
+class State(object):
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.conv_state = CONV_STATE_NONE
+        self.input_mode = INPUT_MODE_NONE
+
+        # Current midasi in conversion.
+        self.midasi = None
+
+        # Whether or not we are in the abbrev mode.
+        self.abbrev = False
+
+        self.completer = None
+
+        # Last used keyword which triggered auto-start-henkan.
+        self.auto_start_henkan_keyword = None
+
+        # rom-kana state is either None or a tuple
+        #
+        # (OUTPUT, PENDING, TREE)
+        #
+        # where OUTPUT is a kana string, PENDING is a string in
+        # rom-kana conversion, and TREE is a subtree of
+        # rom_kana_rule_tree.
+        #
+        # See skk.Context#__convert_rom_kana() for the state
+        # transition algorithm.
+        self.rom_kana_state = None
+        self.okuri_rom_kana_state = None
+
+        self.dict_edit_word = u''
+
+        self.candidates = list()
+
 class Context(object):
     def __init__(self, usrdict, sysdict, candidate_selector):
         '''Create an SKK context.
@@ -770,7 +806,8 @@ class Context(object):
         self.__sysdict = None
         self.__rom_kana_rule = None
         self.__candidate_selector = candidate_selector
-        self.__dict_edit_stack = list()
+        self.__state_stack = list()
+        self.__state_stack.append(State())
 
         self.usrdict = usrdict
         self.sysdict = sysdict
@@ -806,75 +843,121 @@ class Context(object):
     rom_kana_rule = property(lambda self: self.__rom_kana_rule,
                              set_rom_kana_rule)
 
+    def __current_state(self):
+        return self.__state_stack[-1]
+
+    def __previous_state(self):
+        return self.__state_stack[-2]
+
+    @property
+    def conv_state(self):
+        return self.__current_state().conv_state
+
+    @property
+    def input_mode(self):
+        return self.__current_state().input_mode
+
+    @property
+    def abbrev(self):
+        return self.__current_state().abbrev
+
+    @property
+    def __input_mode(self):
+        return self.__current_state().input_mode
+
+    @__input_mode.setter
+    def __input_mode(self, value):
+        self.__current_state().input_mode = value
+
+    @property
+    def __conv_state(self):
+        return self.__current_state().conv_state
+
+    @__conv_state.setter
+    def __conv_state(self, value):
+        self.__current_state().conv_state = value
+
+    @property
+    def __midasi(self):
+        return self.__current_state().midasi
+
+    @__midasi.setter
+    def __midasi(self, value):
+        self.__current_state().midasi = value
+
+    @property
+    def __abbrev(self):
+        return self.__current_state().abbrev
+
+    @__abbrev.setter
+    def __abbrev(self, value):
+        self.__current_state().abbrev = value
+
+    @property
+    def __completer(self):
+        return self.__current_state().completer
+
+    @__completer.setter
+    def __completer(self, value):
+        self.__current_state().completer = value
+
+    @property
+    def __auto_start_henkan_keyword(self):
+        return self.__current_state().auto_start_henkan_keyword
+
+    @__auto_start_henkan_keyword.setter
+    def __auto_start_henkan_keyword(self, value):
+        self.__current_state().auto_start_henkan_keyword = value
+
+    @property
+    def __rom_kana_state(self):
+        return self.__current_state().rom_kana_state
+
+    @__rom_kana_state.setter
+    def __rom_kana_state(self, value):
+        self.__current_state().rom_kana_state = value
+
+    @property
+    def __okuri_rom_kana_state(self):
+        return self.__current_state().okuri_rom_kana_state
+
+    @__okuri_rom_kana_state.setter
+    def __okuri_rom_kana_state(self, value):
+        self.__current_state().okuri_rom_kana_state = value
+
+    @property
+    def __dict_edit_word(self):
+        return self.__current_state().dict_edit_word
+
+    @__dict_edit_word.setter
+    def __dict_edit_word(self, value):
+        self.__current_state().dict_edit_word = value
+
     def reset(self):
-        '''Reset the internal state of the context.  The initial state
-        is INPUT_MODE_NONE/CONV_STATE_NONE.'''
-        self.__conv_state = CONV_STATE_NONE
-        self.__input_mode = INPUT_MODE_NONE
-
-        # Current midasi in conversion.
-        self.__midasi = None
-
-        self.__candidate_selector.set_candidates(list())
-
-        # Whether or not we are in the abbrev mode.
-        self.__abbrev = False
-
-        self.__completer = None
-
-        # Last used keyword which triggered auto-start-henkan.
-        self.__auto_start_henkan_keyword = None
-
-        # rom-kana state is either None or a tuple
-        #
-        # (OUTPUT, PENDING, TREE)
-        #
-        # where OUTPUT is a kana string, PENDING is a string in
-        # rom-kana conversion, and TREE is a subtree of
-        # __rom_kana_rule_tree.
-        #
-        # See __convert_rom_kana() for the state transition algorithm.
-        self.__rom_kana_state = None
-        self.__okuri_rom_kana_state = None
-
-        self.__dict_edit_word = u''
-
-    conv_state = property(lambda self: self.__conv_state)
-    input_mode = property(lambda self: self.__input_mode)
-    abbrev = property(lambda self: self.__abbrev)
+        self.__current_state().reset()
+        self.__candidate_selector.set_candidates(self.__current_state().\
+                                                     candidates)
 
     def enter_dict_edit(self):
-        midasi = self.__midasi
-        input_mode = self.__input_mode
-        env = (self.__conv_state,
-               self.__input_mode,
-               self.__midasi,
-               self.__candidate_selector,
-               self.__abbrev,
-               self.__completer,
-               self.__auto_start_henkan_keyword,
-               self.__rom_kana_state,
-               self.__okuri_rom_kana_state,
-               self.__dict_edit_word)
-        self.__dict_edit_stack.append(env)
+        midasi = self.__current_state().midasi
+        input_mode = self.__current_state().input_mode
+        self.__state_stack.append(State())
         self.reset()
-        self.activate_input_mode(INPUT_MODE_HIRAGANA)
+        self.__current_state().midasi = midasi
+        self.__current_state().input_mode = input_mode
+        self.activate_input_mode(self.__current_state().input_mode)
 
     def abort_dict_edit(self):
-        (self.__conv_state,
-         self.__input_mode,
-         self.__midasi,
-         self.__candidate_selector,
-         self.__abbrev,
-         self.__completer,
-         self.__auto_start_henkan_keyword,
-         self.__rom_kana_state,
-         self.__okuri_rom_kana_state,
-         self.__dict_edit_word) = self.__dict_edit_stack.pop()
+        if len(self.__state_stack) < 2:
+            raise ArgumentError('state stack empty')
+        self.__state_stack.pop()
+        self.__candidate_selector.set_candidates(self.__current_state().\
+                                                     candidates)
 
     def leave_dict_edit(self):
-        self.__usrdict.select_candidate(self.__dict_edit_stack[-1][2],
-                                        (self.__dict_edit_word, None))
+        self.__usrdict.select_candidate(self.__previous_state().midasi,
+                                        (self.__current_state().dict_edit_word,
+                                         None))
         self.abort_dict_edit()
 
     def __num_to_latin(self, num):
@@ -980,7 +1063,7 @@ class Context(object):
         input_mode = self.__input_mode
         self.reset()
         self.activate_input_mode(input_mode)
-        if len(self.__dict_edit_stack) > 0:
+        if len(self.__state_stack) > 1:
             self.__dict_edit_word += output
         return output
 
@@ -1005,7 +1088,7 @@ class Context(object):
             letter = keyval
 
         if key == 'ctrl+g':
-            if len(self.__dict_edit_stack) > 0:
+            if len(self.__state_stack) > 1:
                 self.abort_dict_edit()
             if self.__conv_state in (CONV_STATE_NONE, CONV_STATE_START):
                 input_mode = self.__input_mode
@@ -1261,12 +1344,12 @@ class Context(object):
         return (u'', u'', u'')
 
     def dict_edit_prompt(self):
-        dict_edit_level = len(self.__dict_edit_stack)
+        dict_edit_level = len(self.__state_stack) - 1
         if dict_edit_level > 0:
             return u'%s%s%s %s ' % (u'[' * dict_edit_level,
                                     self.translated_strings['dict-edit-prompt'],
                                     u']' * dict_edit_level,
-                                    self.__dict_edit_stack[-1][2])
+                                    self.__previous_state().midasi)
         else:
             return u''
 
