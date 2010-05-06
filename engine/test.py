@@ -162,6 +162,20 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(self.__skk.input_mode, skk.INPUT_MODE_KATAKANA)
         self.assertEqual(self.__skk.conv_state, skk.CONV_STATE_NONE)
         self.assertEqual(self.__skk.preedit, u'')
+        # う゛-> ヴ
+        self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
+        self.__skk.press_key(u'shift+v')
+        self.__skk.press_key(u'u')
+        self.assertEqual(self.__skk.preedit, u'▽う゛')
+        self.assertEqual(self.__skk.press_key(u'q'), (True, u'ヴ'))
+        # ヴ -> う゛
+        self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_KATAKANA)
+        self.__skk.press_key(u'shift+v')
+        self.__skk.press_key(u'u')
+        self.assertEqual(self.__skk.preedit, u'▽ヴ')
+        self.assertEqual(self.__skk.press_key(u'q'), (True, u'う゛'))
         
     def testokurinasi(self):
         self.__skk.reset()

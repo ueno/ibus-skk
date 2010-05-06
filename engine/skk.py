@@ -900,7 +900,7 @@ class Context(object):
             if ord(u'ぁ') <= ord(letter) and ord(letter) <= ord(u'ん'):
                 return unichr(ord(letter) + diff)
             return letter
-        return ''.join(map(to_katakana, kana))
+        return ''.join(map(to_katakana, kana)).replace(u'ウ゛', u'ヴ')
 
     def __katakana_to_hiragana(self, kana):
         diff = ord(u'ア') - ord(u'あ')
@@ -908,7 +908,7 @@ class Context(object):
             if ord(u'ァ') <= ord(letter) and ord(letter) <= ord(u'ン'):
                 return unichr(ord(letter) - diff)
             return letter
-        return ''.join(map(to_hiragana, kana))
+        return ''.join(map(to_hiragana, kana.replace(u'ヴ', u'ウ゛')))
 
     def activate_input_mode(self, input_mode):
         '''Switch the current input mode to INPUT_MODE.'''
