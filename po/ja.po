@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ibus-skk 1.2.0.20091108\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-05-02 12:27+0900\n"
-"PO-Revision-Date:  2009-12-23 15:06+0900\n"
+"POT-Creation-Date: 2010-05-06 13:00+0900\n"
+"PO-Revision-Date: 2010-05-06 13:00+0900\n"
 "Last-Translator: Daiki Ueno <ueno@unixuser.org>\n"
 "Language-Team: Japanese\n"
 "MIME-Version: 1.0\n"
@@ -17,27 +17,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ../engine/engine.py:184
+#: ../engine/engine.py:171
+msgid "RegDict"
+msgstr "辞書登録"
+
+#: ../engine/engine.py:186
 msgid "Switch input mode"
 msgstr "入力モード切替"
 
-#: ../engine/engine.py:190
+#: ../engine/engine.py:192
 msgid "Hiragana"
 msgstr "ひらがな"
 
-#: ../engine/engine.py:193
+#: ../engine/engine.py:195
 msgid "Katakana"
 msgstr "カタカナ"
 
-#: ../engine/engine.py:196
+#: ../engine/engine.py:198
 msgid "Latin"
 msgstr "英数"
 
-#: ../engine/engine.py:199
+#: ../engine/engine.py:201
 msgid "Wide Latin"
 msgstr "全角英数"
 
-#: ../engine/engine.py:211
+#: ../engine/engine.py:213
 msgid "Configure SKK"
 msgstr "SKKの設定"
 
@@ -128,3 +132,6 @@ msgstr "句読点の形式(_P):"
 #: ../setup/ibus-skk-preferences.ui.h:22
 msgid "_User Dictionary File:"
 msgstr "ユーザ辞書ファイル(_U):"
+
+#~ msgid "Register to Dictionary"
+#~ msgstr "辞書登録"

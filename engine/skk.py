@@ -766,12 +766,14 @@ class Context(object):
         self.__sysdict = None
         self.__rom_kana_rule = None
         self.__candidate_selector = candidate_selector
+        self.__dict_edit_stack = list()
 
         self.usrdict = usrdict
         self.sysdict = sysdict
         self.rom_kana_rule = ROM_KANA_NORMAL
         self.kutouten_type = KUTOUTEN_JP
         self.auto_start_henkan_keywords = AUTO_START_HENKAN_KEYWORDS
+        self.dict_edit_prompt_string = u'RegDict'
         self.reset()
 
     def __check_dict(self, _dict):
@@ -831,9 +833,45 @@ class Context(object):
         self.__rom_kana_state = None
         self.__okuri_rom_kana_state = None
 
+        self.__dict_edit_word = u''
+
     conv_state = property(lambda self: self.__conv_state)
     input_mode = property(lambda self: self.__input_mode)
     abbrev = property(lambda self: self.__abbrev)
+
+    def enter_dict_edit(self):
+        midasi = self.__midasi
+        input_mode = self.__input_mode
+        env = (self.__conv_state,
+               self.__input_mode,
+               self.__midasi,
+               self.__candidate_selector,
+               self.__abbrev,
+               self.__completer,
+               self.__auto_start_henkan_keyword,
+               self.__rom_kana_state,
+               self.__okuri_rom_kana_state,
+               self.__dict_edit_word)
+        self.__dict_edit_stack.append(env)
+        self.reset()
+        self.activate_input_mode(INPUT_MODE_HIRAGANA)
+
+    def abort_dict_edit(self):
+        (self.__conv_state,
+         self.__input_mode,
+         self.__midasi,
+         self.__candidate_selector,
+         self.__abbrev,
+         self.__completer,
+         self.__auto_start_henkan_keyword,
+         self.__rom_kana_state,
+         self.__okuri_rom_kana_state,
+         self.__dict_edit_word) = self.__dict_edit_stack.pop()
+
+    def leave_dict_edit(self):
+        self.__usrdict.select_candidate(self.__dict_edit_stack[-1][2],
+                                        (self.__dict_edit_word, None))
+        self.abort_dict_edit()
 
     def __num_to_latin(self, num):
         return num
@@ -938,6 +976,8 @@ class Context(object):
         input_mode = self.__input_mode
         self.reset()
         self.activate_input_mode(input_mode)
+        if len(self.__dict_edit_stack) > 0:
+            self.__dict_edit_word += output
         return output
 
     def press_key(self, key):
@@ -961,6 +1001,8 @@ class Context(object):
             letter = keyval
 
         if key == 'ctrl+g':
+            if len(self.__dict_edit_stack) > 0:
+                self.abort_dict_edit()
             if self.__conv_state in (CONV_STATE_NONE, CONV_STATE_START):
                 input_mode = self.__input_mode
                 self.reset()
@@ -1077,7 +1119,8 @@ class Context(object):
                                candidate[1])
                               for candidate in candidates]
                 self.__candidate_selector.set_candidates(candidates)
-                self.next_candidate()
+                if self.next_candidate() is None:
+                    self.enter_dict_edit()
                 return (True, u'')
 
             if is_shift and \
@@ -1213,7 +1256,18 @@ class Context(object):
                         (self.__auto_start_henkan_keyword or u''))
         return (u'', u'', u'')
 
-    preedit = property(lambda self: ''.join(self.split_preedit()))
+    def dict_edit_prompt(self):
+        dict_edit_level = len(self.__dict_edit_stack)
+        if dict_edit_level > 0:
+            return u'%s%s%s %s ' % (u'[' * dict_edit_level,
+                                    self.dict_edit_prompt_string,
+                                    u']' * dict_edit_level,
+                                    self.__dict_edit_stack[-1][2])
+        else:
+            return u''
+
+    preedit = property(lambda self: self.dict_edit_prompt() +
+                       ''.join(self.split_preedit()))
 
     def __convert_nn(self, state):
         output, pending, tree = state
