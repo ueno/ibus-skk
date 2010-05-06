@@ -16,11 +16,19 @@ class TestSKK(unittest.TestCase):
             pass
 
         sysdict_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                    "SKK-JISYO.S")
+                                    "skk-ibus-jisyo")
+        s_dict_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                   "SKK-JISYO.S")
         if not os.path.exists(sysdict_path):
-            raise RuntimeError('SKK-JISYO.S not found; do "wget http://openlab.ring.gr.jp/skk/skk/dic/SKK-JISYO.S"')
-
-        os.system('grep -q "^\#" SKK-JISYO.S || patch -p0 < SKK-JISYO.S-numeric.patch')
+            if not os.path.exists(s_dict_path):
+                raise RuntimeError('SKK-JISYO.S not found; do "wget -O - http://openlab.ring.gr.jp/skk/skk/dic/SKK-JISYO.S"')
+            with open(sysdict_path, 'a') as tp:
+                with open(s_dict_path, 'r') as fp:
+                    for line in fp:
+                        tp.write(line)
+                        if line.startswith(';; okuri-nasi'):
+                            tp.write(u'#/# /#0月#0日/#1／#1/#1月#1日/\n'.encode('EUC-JP'))
+                            tp.write(u'#ひき /#1匹/#3匹/#0匹/#2匹/\n'.encode('EUC-JP'))
 
         self.__skk = skk.Context(usrdict=skk.UsrDict(usrdict_path),
                                  sysdict=skk.SysDict(sysdict_path),
@@ -162,6 +170,20 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(self.__skk.input_mode, skk.INPUT_MODE_KATAKANA)
         self.assertEqual(self.__skk.conv_state, skk.CONV_STATE_NONE)
         self.assertEqual(self.__skk.preedit, u'')
+        # う゛-> ヴ
+        self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
+        self.__skk.press_key(u'shift+v')
+        self.__skk.press_key(u'u')
+        self.assertEqual(self.__skk.preedit, u'▽う゛')
+        self.assertEqual(self.__skk.press_key(u'q'), (True, u'ヴ'))
+        # ヴ -> う゛
+        self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_KATAKANA)
+        self.__skk.press_key(u'shift+v')
+        self.__skk.press_key(u'u')
+        self.assertEqual(self.__skk.preedit, u'▽ヴ')
+        self.assertEqual(self.__skk.press_key(u'q'), (True, u'う゛'))
         
     def testokurinasi(self):
         self.__skk.reset()
@@ -349,7 +371,6 @@ class TestSKK(unittest.TestCase):
         self.__skk.press_key(u'i')
         self.__skk.press_key(u'k')
         self.__skk.press_key(u'i')
-        self.__skk.press_key(u' ')
         self.__skk.press_key(u' ')
         self.__skk.press_key(u' ')
         self.assertEqual(self.__skk.preedit, u'▼五万匹')
