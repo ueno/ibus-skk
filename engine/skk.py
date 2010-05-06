@@ -947,8 +947,8 @@ class Context(object):
         self.activate_input_mode(self.__current_state().input_mode)
 
     def abort_dict_edit(self):
-        if len(self.__state_stack) < 2:
-            raise ArgumentError('state stack empty')
+        if self.dict_edit_level() < 1:
+            raise ArgumentError('dict-edit not started')
         self.__state_stack.pop()
         self.__candidate_selector.set_candidates(self.__current_state().\
                                                      candidates)
@@ -1062,7 +1062,7 @@ class Context(object):
         input_mode = self.__input_mode
         self.reset()
         self.activate_input_mode(input_mode)
-        if len(self.__state_stack) > 1:
+        if self.dict_edit_level() > 0:
             self.__dict_edit_output += output
         return output
 
@@ -1087,7 +1087,7 @@ class Context(object):
             letter = keyval
 
         if key == 'ctrl+g':
-            if len(self.__state_stack) > 1:
+            if self.dict_edit_level() > 0:
                 self.abort_dict_edit()
             if self.__conv_state in (CONV_STATE_NONE, CONV_STATE_START):
                 input_mode = self.__input_mode
