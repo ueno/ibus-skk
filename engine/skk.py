@@ -1175,6 +1175,8 @@ class Context(object):
                 return (True, kana)
             elif input_mode is not None and not self.__abbrev:
                 output = self.kakutei()
+                if self.dict_edit_level() > 0:
+                    output = u''
                 self.activate_input_mode(input_mode)
                 return (True, output)
 
@@ -1224,7 +1226,7 @@ class Context(object):
                               for candidate in candidates]
                 self.__candidate_selector.set_candidates(candidates)
                 if self.next_candidate() is None:
-                    self.__conv_state = CONV_STATE_START
+                    self.__current_state().conv_state = CONV_STATE_START
                     self.enter_dict_edit()
                 return (True, u'')
 
@@ -1251,6 +1253,7 @@ class Context(object):
                                                          sys_candidates)
                     self.__candidate_selector.set_candidates(candidates)
                     if self.next_candidate() is None:
+                        self.__current_state().conv_state = CONV_STATE_START
                         self.enter_dict_edit()
                 return (True, u'')
 
