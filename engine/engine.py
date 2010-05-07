@@ -341,7 +341,7 @@ class Engine(ibus.EngineBase):
     #     }
 
     def __update(self):
-        prefix, midasi, suffix = self.__skk.split_preedit()
+        prefix, midasi, suffix = self.__skk.preedit_components()
         midasi_start = len(prefix)
         suffix_start = midasi_start + len(midasi)
         suffix_end = suffix_start + len(suffix)

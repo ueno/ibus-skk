@@ -1304,7 +1304,11 @@ class Context(object):
         else:
             return u''
 
-    def split_preedit(self):
+    def preedit_components(self):
+        '''Return a tuple representing the current preedit text.  The
+format of the tuple is (PREFIX, MIDASI, SUFFIX).  For example PREFIX
+will include "▽", MIDASI is "かんが", and SUFFIX is "*えr" in
+okuri-ari conversion.'''
         prefix = self.__dict_edit_prompt()
         if self.dict_edit_level() > 0:
             prefix += self.__current_state().dict_edit_output
@@ -1349,7 +1353,7 @@ class Context(object):
                              auto_start_henkan_keyword or u''))
         return (prefix, u'', u'')
 
-    preedit = property(lambda self: ''.join(self.split_preedit()))
+    preedit = property(lambda self: ''.join(self.preedit_components()))
 
     def __convert_nn(self, state):
         output, pending, tree = state
