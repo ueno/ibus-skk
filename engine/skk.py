@@ -868,8 +868,7 @@ class Context(object):
         self.activate_input_mode(self.__current_state().input_mode)
 
     def __abort_dict_edit(self):
-        if self.dict_edit_level() < 1:
-            raise ArgumentError('dict-edit not started')
+        assert(self.dict_edit_level() > 0)
         self.__state_stack.pop()
         self.__candidate_selector.set_candidates(self.__current_state().\
                                                      candidates)
