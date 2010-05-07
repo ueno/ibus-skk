@@ -1048,7 +1048,7 @@ class Context(object):
                 return (True, u'')
 
             if self.dict_edit_level() > 0 and \
-                    key == 'ctrl+j' or key == 'return':
+                    (key == 'ctrl+j' or key == 'return'):
                 return (True, self.__leave_dict_edit())
 
             # Ignore ctrl+key and non-ASCII characters.
