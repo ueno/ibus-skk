@@ -21,7 +21,7 @@ class TestSKK(unittest.TestCase):
                                    "SKK-JISYO.S")
         if not os.path.exists(sysdict_path):
             if not os.path.exists(s_dict_path):
-                raise RuntimeError('SKK-JISYO.S not found; do "wget -O - http://openlab.ring.gr.jp/skk/skk/dic/SKK-JISYO.S"')
+                raise RuntimeError('SKK-JISYO.S not found; do "wget http://openlab.ring.gr.jp/skk/skk/dic/SKK-JISYO.S"')
             with open(sysdict_path, 'a') as tp:
                 with open(s_dict_path, 'r') as fp:
                     for line in fp:
