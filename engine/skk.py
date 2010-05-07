@@ -1307,43 +1307,50 @@ class Context(object):
         return len(self.__state_stack) - 1
 
     def __dict_edit_prompt(self):
-        if self.dict_edit_level() > 0:
-            if self.__previous_state().okuri_rom_kana_state:
-                midasi = self.__previous_state().rom_kana_state[0] + \
-                    u'*' + \
-                    self.__previous_state().okuri_rom_kana_state[0] + \
-                    self.__previous_state().okuri_rom_kana_state[1]
-            else:
-                midasi = self.__previous_state().rom_kana_state[0] + \
-                    self.__previous_state().rom_kana_state[1]
-            return u'%s%s%s %s ' % (u'[' * self.dict_edit_level(),
-                                    self.translated_strings['dict-edit-prompt'],
-                                    u']' * self.dict_edit_level(),
-                                    midasi)
+        if self.__previous_state().okuri_rom_kana_state:
+            midasi = self.__previous_state().rom_kana_state[0] + \
+                u'*' + \
+                self.__previous_state().okuri_rom_kana_state[0] + \
+                self.__previous_state().okuri_rom_kana_state[1]
         else:
-            return u''
+            midasi = self.__previous_state().rom_kana_state[0] + \
+                self.__previous_state().rom_kana_state[1]
+        return u'%s%s%s %s ' % (u'[' * self.dict_edit_level(),
+                                self.translated_strings['dict-edit-prompt'],
+                                u']' * self.dict_edit_level(),
+                                midasi)
 
     def preedit_components(self):
         '''Return a tuple representing the current preedit text.  The
-format of the tuple is (PREFIX, MIDASI, SUFFIX).  For example PREFIX
-will include "▽", MIDASI is "かんが", and SUFFIX is "*え" in okuri-ari
-conversion.'''
-        prefix = self.__dict_edit_prompt()
+format of the tuple is (PROMPT, PREFIX, WORD, SUFFIX).
+
+For example, in okuri-ari conversion (in dict-edit mode level 2) the
+elements will be "[[DictEdit]] かんが*え ", "▽", "かんが", "*え" .'''
         if self.dict_edit_level() > 0:
-            prefix += self.__current_state().dict_edit_output
+            prompt = self.__dict_edit_prompt()
+            prefix = self.__current_state().dict_edit_output
+        else:
+            prompt = u''
+            prefix = u''
         if self.__current_state().conv_state == CONV_STATE_NONE:
             if self.__current_state().rom_kana_state:
-                return (prefix, self.__current_state().rom_kana_state[1], u'')
-            return (prefix, u'', u'')
+                return (prompt,
+                        prefix,
+                        self.__current_state().rom_kana_state[1],
+                        u'')
+            else:
+                return (prompt, prefix, u'', u'')
         elif self.__current_state().conv_state == CONV_STATE_START:
             if self.__current_state().okuri_rom_kana_state:
-                return (prefix + u'▽',
+                return (prompt,
+                        prefix + u'▽',
                         self.__current_state().rom_kana_state[0],
                         u'*' + \
                             self.__current_state().okuri_rom_kana_state[0] + \
                             self.__current_state().okuri_rom_kana_state[1])
             else:
-                return (prefix + u'▽',
+                return (prompt,
+                        prefix + u'▽',
                         self.__current_state().rom_kana_state[0] + \
                             self.__current_state().rom_kana_state[1],
                         u'')
@@ -1352,25 +1359,29 @@ conversion.'''
                 if self.__current_state().midasi:
                     candidate = self.__candidate_selector.candidate()
                     if candidate:
-                        return (prefix + u'▼',
+                        return (prompt,
+                                prefix + u'▼',
                                 candidate[0],
                                 self.__current_state().okuri_rom_kana_state[0])
-                return (prefix + u'▼',
+                return (prompt,
+                        prefix + u'▼',
                         self.__current_state().rom_kana_state[0],
                         self.__current_state().okuri_rom_kana_state[0])
             else:
                 if self.__current_state().midasi:
                     candidate = self.__candidate_selector.candidate()
                     if candidate:
-                        return (prefix + u'▼',
+                        return (prompt,
+                                prefix + u'▼',
                                 candidate[0],
                                 (self.__current_state().\
                                      auto_start_henkan_keyword or u''))
-                return (prefix + u'▼',
+                return (prompt,
+                        prefix + u'▼',
                         self.__current_state().rom_kana_state[0],
                         (self.__current_state().\
                              auto_start_henkan_keyword or u''))
-        return (prefix, u'', u'')
+        return (prompt, prefix, u'', u'')
 
     preedit = property(lambda self: ''.join(self.preedit_components()))
 

@@ -347,22 +347,29 @@ class Engine(ibus.EngineBase):
     #     }
 
     def __update(self):
-        prefix, midasi, suffix = self.__skk.preedit_components()
-        midasi_start = len(prefix)
-        suffix_start = midasi_start + len(midasi)
+        prompt, prefix, word, suffix = self.__skk.preedit_components()
+        prefix_start = len(prompt)
+        word_start = prefix_start + len(prefix)
+        suffix_start = word_start + len(word)
         suffix_end = suffix_start + len(suffix)
         attrs = ibus.AttrList()
+        # Display "[DictEdit]" way different from other components
+        # (black/lightsalmon).
+        attrs.append(ibus.AttributeForeground(ibus.RGB(0, 0, 0),
+                                              0, prefix_start))
+        attrs.append(ibus.AttributeBackground(ibus.RGB(255, 160, 122),
+                                              0, prefix_start))
         if self.__skk.conv_state == skk.CONV_STATE_SELECT:
             # Use colors from skk-henkan-face-default (black/darkseagreen2).
             attrs.append(ibus.AttributeForeground(ibus.RGB(0, 0, 0),
-                                                  midasi_start, suffix_start))
+                                                  word_start, suffix_start))
             attrs.append(ibus.AttributeBackground(ibus.RGB(180, 238, 180),
-                                                  midasi_start, suffix_start))
+                                                  word_start, suffix_start))
             attrs.append(ibus.AttributeUnderline(ibus.ATTR_UNDERLINE_SINGLE,
                                                  suffix_start, suffix_end))
         else:
             attrs.append(ibus.AttributeUnderline(ibus.ATTR_UNDERLINE_SINGLE,
-                                                 midasi_start, suffix_end))
+                                                 word_start, suffix_end))
         # Color cursor, currently disabled.
         #
         # if self.__skk.abbrev:
@@ -372,9 +379,9 @@ class Engine(ibus.EngineBase):
         #         self.__skk.input_mode)
         # attrs.append(ibus.AttributeBackground(ibus.RGB(*cursor_color),
         #                                       suffix_end, suffix_end + 1))
-        # preedit = ''.join((prefix, midasi, suffix, u' '))
+        # preedit = ''.join((prompt, prefix, word, suffix, u' '))
         #
-        preedit = ''.join((prefix, midasi, suffix))
+        preedit = ''.join((prompt, prefix, word, suffix))
         self.update_preedit_text(ibus.Text(preedit, attrs),
                                  len(preedit), len(preedit) > 0)
         visible = self.__candidate_selector.lookup_table_visible()
