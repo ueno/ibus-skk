@@ -1306,18 +1306,26 @@ class Context(object):
 
     def __dict_edit_prompt(self):
         if self.dict_edit_level() > 0:
+            if self.__previous_state().okuri_rom_kana_state:
+                midasi = self.__previous_state().rom_kana_state[0] + \
+                    u'*' + \
+                    self.__previous_state().okuri_rom_kana_state[0] + \
+                    self.__previous_state().okuri_rom_kana_state[1]
+            else:
+                midasi = self.__previous_state().rom_kana_state[0] + \
+                    self.__previous_state().rom_kana_state[1]
             return u'%s%s%s %s ' % (u'[' * self.dict_edit_level(),
                                     self.translated_strings['dict-edit-prompt'],
                                     u']' * self.dict_edit_level(),
-                                    self.__previous_state().midasi)
+                                    midasi)
         else:
             return u''
 
     def preedit_components(self):
         '''Return a tuple representing the current preedit text.  The
 format of the tuple is (PREFIX, MIDASI, SUFFIX).  For example PREFIX
-will include "▽", MIDASI is "かんが", and SUFFIX is "*えr" in
-okuri-ari conversion.'''
+will include "▽", MIDASI is "かんが", and SUFFIX is "*え" in okuri-ari
+conversion.'''
         prefix = self.__dict_edit_prompt()
         if self.dict_edit_level() > 0:
             prefix += self.__current_state().dict_edit_output

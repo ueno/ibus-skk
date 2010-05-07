@@ -450,6 +450,15 @@ class TestSKK(unittest.TestCase):
         self.__skk.press_key(u' ')
         self.__skk.press_key(u'ctrl+g')
         self.assertEqual(self.__skk.preedit, u'▼幹事')
+        self.__skk.press_key(u'return')
+        self.__skk.press_key(u'shift+k')
+        self.__skk.press_key(u'a')
+        self.__skk.press_key(u'n')
+        self.__skk.press_key(u'g')
+        self.__skk.press_key(u'a')
+        self.__skk.press_key(u'shift+e')
+        self.__skk.press_key(u' ')
+        self.assertEqual(self.__skk.preedit, u'[DictEdit] かんが*え ')
 
 if __name__ == '__main__':
     unittest.main()
