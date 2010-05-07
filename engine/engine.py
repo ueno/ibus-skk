@@ -99,9 +99,15 @@ class CandidateSelector(skk.CandidateSelector):
                     return (output, annotation, False)
         return candidate
 
+    def set_index(self, index):
+        super(CandidateSelector, self).set_index(index)
+        if self.index() >= self.pagination_start:
+            self.__lookup_table.set_cursor_pos(self.index() -
+                                               self.pagination_start)
+
     def key_to_index(self, key):
         if key not in self.__keys:
-            raise IndexError('%s is not a key' % key)
+            raise IndexError('%s is not a valid key' % key)
         pos = self.__keys.index(key)
         if self.__lookup_table.set_cursor_pos_in_current_page(pos):
             index = self.__lookup_table.get_cursor_pos()
