@@ -293,6 +293,8 @@ class Engine(ibus.EngineBase):
         if handled:
             if output:
                 self.commit_text(ibus.Text(output))
+            gobject.idle_add(self.__skk.usrdict.save,
+                             priority = gobject.PRIORITY_LOW)
             self.__update()
             return True
         return False
