@@ -1181,7 +1181,11 @@ class Context(object):
             [candidate for candidate in sys_candidates
              if candidate not in usr_candidates]
 
-    def split_preedit(self):
+    def preedit_components(self):
+        '''Return a tuple representing the current preedit text.  The
+format of the tuple is (PREFIX, MIDASI, SUFFIX).  For example PREFIX
+will include "▽", MIDASI is "かんが", and SUFFIX is "*えr" in
+okuri-ari conversion.'''
         if self.__conv_state == CONV_STATE_NONE:
             if self.__rom_kana_state:
                 return (u'', self.__rom_kana_state[1], u'')
@@ -1213,7 +1217,7 @@ class Context(object):
                         (self.__auto_start_henkan_keyword or u''))
         return (u'', u'', u'')
 
-    preedit = property(lambda self: ''.join(self.split_preedit()))
+    preedit = property(lambda self: ''.join(self.preedit_components()))
 
     def __convert_nn(self, state):
         output, pending, tree = state
