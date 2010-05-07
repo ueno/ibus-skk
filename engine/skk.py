@@ -1078,7 +1078,8 @@ class Context(object):
                 return (True, self.__leave_dict_edit())
 
             # Ignore ctrl+key and non-ASCII characters.
-            if is_ctrl or 0x20 > ord(letter) or ord(letter) > 0x7E:
+            if is_ctrl or key in ('return', 'escape', 'backspace') or \
+                    0x20 > ord(letter) or ord(letter) > 0x7E:
                 return (False, u'')
 
             if self.__current_state().input_mode == INPUT_MODE_LATIN:
@@ -1201,7 +1202,8 @@ class Context(object):
                 return (True, u'')
 
             # Ignore ctrl+key and non-ASCII characters.
-            if is_ctrl or 0x20 > ord(letter) or ord(letter) > 0x7E:
+            if is_ctrl or key in ('return', 'escape', 'backspace') or \
+                    0x20 > ord(letter) or ord(letter) > 0x7E:
                 return (False, u'')
 
             if self.__current_state().abbrev:
