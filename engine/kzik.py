@@ -19,7 +19,7 @@ KZIK_RULE = {
     u'cyu': (None, (u'チュ', u'ちゅ')),
     u'da': (None, (u'ダ', u'だ')),
     u'de': (None, (u'デ', u'で')),
-    u'df': (None, (u'で', u'デ')),
+    u'df': (None, (u'デ', u'で')),
     u'di': (None, (u'ヂ', u'ぢ')),
     u'do': (None, (u'ド', u'ど')),
     u'du': (None, (u'ヅ', u'づ')),
