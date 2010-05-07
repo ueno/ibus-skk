@@ -425,7 +425,6 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(self.__skk.preedit, u'[DictEdit] かぱ ▽か')
         self.__skk.press_key(u' ')
         self.assertEqual(self.__skk.preedit, u'[DictEdit] かぱ ▼下')
-        self.__skk.press_key(u'return')
         self.__skk.press_key(u'shift+h')
         self.__skk.press_key(u'a')
         self.__skk.press_key(u' ')

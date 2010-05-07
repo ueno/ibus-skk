@@ -1218,12 +1218,13 @@ class Context(object):
                 if self.previous_candidate() is None:
                     self.__current_state().conv_state = CONV_STATE_START
                 return (True, u'')
-            elif key == 'ctrl+j' or key == 'return':
+            else:
                 output = self.kakutei()
                 if self.dict_edit_level() > 0:
-                    return (True, u'')
-                return (True, output)
-            return (True, self.kakutei() + self.press_key(key)[1])
+                    output = u''
+                if key == 'ctrl+j' or key == 'return':
+                    return (True, output)
+                return (True, output + self.press_key(key)[1])
 
     def __init_completer(self, compkey):
         return itertools.chain(self.__usrdict.completer(compkey),
