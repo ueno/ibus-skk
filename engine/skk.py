@@ -1106,7 +1106,7 @@ class Context(object):
                 self.__conv_state = CONV_STATE_START
             return (True, u'')
 
-        if key == 'ctrl+h':
+        if key == 'ctrl+h' or key == 'backspace':
             return self.delete_char()
 
         if self.__conv_state == CONV_STATE_NONE:
@@ -1116,6 +1116,10 @@ class Context(object):
                 self.reset()
                 self.activate_input_mode(input_mode)
                 return (True, u'')
+
+            if self.dict_edit_level() > 0 and \
+                    key == 'ctrl+j' or key == 'return':
+                return (True, self.leave_dict_edit())
 
             # Ignore ctrl+key and non-ASCII characters.
             if is_ctrl or 0x20 > ord(letter) or ord(letter) > 0x7E:
@@ -1232,7 +1236,8 @@ class Context(object):
                     candidates = self.__merge_candidates(usr_candidates,
                                                          sys_candidates)
                     self.__candidate_selector.set_candidates(candidates)
-                    self.next_candidate()
+                    if self.next_candidate() is None:
+                        self.enter_dict_edit()
                 return (True, u'')
 
             # Ignore ctrl+key and non-ASCII characters.
@@ -1250,14 +1255,17 @@ class Context(object):
         elif self.__conv_state == CONV_STATE_SELECT:
             if letter.isspace():
                 if self.next_candidate() is None:
-                    self.__conv_state = CONV_STATE_START
+                    self.enter_dict_edit()
                 return (True, u'')
             elif key == 'x':
                 if self.previous_candidate() is None:
                     self.__conv_state = CONV_STATE_START
                 return (True, u'')
             elif key == 'ctrl+j' or key == 'return':
-                return (True, self.kakutei())
+                output = self.kakutei()
+                if self.dict_edit_level() > 0:
+                    return (True, u'')
+                return (True, output)
             return (True, self.kakutei() + self.press_key(key)[1])
 
     def __init_completer(self, compkey):
@@ -1296,18 +1304,30 @@ class Context(object):
         if self.__conv_state == CONV_STATE_START:
             self.reset()
             return (True, u'')
-        if self.dict_edit_level() > 0:
+        if self.dict_edit_level() > 0 and \
+                len(self.__current_state().dict_edit_output) > 0:
             self.__current_state().dict_edit_output = \
                 self.__current_state().dict_edit_output[:-1]
+            return (True, u'')
         return (False, u'')
 
-    def next_candidate(self):
+    def next_candidate(self, move_over_pages=True):
         '''Select the next candidate.'''
-        return self.__candidate_selector.next_candidate()
-            
-    def previous_candidate(self):
+        return self.__candidate_selector.next_candidate(move_over_pages)
+
+    def previous_candidate(self, move_over_pages=True):
         '''Select the previous candidate.'''
-        return self.__candidate_selector.previous_candidate()
+        return self.__candidate_selector.previous_candidate(move_over_pages)
+
+    def select_candidate(self, index):
+        '''Select candidate at INDEX.'''
+        self.__candidate_selector.set_index(index)
+        if self.__candidate_selector.index() < 0:
+            return (False, u'')
+        output = self.kakutei()
+        if self.dict_edit_level() > 0:
+            return (True, u'')
+        return (True, output)
 
     def __merge_candidates(self, usr_candidates, sys_candidates):
         return usr_candidates + \

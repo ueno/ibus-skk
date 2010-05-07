@@ -99,16 +99,15 @@ class CandidateSelector(skk.CandidateSelector):
                     return (output, annotation, False)
         return candidate
 
-    def select_candidate(self, key):
+    def key_to_index(self, key):
         if key not in self.__keys:
-            return None
+            raise IndexError('%s is not a key' % key)
         pos = self.__keys.index(key)
         if self.__lookup_table.set_cursor_pos_in_current_page(pos):
             index = self.__lookup_table.get_cursor_pos()
-            self.set_index(self.__pagination_start + index)
-            self.__lookup_table.clean()
-            return self.candidate()
-        return None
+            return self.__pagination_start + index
+        else:
+            raise IndexError('invalid key position %d' % pos)
 
 class Engine(ibus.EngineBase):
     config = None
@@ -234,33 +233,6 @@ class Engine(ibus.EngineBase):
         if state & modifier.MOD1_MASK:
             return False
 
-        if self.__skk.conv_state in (skk.CONV_STATE_START,
-                                     skk.CONV_STATE_SELECT):
-            if keyval == keysyms.Return or \
-                    (keyval in (keysyms.j, keysyms.J) and \
-                         state & modifier.CONTROL_MASK != 0):
-                output = self.__skk.kakutei()
-                self.commit_text(ibus.Text(output))
-                gobject.idle_add(self.__skk.usrdict.save,
-                                 priority = gobject.PRIORITY_LOW)
-                self.__lookup_table.clean()
-                self.__update()
-                return True
-            elif keyval == keysyms.Escape:
-                self.__skk.kakutei()
-                self.__lookup_table.clean()
-                self.__update()
-                return True
-
-        if keyval == keysyms.BackSpace:
-            handled, output = self.__skk.delete_char()
-            if handled:
-                if output:
-                    self.commit_text(ibus.Text(output))
-                self.__update()
-                return True
-            return False
-                
         if self.__skk.conv_state == skk.CONV_STATE_SELECT:
             if keyval == keysyms.Page_Up or keyval == keysyms.KP_Page_Up:
                 self.page_up()
@@ -269,27 +241,41 @@ class Engine(ibus.EngineBase):
                 self.page_down()
                 return True
             elif keyval == keysyms.Up or keyval == keysyms.Left:
-                self.__candidate_selector.previous_candidate(False)
+                self.__skk.previous_candidate(False)
                 self.__update()
                 return True
             elif keyval == keysyms.Down or keyval == keysyms.Right:
-                self.__candidate_selector.next_candidate(False)
+                self.__skk.next_candidate(False)
                 self.__update()
                 return True
             elif self.__candidate_selector.lookup_table_visible():
-                candidate = self.__candidate_selector.\
-                    select_candidate(unichr(keyval).lower())
-                if candidate:
-                    self.__skk.kakutei()
-                    self.commit_text(ibus.Text(candidate[0]))
-                    self.__update()
-                    return True
+                try:
+                    index = self.__candidate_selector.\
+                        key_to_index(unichr(keyval).lower())
+                    handled, output = self.__skk.select_candidate(index)
+                    if handled:
+                        if output:
+                            self.commit_text(ibus.Text(output))
+                        gobject.idle_add(self.__skk.usrdict.save,
+                                         priority = gobject.PRIORITY_LOW)
+                        self.__lookup_table.clean()
+                        self.__update()
+                        return True
+                except IndexError:
+                    pass
 
-        keychr = unichr(keyval)
         if keyval == keysyms.Tab:
             keychr = u'\t'
-        elif 0x20 > ord(keychr) or ord(keychr) > 0x7E:
-            return False
+        elif keyval == keysyms.Return:
+            keychr = u'return'
+        elif keyval == keysyms.Escape:
+            keychr = u'escape'
+        elif keyval == keysyms.BackSpace:
+            keychr = u'backspace'
+        else:
+            keychr = unichr(keyval)
+            if 0x20 > ord(keychr) or ord(keychr) > 0x7E:
+                return False
         if keychr.isalpha():
             keychr = keychr.lower()
         if state & modifier.SHIFT_MASK:
@@ -435,8 +421,8 @@ class Engine(ibus.EngineBase):
 
     def focus_out(self):
         self.__suspended_mode = self.__skk.input_mode
-        self.__skk.kakutei()
-        self.commit_text(ibus.Text(u''))
+        # self.__skk.kakutei()
+        # self.commit_text(ibus.Text(u''))
         self.__lookup_table.clean()
         self.__update()
         self.reset()
