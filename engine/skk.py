@@ -958,7 +958,10 @@ class Context(object):
         self.abort_dict_edit()
         self.__current_state().candidates.insert(0, (dict_edit_output, None))
         self.__candidate_selector.set_index(0)
-        return self.kakutei()
+        output = self.kakutei()
+        if self.dict_edit_level() < 1:
+            return output
+        return None
 
     def __num_to_latin(self, num):
         return num
@@ -1088,9 +1091,10 @@ class Context(object):
             letter = keyval
 
         if key == 'ctrl+g':
-            if self.dict_edit_level() > 0:
+            if self.dict_edit_level() > 0 and \
+                    self.__current_state().conv_state == CONV_STATE_NONE:
                 self.abort_dict_edit()
-            if self.__conv_state in (CONV_STATE_NONE, CONV_STATE_START):
+            elif self.__conv_state in (CONV_STATE_NONE, CONV_STATE_START):
                 input_mode = self.__input_mode
                 self.reset()
                 self.activate_input_mode(input_mode)
@@ -1150,7 +1154,10 @@ class Context(object):
                 self.__convert_rom_kana(keyval, self.__rom_kana_state)
             if self.__conv_state == CONV_STATE_NONE and \
                     len(self.__rom_kana_state[1]) == 0:
-                return (True, self.kakutei())
+                output = self.kakutei()
+                if self.dict_edit_level() > 0:
+                    return (True, u'')
+                return (True, output)
             return (True, u'')
 
         elif self.__conv_state == CONV_STATE_START:
@@ -1169,6 +1176,12 @@ class Context(object):
             elif input_mode is not None and not self.__abbrev:
                 output = self.kakutei()
                 self.activate_input_mode(input_mode)
+                return (True, output)
+
+            if key == 'ctrl+j' or key == 'return':
+                output = self.kakutei()
+                if self.dict_edit_level() > 0:
+                    return (True, u'')
                 return (True, output)
 
             # Start TAB(\C-i) completion.
@@ -1211,6 +1224,7 @@ class Context(object):
                               for candidate in candidates]
                 self.__candidate_selector.set_candidates(candidates)
                 if self.next_candidate() is None:
+                    self.__conv_state = CONV_STATE_START
                     self.enter_dict_edit()
                 return (True, u'')
 
