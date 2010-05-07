@@ -753,6 +753,10 @@ class CandidateSelector(object):
         '''Return the current candidate index.'''
         return self.__index
 
+    def candidates(self):
+        '''Return the list of candidates.'''
+        return self.__candidates[:]
+
     def set_index(self, index):
         '''Set the current candidate index.'''
         if 0 <= index and index < len(self.__candidates):
@@ -794,6 +798,7 @@ class State(object):
         self.okuri_rom_kana_state = None
 
         self.candidates = list()
+        self.candidate_index = -1
 
 class Context(object):
     def __init__(self, usrdict, sysdict, candidate_selector):
@@ -859,6 +864,11 @@ class Context(object):
                                                      candidates)
 
     def __enter_dict_edit(self):
+        self.__current_state().candidates = \
+            self.__candidate_selector.candidates()
+        self.__current_state().candidate_index = \
+            self.__candidate_selector.index()
+
         midasi = self.__current_state().midasi
         input_mode = self.__current_state().input_mode
         self.__state_stack.append(State())
@@ -872,6 +882,8 @@ class Context(object):
         self.__state_stack.pop()
         self.__candidate_selector.set_candidates(self.__current_state().\
                                                      candidates)
+        self.__candidate_selector.set_index(self.__current_state().\
+                                                candidate_index)
 
     def __leave_dict_edit(self):
         dict_edit_output = self.__current_state().dict_edit_output
@@ -991,6 +1003,21 @@ class Context(object):
         if self.dict_edit_level() > 0:
             self.__current_state().dict_edit_output += output
         return output
+
+    def __activate_candidate_selector(self, midasi, okuri=False):
+        midasi, num_list = self.__replace_num_with_hash(midasi)
+        self.__current_state().midasi = midasi
+        usr_candidates = self.__usrdict.lookup(midasi)
+        sys_candidates = self.__sysdict.lookup(midasi, okuri)
+        candidates = self.__merge_candidates(usr_candidates,
+                                             sys_candidates)
+        candidates = [(self.__substitute_num(candidate[0], num_list),
+                       candidate[1])
+                      for candidate in candidates]
+        self.__candidate_selector.set_candidates(candidates)
+        if self.next_candidate() is None:
+            self.__current_state().conv_state = CONV_STATE_START
+            self.__enter_dict_edit()
 
     def press_key(self, key):
         '''Process a key press event KEY.
@@ -1150,19 +1177,7 @@ class Context(object):
                     self.__convert_nn(self.__current_state().rom_kana_state)
                 midasi = self.__katakana_to_hiragana(\
                     self.__current_state().rom_kana_state[0])
-                midasi, num_list = self.__replace_num_with_hash(midasi)
-                self.__current_state().midasi = midasi
-                usr_candidates = self.__usrdict.lookup(midasi)
-                sys_candidates = self.__sysdict.lookup(midasi)
-                candidates = self.__merge_candidates(usr_candidates,
-                                                     sys_candidates)
-                candidates = [(self.__substitute_num(candidate[0], num_list),
-                               candidate[1])
-                              for candidate in candidates]
-                self.__candidate_selector.set_candidates(candidates)
-                if self.next_candidate() is None:
-                    self.__current_state().conv_state = CONV_STATE_START
-                    self.__enter_dict_edit()
+                self.__activate_candidate_selector(midasi)
                 return (True, u'')
 
             if is_shift and \
@@ -1182,15 +1197,7 @@ class Context(object):
                     self.__current_state().conv_state = CONV_STATE_SELECT
                     midasi = self.__katakana_to_hiragana(\
                         self.__current_state().rom_kana_state[0] + okuri)
-                    self.__current_state().midasi = midasi
-                    usr_candidates = self.__usrdict.lookup(midasi)
-                    sys_candidates = self.__sysdict.lookup(midasi, okuri=True)
-                    candidates = self.__merge_candidates(usr_candidates,
-                                                         sys_candidates)
-                    self.__candidate_selector.set_candidates(candidates)
-                    if self.next_candidate() is None:
-                        self.__current_state().conv_state = CONV_STATE_START
-                        self.__enter_dict_edit()
+                    self.__activate_candidate_selector(midasi, True)
                 return (True, u'')
 
             # Ignore ctrl+key and non-ASCII characters.
@@ -1210,7 +1217,9 @@ class Context(object):
 
         elif self.__current_state().conv_state == CONV_STATE_SELECT:
             if letter.isspace():
+                index = self.__candidate_selector.index()
                 if self.next_candidate() is None:
+                    self.__candidate_selector.set_index(index)
                     self.__enter_dict_edit()
                 return (True, u'')
             elif key == 'x':
