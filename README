@@ -13,5 +13,5 @@ Tips:
 
 $ iconv -f EUC-JP -t UTF-8 < ~/.skk-ibus-jisyo > ~/.skk-ibus-jisyo.UTF-8
 $ mv ~/.skk-ibus-jisyo.UTF-8 ~/.skk-ibus-jisyo
-$ sed -i '1s/;;; -*- coding: euc-jp -*-/;;; -*- coding: utf-8 -*-/' \
+$ sed -i '1s/^;;; -\*- coding: euc-jp -\*-/;;; -*- coding: utf-8 -*-/' \
   ~/.skk-ibus-jisyo
