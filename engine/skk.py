@@ -874,8 +874,7 @@ class Context(object):
         self.__state_stack.append(State())
         self.reset()
         self.__current_state().midasi = midasi
-        self.__current_state().input_mode = input_mode
-        self.activate_input_mode(self.__current_state().input_mode)
+        self.activate_input_mode(input_mode)
 
     def __abort_dict_edit(self):
         assert(self.dict_edit_level() > 0)
@@ -1270,7 +1269,9 @@ class Context(object):
                 self.__current_state().rom_kana_state = state
                 return (True, u'')
         if self.__current_state().conv_state == CONV_STATE_START:
+            input_mode = self.__current_state().input_mode
             self.reset()
+            self.activate_input_mode(input_mode)
             return (True, u'')
         if self.dict_edit_level() > 0 and \
                 len(self.__current_state().dict_edit_output) > 0:
