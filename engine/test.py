@@ -495,5 +495,18 @@ class TestSKK(unittest.TestCase):
         self.__skk.press_key(u' ')
         self.assertEqual(self.__skk.preedit, u'▼全角')
 
+    def testabbrev(self):
+        self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
+        self.__skk.press_key(u'/')
+        self.__skk.press_key(u'r')
+        self.__skk.press_key(u'e')
+        self.__skk.press_key(u'q')
+        self.__skk.press_key(u'u')
+        self.__skk.press_key(u'e')
+        self.__skk.press_key(u's')
+        self.__skk.press_key(u't')
+        self.assertEqual(self.__skk.preedit, u'▽request')
+
 if __name__ == '__main__':
     unittest.main()
