@@ -384,6 +384,14 @@ class TestSKK(unittest.TestCase):
         handled, output = self.__skk.press_key(u'd')
         self.assertTrue(handled)
         self.assertEqual(output, u'びぇん')
+        self.__skk.press_key(u's')
+        handled, output = self.__skk.press_key(u'q')
+        self.assertTrue(handled)
+        self.assertEqual(output, u'さい')
+        self.__skk.press_key(u'd')
+        handled, output = self.__skk.press_key(u'l')
+        self.assertTrue(handled)
+        self.assertEqual(output, u'どん')
         self.__skk.rom_kana_rule = skk.ROM_KANA_NORMAL
         self.__skk.reset()
 
