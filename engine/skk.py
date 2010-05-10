@@ -1005,25 +1005,23 @@ class Context(object):
             return letter
         return ''.join(map(to_hiragana, kana.replace(u'ヴ', u'ウ゛')))
 
+    __substitutes = {u'ヵ': u'ｶ', u'ヶ': u'ｹ'}
     def __hankaku_katakana(self, kana):
         def to_hankaku(letter):
-            if ord(letter) == ord(u'ヵ'):
-                return u'ｶ'
-            elif ord(letter) == ord(u'ヶ'):
-                return u'ｹ'
+            if self.__substitutes.has_key(letter):
+                return self.__substitutes[letter]
             elif ord(u'ァ') <= ord(letter) and ord(letter) <= ord(u'ン'):
                 return ZENKAKU_TO_HANKAKU_KATAKANA_TABLE[letter]
             return letter
         return ''.join(map(to_hankaku, kana))
 
+    __consonants = {u'\uff9e': u'\u3099', u'\uff9f': u'\u309a'}
     def __zenkaku_katakana(self, kana):
         def to_zenkaku(letter):
-            if ord(u'ｦ') <= ord(letter) and ord(letter) <= ord(u'ﾝ'):
+            if self.__consonants.has_key(letter):
+                return self.__consonants[letter]
+            elif ord(u'ｦ') <= ord(letter) and ord(letter) <= ord(u'ﾝ'):
                 return HANKAKU_TO_ZENKAKU_KATAKANA_TABLE[letter]
-            elif letter == u'\uff9e':
-                return u'\u3099'
-            elif letter == u'\uff9f':
-                return u'\u309a'
             return letter
         return unicodedata.normalize('NFC', ''.join(map(to_zenkaku, kana)))
 
