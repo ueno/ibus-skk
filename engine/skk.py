@@ -26,6 +26,7 @@ import itertools
 import os.path
 import socket
 import re
+import unicodedata
 from kzik import KZIK_RULE
 
 # Converted from skk-rom-kana-base-rule in skk-vars.el.
@@ -319,6 +320,36 @@ NUM_KANJI_KURAIDORI_TABLE1 = {1: u'十', 2: u'百', 3: u'千',
 NUM_KANJI_KURAIDORI_TABLE2 = {1: u'拾', 2: u'百', 3: u'阡',
                               4: u'萬', 8: u'億', 12: u'兆', 16: u'京'}
 
+# japanese-kana-table
+ZENKAKU_TO_HANKAKU_KATAKANA_TABLE = {
+    u'ア': u'ｱ', u'イ': u'ｲ', u'ウ': u'ｳ', u'エ': u'ｴ', u'オ': u'ｵ',
+    u'カ': u'ｶ', u'キ': u'ｷ', u'ク': u'ｸ', u'ケ': u'ｹ', u'コ': u'ｺ',
+    u'サ': u'ｻ', u'シ': u'ｼ', u'ス': u'ｽ', u'セ': u'ｾ', u'ソ': u'ｿ',
+    u'タ': u'ﾀ', u'チ': u'ﾁ', u'ツ': u'ﾂ', u'テ': u'ﾃ', u'ト': u'ﾄ',
+    u'ナ': u'ﾅ', u'ニ': u'ﾆ', u'ヌ': u'ﾇ', u'ネ': u'ﾈ', u'ノ': u'ﾉ',
+    u'ハ': u'ﾊ', u'ヒ': u'ﾋ', u'フ': u'ﾌ', u'ヘ': u'ﾍ', u'ホ': u'ﾎ',
+    u'マ': u'ﾏ', u'ミ': u'ﾐ', u'ム': u'ﾑ', u'メ': u'ﾒ', u'モ': u'ﾓ',
+    u'ヤ': u'ﾔ', u'ユ': u'ﾕ', u'ヨ': u'ﾖ',
+    u'ラ': u'ﾗ', u'リ': u'ﾘ', u'ル': u'ﾙ', u'レ': u'ﾚ', u'ロ': u'ﾛ',
+    u'ワ': u'ﾜ', u'ヰ': u'ｲ', u'ヱ': u'ｴ', u'ヲ': u'ｦ',
+    u'ン': u'ﾝ',
+    u'ガ': u'ｶﾞ', u'ギ': u'ｷﾞ', u'グ': u'ｸﾞ', u'ゲ': u'ｹﾞ', u'ゴ': u'ｺﾞ',
+    u'ザ': u'ｻﾞ', u'ジ': u'ｼﾞ', u'ズ': u'ｽﾞ', u'ゼ': u'ｾﾞ', u'ゾ': u'ｿﾞ',
+    u'ダ': u'ﾀﾞ', u'ヂ': u'ﾁﾞ', u'ヅ': u'ﾂﾞ', u'デ': u'ﾃﾞ', u'ド': u'ﾄﾞ',
+    u'バ': u'ﾊﾞ', u'ビ': u'ﾋﾞ', u'ブ': u'ﾌﾞ', u'ベ': u'ﾍﾞ', u'ボ': u'ﾎﾞ',
+    u'パ': u'ﾊﾟ', u'ピ': u'ﾋﾟ', u'プ': u'ﾌﾟ', u'ペ': u'ﾍﾟ', u'ポ': u'ﾎﾟ',
+    u'ァ': u'ｧ', u'ィ': u'ｨ', u'ゥ': u'ｩ', u'ェ': u'ｪ', u'ォ': u'ｫ',
+    u'ッ': u'ｯ',
+    u'ャ': u'ｬ', u'ュ': u'ｭ', u'ョ': u'ｮ',
+    u'ヮ': u'ﾜ',
+    u'ヴ': u'ｳﾞ',
+    #u'ヵ': u'ｶ', u'ヶ': u'ｹ'
+}
+
+HANKAKU_TO_ZENKAKU_KATAKANA_TABLE = dict()
+for zenkaku, hankaku in ZENKAKU_TO_HANKAKU_KATAKANA_TABLE.iteritems():
+    HANKAKU_TO_ZENKAKU_KATAKANA_TABLE[hankaku] = zenkaku
+
 KUTOUTEN_JP, \
 KUTOUTEN_EN, \
 KUTOUTEN_JP_EN, \
@@ -339,7 +370,8 @@ INPUT_MODE_NONE, \
 INPUT_MODE_HIRAGANA, \
 INPUT_MODE_KATAKANA, \
 INPUT_MODE_LATIN, \
-INPUT_MODE_WIDE_LATIN = range(5)
+INPUT_MODE_WIDE_LATIN, \
+INPUT_MODE_HANKAKU_KATAKANA = range(6)
 
 INPUT_MODE_TRANSITION_RULE = {
     u'q': {
@@ -359,6 +391,10 @@ INPUT_MODE_TRANSITION_RULE = {
         INPUT_MODE_KATAKANA: INPUT_MODE_KATAKANA,
         INPUT_MODE_WIDE_LATIN: INPUT_MODE_HIRAGANA,
         INPUT_MODE_LATIN: INPUT_MODE_HIRAGANA
+        },
+    u'ctrl+q': {
+        INPUT_MODE_KATAKANA: INPUT_MODE_HANKAKU_KATAKANA,
+        INPUT_MODE_HANKAKU_KATAKANA: INPUT_MODE_KATAKANA
         }
     }
 
@@ -969,11 +1005,34 @@ class Context(object):
             return letter
         return ''.join(map(to_hiragana, kana.replace(u'ヴ', u'ウ゛')))
 
+    def __hankaku_katakana(self, kana):
+        def to_hankaku(letter):
+            if ord(letter) == ord(u'ヵ'):
+                return u'ｶ'
+            elif ord(letter) == ord(u'ヶ'):
+                return u'ｹ'
+            elif ord(u'ァ') <= ord(letter) and ord(letter) <= ord(u'ン'):
+                return ZENKAKU_TO_HANKAKU_KATAKANA_TABLE[letter]
+            return letter
+        return ''.join(map(to_hankaku, kana))
+
+    def __zenkaku_katakana(self, kana):
+        def to_zenkaku(letter):
+            if ord(u'ｦ') <= ord(letter) and ord(letter) <= ord(u'ﾝ'):
+                return HANKAKU_TO_ZENKAKU_KATAKANA_TABLE[letter]
+            elif letter == u'\uff9e':
+                return u'\u3099'
+            elif letter == u'\uff9f':
+                return u'\u309a'
+            return letter
+        return unicodedata.normalize('NFC', ''.join(map(to_zenkaku, kana)))
+
     def activate_input_mode(self, input_mode):
         '''Switch the current input mode to INPUT_MODE.'''
         self.__current_state().input_mode = input_mode
         if self.__current_state().input_mode in (INPUT_MODE_HIRAGANA,
-                                                 INPUT_MODE_KATAKANA):
+                                                 INPUT_MODE_KATAKANA,
+                                                 INPUT_MODE_HANKAKU_KATAKANA):
             self.__current_state().rom_kana_state = (u'', u'',
                                                      self.__rom_kana_rule_tree)
         else:
@@ -1128,6 +1187,18 @@ class Context(object):
                     self.__current_state().rom_kana_state[0])
                 self.kakutei()
                 return (True, kana)
+            elif self.__current_state().input_mode == INPUT_MODE_HANKAKU_KATAKANA and \
+                    input_mode == INPUT_MODE_KATAKANA:
+                kana = self.__zenkaku_katakana(\
+                    self.__current_state().rom_kana_state[0])
+                self.kakutei()
+                return (True, kana)
+            elif self.__current_state().input_mode == INPUT_MODE_KATAKANA and \
+                    input_mode == INPUT_MODE_HANKAKU_KATAKANA:
+                kana = self.__zenkaku_katakana(\
+                    self.__current_state().rom_kana_state[0])
+                self.kakutei()
+                return (True, kana)
             elif input_mode is not None and not self.__current_state().abbrev:
                 output = self.kakutei()
                 if self.dict_edit_level() > 0:
@@ -1176,7 +1247,8 @@ class Context(object):
                 self.__current_state().rom_kana_state = \
                     self.__convert_nn(self.__current_state().rom_kana_state)
                 midasi = self.__katakana_to_hiragana(\
-                    self.__current_state().rom_kana_state[0])
+                    self.__zenkaku_katakana(\
+                        self.__current_state().rom_kana_state[0]))
                 self.__activate_candidate_selector(midasi)
                 return (True, u'')
 
@@ -1196,7 +1268,8 @@ class Context(object):
                 if len(self.__current_state().okuri_rom_kana_state[1]) == 0:
                     self.__current_state().conv_state = CONV_STATE_SELECT
                     midasi = self.__katakana_to_hiragana(\
-                        self.__current_state().rom_kana_state[0] + okuri)
+                        self.__zenkaku_katakana(\
+                            self.__current_state().rom_kana_state[0] + okuri))
                     self.__activate_candidate_selector(midasi, True)
                 return (True, u'')
 
@@ -1393,6 +1466,8 @@ elements will be "[[DictEdit]] かんが*え ", "▽", "かんが", "*え" .'''
                 output += u'ん'
             elif self.__current_state().input_mode == INPUT_MODE_KATAKANA:
                 output += u'ン'
+            elif self.__current_state().input_mode == INPUT_MODE_HANKAKU_KATAKANA:
+                output += u'ﾝ'
             return (output, pending[:-1], tree)
         return state
         
@@ -1416,6 +1491,8 @@ elements will be "[[DictEdit]] かんが*え ", "▽", "かんが", "*え" .'''
             output += next_output
         else:
             katakana, hiragana = next_output
+            if self.__current_state().input_mode == INPUT_MODE_HANKAKU_KATAKANA:
+                katakana = self.__hankaku_katakana(katakana)
             if self.__current_state().input_mode == INPUT_MODE_HIRAGANA:
                 output += hiragana
             else:
