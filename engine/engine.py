@@ -128,7 +128,7 @@ class Engine(ibus.EngineBase):
         skk.INPUT_MODE_HIRAGANA : u"InputMode.Hiragana",
         skk.INPUT_MODE_KATAKANA : u"InputMode.Katakana",
         skk.INPUT_MODE_LATIN : u"InputMode.Latin",
-        skk.INPUT_MODE_WIDE_LATIN : u"InputMode.WideLatin"
+        skk.INPUT_MODE_WIDE_LATIN : u"InputMode.WideLatin",
         skk.INPUT_MODE_HANKAKU_KATAKANA : u"InputMode.HankakuKatakana",
         }
 
