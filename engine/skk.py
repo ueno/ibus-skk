@@ -1493,7 +1493,8 @@ elements will be "[[DictEdit]] かんが*え ", "▽", "かんが", "*え" .'''
                 katakana = self.__hankaku_katakana(katakana)
             if self.__current_state().input_mode == INPUT_MODE_HIRAGANA:
                 output += hiragana
-            else:
+            elif self.__current_state().input_mode in (INPUT_MODE_KATAKANA,
+                                                       INPUT_MODE_HANKAKU_KATAKANA):
                 output += katakana
         next_state = (output, u'', self.__rom_kana_rule_tree)
         if next_pending:
