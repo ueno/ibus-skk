@@ -477,7 +477,7 @@
                         <child>
                           <object class="GtkLabel" id="label7">
                             <property name="visible">True</property>
-                            <property name="label">&lt;big&gt;&lt;b&gt;IBus SKK 0.0.7&lt;/b&gt;&lt;/big&gt;</property>
+                            <property name="label">&lt;big&gt;&lt;b&gt;IBus SKK 0.0.8&lt;/b&gt;&lt;/big&gt;</property>
                             <property name="use_markup">True</property>
                           </object>
                           <packing>

@@ -19,7 +19,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-AC_INIT([ibus-skk], [0.0.7])
+AC_INIT([ibus-skk], [0.0.8])
 AM_INIT_AUTOMAKE([1.10])
 AC_GNU_SOURCE
 
