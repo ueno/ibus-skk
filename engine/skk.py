@@ -1121,7 +1121,8 @@ class Context(object):
         if key == 'ctrl+h' or key == 'backspace':
             return self.delete_char()
 
-        idle = len(self.__rom_kana_state[1]) == 0
+        idle = self.__current_state().rom_kana_state == None or \
+                len(self.__current_state().rom_kana_state[1]) == 0
         if self.__current_state().conv_state == CONV_STATE_NONE:
             input_mode = INPUT_MODE_TRANSITION_RULE.get(key, dict()).\
                 get(self.__current_state().input_mode)
