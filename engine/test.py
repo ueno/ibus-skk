@@ -29,6 +29,8 @@ class TestSKK(unittest.TestCase):
                         if line.startswith(';; okuri-nasi'):
                             tp.write(u'#/# /#0月#0日/#1／#1/#1月#1日/\n'.encode('EUC-JP'))
                             tp.write(u'#ひき /#1匹/#3匹/#0匹/#2匹/\n'.encode('EUC-JP'))
+                        if line.startswith('greek '):
+                            tp.write(u'request /リクエスト/\n'.encode('EUC-JP'))
 
         self.__skk = skk.Context(usrdict=skk.UsrDict(usrdict_path),
                                  sysdict=skk.SysDict(sysdict_path),
@@ -507,6 +509,8 @@ class TestSKK(unittest.TestCase):
         self.__skk.press_key(u's')
         self.__skk.press_key(u't')
         self.assertEqual(self.__skk.preedit, u'▽request')
+        self.__skk.press_key(u' ')
+        self.assertEqual(self.__skk.preedit, u'▼リクエスト')
 
 if __name__ == '__main__':
     unittest.main()
