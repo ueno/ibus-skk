@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: ibus-skk 1.2.0.20091108\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-05-11 17:56+0900\n"
-"PO-Revision-Date: 2010-05-11 17:57+0900\n"
+"PO-Revision-Date: 2010-05-11 18:06+0900\n"
 "Last-Translator: Daiki Ueno <ueno@unixuser.org>\n"
 "Language-Team: Japanese\n"
 "MIME-Version: 1.0\n"
@@ -23,7 +23,7 @@ msgstr "辞書登録"
 
 #: ../engine/engine.py:181
 msgid "Kuten([MM]KKTT) "
-msgstr "区点([MM]KKTT)"
+msgstr "区点([MM]KKTT) "
 
 #: ../engine/engine.py:196
 msgid "Switch input mode"
