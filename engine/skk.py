@@ -28,6 +28,7 @@ import socket
 import re
 import unicodedata
 from kzik import KZIK_RULE
+import struct
 
 # Converted from skk-rom-kana-base-rule in skk-vars.el.
 ROM_KANA_RULE = {
@@ -404,7 +405,8 @@ ROM_KANA_KZIK = range(2)
 ROM_KANA_RULES = (ROM_KANA_RULE, KZIK_RULE)
 
 TRANSLATED_STRINGS = {
-    u'dict-edit-prompt': u'DictEdit'
+    u'dict-edit-prompt': u'DictEdit',
+    u'kuten-prompt': u'Kuten([PP]KKTT) '
 }
 
 class DictBase(object):
@@ -836,6 +838,8 @@ class State(object):
         self.candidates = list()
         self.candidate_index = -1
 
+        self.kuten = None
+
 class Context(object):
     def __init__(self, usrdict, sysdict, candidate_selector):
         '''Create an SKK context.
@@ -848,6 +852,7 @@ class Context(object):
         self.__candidate_selector = candidate_selector
         self.__state_stack = list()
         self.__state_stack.append(State())
+        self.__kuten_codec = None
 
         self.usrdict = usrdict
         self.sysdict = sysdict
@@ -1132,6 +1137,19 @@ class Context(object):
                 self.activate_input_mode(input_mode)
                 return (True, u'')
 
+            # Start KUTEN input.
+            if key == '\\':
+                if not self.__kuten_codec:
+                    import codecs
+                    try:
+                        self.__kuten_codec = codecs.lookup('EUC-JIS-2004')
+                    except LookupError:
+                        pass
+                if self.__kuten_codec:
+                    self.__current_state().kuten = u''
+                    self.__current_state().conv_state = CONV_STATE_START
+                return (True, u'')
+
             if self.dict_edit_level() > 0 and \
                     (key == 'ctrl+j' or key == 'return'):
                 return (True, self.__leave_dict_edit())
@@ -1210,10 +1228,39 @@ class Context(object):
                 return (True, output)
 
             if key == 'ctrl+j' or key == 'return':
+                kuten = self.__current_state().kuten
+                if kuten is not None:
+                    input_mode = self.__current_state().input_mode
+                    self.reset()
+                    self.activate_input_mode(input_mode)
+                    try:
+                        k = [int(kuten[x:x+2], 16)
+                             for x in xrange(0, len(kuten), 2)]
+                        euc = ''
+                        if len(k) == 2:
+                            euc = struct.pack('BB', *k)
+                        elif len(k) == 3:
+                            euc = struct.pack('BB', *k[1:])
+                            if k[0] == 1:
+                                euc = '\x8F' + euc
+                        return (True, self.__kuten_codec.decode(euc)[0])
+                    except ValueError, UnicodeDecodeError:
+                        return (True, u'')
+
                 output = self.kakutei()
                 if self.dict_edit_level() > 0:
                     return (True, u'')
                 return (True, output)
+
+            if self.__current_state().kuten is not None:
+                if len(self.__current_state().kuten) >= 6:
+                    input_mode = self.__current_state().input_mode
+                    self.reset()
+                    self.activate_input_mode(input_mode)
+                    return (True, u'')
+                if re.match('\A[0-9a-f]\Z', letter):
+                    self.__current_state().kuten += key.upper()
+                return (True, u'')
 
             # Start TAB(\C-i) completion.
             if keyval == u'\t' or (is_ctrl and letter == 'i'):
@@ -1418,6 +1465,12 @@ elements will be "[[DictEdit]] かんが*え ", "▽", "かんが", "*え" .'''
             else:
                 return (prompt, prefix, u'', u'')
         elif self.__current_state().conv_state == CONV_STATE_START:
+            if self.__current_state().kuten is not None:
+                return (prompt + self.translated_strings['kuten-prompt'],
+                        prefix + u'',
+                        self.__current_state().kuten,
+                        u'')
+                
             if self.__current_state().okuri_rom_kana_state:
                 return (prompt,
                         prefix + u'▽',
