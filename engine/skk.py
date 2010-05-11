@@ -1391,6 +1391,10 @@ class Context(object):
             if state:
                 self.__current_state().rom_kana_state = state
                 return (True, u'')
+        if self.__current_state().kuten is not None:
+            if len(self.__current_state().kuten) > 0:
+                self.__current_state().kuten = self.__current_state().kuten[:-1]
+                return (True, u'')
         if self.__current_state().conv_state == CONV_STATE_START:
             input_mode = self.__current_state().input_mode
             self.reset()
