@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ibus-skk 1.2.0.20091108\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-05-07 10:33+0900\n"
-"PO-Revision-Date: 2010-05-06 13:00+0900\n"
+"POT-Creation-Date: 2010-05-11 17:56+0900\n"
+"PO-Revision-Date: 2010-05-11 17:57+0900\n"
 "Last-Translator: Daiki Ueno <ueno@unixuser.org>\n"
 "Language-Team: Japanese\n"
 "MIME-Version: 1.0\n"
@@ -17,31 +17,39 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ../engine/engine.py:170
+#: ../engine/engine.py:179
 msgid "DictEdit"
 msgstr "辞書登録"
 
-#: ../engine/engine.py:185
+#: ../engine/engine.py:181
+msgid "Kuten([MM]KKTT) "
+msgstr "区点([MM]KKTT)"
+
+#: ../engine/engine.py:196
 msgid "Switch input mode"
 msgstr "入力モード切替"
 
-#: ../engine/engine.py:191
+#: ../engine/engine.py:202
 msgid "Hiragana"
 msgstr "ひらがな"
 
-#: ../engine/engine.py:194
+#: ../engine/engine.py:205
 msgid "Katakana"
 msgstr "カタカナ"
 
-#: ../engine/engine.py:197
+#: ../engine/engine.py:208
 msgid "Latin"
 msgstr "英数"
 
-#: ../engine/engine.py:200
+#: ../engine/engine.py:211
 msgid "Wide Latin"
 msgstr "全角英数"
 
-#: ../engine/engine.py:212
+#: ../engine/engine.py:214
+msgid "HankakuKatakana"
+msgstr "半角カタカナ"
+
+#: ../engine/engine.py:226
 msgid "Configure SKK"
 msgstr "SKKの設定"
 

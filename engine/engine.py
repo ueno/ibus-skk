@@ -177,6 +177,8 @@ class Engine(ibus.EngineBase):
                                                          skk.ROM_KANA_NORMAL)
         self.__skk.translated_strings['dict-edit-prompt'] =\
             _(u'DictEdit').decode('UTF-8')
+        self.__skk.translated_strings['kuten-prompt'] =\
+            _(u'Kuten([MM]KKTT) ').decode('UTF-8')
         self.__skk.reset()
         self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__prop_dict = dict()

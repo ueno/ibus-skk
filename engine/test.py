@@ -520,7 +520,7 @@ class TestSKK(unittest.TestCase):
         self.__skk.press_key(u'1')
         self.__skk.press_key(u'a')
         self.__skk.press_key(u'2')
-        self.assertEqual(self.__skk.preedit, u'Kuten([PP]KKTT) A1A2')
+        self.assertEqual(self.__skk.preedit, u'Kuten([MM]KKTT) A1A2')
         handled, output = self.__skk.press_key(u'return')
         self.assertTrue(handled)
         self.assertEqual(output, u'、')

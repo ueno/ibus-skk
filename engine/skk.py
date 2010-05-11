@@ -406,7 +406,7 @@ ROM_KANA_RULES = (ROM_KANA_RULE, KZIK_RULE)
 
 TRANSLATED_STRINGS = {
     u'dict-edit-prompt': u'DictEdit',
-    u'kuten-prompt': u'Kuten([PP]KKTT) '
+    u'kuten-prompt': u'Kuten([MM]KKTT) '
 }
 
 class DictBase(object):
