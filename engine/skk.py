@@ -920,6 +920,15 @@ class Context(object):
     def __abort_dict_edit(self):
         assert(self.dict_edit_level() > 0)
         self.__state_stack.pop()
+        # Stop rom-kana conversion for okuri-kana if it is active.
+        if self.__current_state().conv_state == CONV_STATE_START and \
+                self.__current_state().okuri_rom_kana_state:
+            self.__current_state().rom_kana_state = \
+                (self.__current_state().rom_kana_state[0] + \
+                     self.__current_state().okuri_rom_kana_state[0], \
+                     u'', u'')
+            self.__current_state().okuri_rom_kana_state = None
+        # Restore candidates.
         self.__candidate_selector.set_candidates(self.__current_state().\
                                                      candidates)
         self.__candidate_selector.set_index(self.__current_state().\
