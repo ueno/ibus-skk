@@ -476,11 +476,11 @@ class TestSKK(unittest.TestCase):
         self.__skk.press_key(u'shift+e')
         self.assertEqual(self.__skk.preedit, u'[DictEdit] かんがえ*え ')
         self.__skk.press_key(u'ctrl+g')
-        self.assertEqual(self.__skk.preedit, u'▽かんがえ*え')
+        self.assertEqual(self.__skk.preedit, u'▽かんがええ')
         self.__skk.press_key(u'ctrl+h')
-        self.assertEqual(self.__skk.preedit, u'▽かんがえ*')
+        self.assertEqual(self.__skk.preedit, u'▽かんがえ')
         self.__skk.press_key(u'ctrl+h')
-        self.assertEqual(self.__skk.preedit, u'▽かんが*')
+        self.assertEqual(self.__skk.preedit, u'▽かんが')
 
     def testhankaku(self):
         self.__skk.reset()
