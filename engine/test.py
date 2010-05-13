@@ -548,6 +548,15 @@ class TestSKK(unittest.TestCase):
         handled, output = self.__skk.press_key(u'return')
         self.assertTrue(handled)
         self.assertEqual(output, u'、')
+        # Don't start KUTEN input on {wide,}latin input mode.
+        self.__skk.activate_input_mode(skk.INPUT_MODE_LATIN)
+        handled, output = self.__skk.press_key(u'\\')
+        self.assertTrue(handled)
+        self.assertEqual(output, u'\\')
+        self.__skk.activate_input_mode(skk.INPUT_MODE_WIDE_LATIN)
+        handled, output = self.__skk.press_key(u'\\')
+        self.assertTrue(handled)
+        self.assertEqual(output, u'＼')
 
 if __name__ == '__main__':
     unittest.main()

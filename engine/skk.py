@@ -1151,19 +1151,6 @@ class Context(object):
                 self.activate_input_mode(input_mode)
                 return (True, u'')
 
-            # Start KUTEN input.
-            if key == '\\':
-                if not self.__kuten_codec:
-                    import codecs
-                    try:
-                        self.__kuten_codec = codecs.lookup('EUC-JIS-2004')
-                    except LookupError:
-                        pass
-                if self.__kuten_codec:
-                    self.__current_state().kuten = u''
-                    self.__current_state().conv_state = CONV_STATE_START
-                return (True, u'')
-
             if self.dict_edit_level() > 0 and \
                     (key == 'ctrl+j' or key == 'return'):
                 return (True, self.__leave_dict_edit())
@@ -1177,6 +1164,19 @@ class Context(object):
                 return (True, letter)
             elif self.__current_state().input_mode == INPUT_MODE_WIDE_LATIN:
                 return (True, WIDE_LATIN_TABLE[ord(letter)])
+
+            # Start KUTEN input.
+            if key == '\\':
+                if not self.__kuten_codec:
+                    import codecs
+                    try:
+                        self.__kuten_codec = codecs.lookup('EUC-JIS-2004')
+                    except LookupError:
+                        pass
+                if self.__kuten_codec:
+                    self.__current_state().kuten = u''
+                    self.__current_state().conv_state = CONV_STATE_START
+                return (True, u'')
 
             # Start rom-kan mode with abbrev enabled (/).
             if not rom_kana_pending and keyval == '/':
