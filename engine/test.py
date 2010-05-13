@@ -523,6 +523,12 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(self.__skk.preedit, u'▽request')
         self.__skk.press_key(u' ')
         self.assertEqual(self.__skk.preedit, u'▼リクエスト')
+        self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
+        self.__skk.press_key(u'z')
+        handled, output = self.__skk.press_key(u'/')
+        self.assertTrue(handled)
+        self.assertEqual(output, u'・')
 
     def testkuten(self):
         self.__skk.reset()

@@ -1179,7 +1179,7 @@ class Context(object):
                 return (True, WIDE_LATIN_TABLE[ord(letter)])
 
             # Start rom-kan mode with abbrev enabled (/).
-            if keyval == '/':
+            if not rom_kana_pending and keyval == '/':
                 self.__current_state().conv_state = CONV_STATE_START
                 self.__current_state().abbrev = True
                 return (True, u'')
