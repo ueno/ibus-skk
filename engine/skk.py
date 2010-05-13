@@ -351,6 +351,12 @@ HANKAKU_TO_ZENKAKU_KATAKANA_TABLE = dict()
 for zenkaku, hankaku in ZENKAKU_TO_HANKAKU_KATAKANA_TABLE.iteritems():
     HANKAKU_TO_ZENKAKU_KATAKANA_TABLE[hankaku] = zenkaku
 
+# Map from chars whose hankaku analogues are missing.
+HANKAKU_KATAKANA_SUBSTITUTES = {u'ヵ': u'ｶ', u'ヶ': u'ｹ'}
+
+# Map from standalone sonant marks to composable analogues in Unicode.
+HANKAKU_KATAKANA_SONANTS = {u'\uff9e': u'\u3099', u'\uff9f': u'\u309a'}
+
 KUTOUTEN_JP, \
 KUTOUTEN_EN, \
 KUTOUTEN_JP_EN, \
@@ -740,6 +746,40 @@ def compile_rom_kana_rule(rule):
         _compile_rom_kana_rule(tree, input_state, rule[input_state])
     return tree
 
+def hiragana_to_katakana(kana):
+    diff = ord(u'ア') - ord(u'あ')
+    def to_katakana(letter):
+        if ord(u'ぁ') <= ord(letter) and ord(letter) <= ord(u'ん'):
+            return unichr(ord(letter) + diff)
+        return letter
+    return ''.join(map(to_katakana, kana)).replace(u'ウ゛', u'ヴ')
+
+def katakana_to_hiragana(kana):
+    diff = ord(u'ア') - ord(u'あ')
+    def to_hiragana(letter):
+        if ord(u'ァ') <= ord(letter) and ord(letter) <= ord(u'ン'):
+            return unichr(ord(letter) - diff)
+        return letter
+    return ''.join(map(to_hiragana, kana.replace(u'ヴ', u'ウ゛')))
+
+def hankaku_katakana(kana):
+    def to_hankaku(letter):
+        if HANKAKU_KATAKANA_SUBSTITUTES.has_key(letter):
+            return HANKAKU_KATAKANA_SUBSTITUTES[letter]
+        elif ord(u'ァ') <= ord(letter) and ord(letter) <= ord(u'ン'):
+            return ZENKAKU_TO_HANKAKU_KATAKANA_TABLE[letter]
+        return letter
+    return ''.join(map(to_hankaku, kana))
+
+def zenkaku_katakana(kana):
+    def to_zenkaku(letter):
+        if HANKAKU_KATAKANA_SONANTS.has_key(letter):
+            return HANKAKU_KATAKANA_SONANTS[letter]
+        elif ord(u'ｦ') <= ord(letter) and ord(letter) <= ord(u'ﾝ'):
+            return HANKAKU_TO_ZENKAKU_KATAKANA_TABLE[letter]
+        return letter
+    return unicodedata.normalize('NFC', ''.join(map(to_zenkaku, kana)))
+
 def num_to_latin(num):
     return num
 
@@ -1004,42 +1044,6 @@ class Context(object):
             return output
         return None
 
-    def __hiragana_to_katakana(self, kana):
-        diff = ord(u'ア') - ord(u'あ')
-        def to_katakana(letter):
-            if ord(u'ぁ') <= ord(letter) and ord(letter) <= ord(u'ん'):
-                return unichr(ord(letter) + diff)
-            return letter
-        return ''.join(map(to_katakana, kana)).replace(u'ウ゛', u'ヴ')
-
-    def __katakana_to_hiragana(self, kana):
-        diff = ord(u'ア') - ord(u'あ')
-        def to_hiragana(letter):
-            if ord(u'ァ') <= ord(letter) and ord(letter) <= ord(u'ン'):
-                return unichr(ord(letter) - diff)
-            return letter
-        return ''.join(map(to_hiragana, kana.replace(u'ヴ', u'ウ゛')))
-
-    __substitutes = {u'ヵ': u'ｶ', u'ヶ': u'ｹ'}
-    def __hankaku_katakana(self, kana):
-        def to_hankaku(letter):
-            if self.__substitutes.has_key(letter):
-                return self.__substitutes[letter]
-            elif ord(u'ァ') <= ord(letter) and ord(letter) <= ord(u'ン'):
-                return ZENKAKU_TO_HANKAKU_KATAKANA_TABLE[letter]
-            return letter
-        return ''.join(map(to_hankaku, kana))
-
-    __consonants = {u'\uff9e': u'\u3099', u'\uff9f': u'\u309a'}
-    def __zenkaku_katakana(self, kana):
-        def to_zenkaku(letter):
-            if self.__consonants.has_key(letter):
-                return self.__consonants[letter]
-            elif ord(u'ｦ') <= ord(letter) and ord(letter) <= ord(u'ﾝ'):
-                return HANKAKU_TO_ZENKAKU_KATAKANA_TABLE[letter]
-            return letter
-        return unicodedata.normalize('NFC', ''.join(map(to_zenkaku, kana)))
-
     def activate_input_mode(self, input_mode):
         '''Switch the current input mode to INPUT_MODE.'''
         self.__current_state().input_mode = input_mode
@@ -1208,25 +1212,25 @@ class Context(object):
                 input_mode = None
             if self.__current_state().input_mode == INPUT_MODE_HIRAGANA and \
                     input_mode == INPUT_MODE_KATAKANA:
-                kana = self.__hiragana_to_katakana(\
+                kana = hiragana_to_katakana(\
                     self.__current_state().rom_kana_state[0])
                 self.kakutei()
                 return (True, kana)
             elif self.__current_state().input_mode == INPUT_MODE_KATAKANA and \
                     input_mode == INPUT_MODE_HIRAGANA:
-                kana = self.__katakana_to_hiragana(\
+                kana = katakana_to_hiragana(\
                     self.__current_state().rom_kana_state[0])
                 self.kakutei()
                 return (True, kana)
             elif self.__current_state().input_mode == INPUT_MODE_HANKAKU_KATAKANA and \
                     input_mode == INPUT_MODE_KATAKANA:
-                kana = self.__zenkaku_katakana(\
+                kana = zenkaku_katakana(\
                     self.__current_state().rom_kana_state[0])
                 self.kakutei()
                 return (True, kana)
             elif self.__current_state().input_mode == INPUT_MODE_KATAKANA and \
                     input_mode == INPUT_MODE_HANKAKU_KATAKANA:
-                kana = self.__zenkaku_katakana(\
+                kana = zenkaku_katakana(\
                     self.__current_state().rom_kana_state[0])
                 self.kakutei()
                 return (True, kana)
@@ -1306,8 +1310,8 @@ class Context(object):
                 self.__current_state().conv_state = CONV_STATE_SELECT
                 self.__current_state().rom_kana_state = \
                     self.__convert_nn(self.__current_state().rom_kana_state)
-                midasi = self.__katakana_to_hiragana(\
-                    self.__zenkaku_katakana(\
+                midasi = katakana_to_hiragana(\
+                    zenkaku_katakana(\
                         self.__current_state().rom_kana_state[0]))
                 self.__activate_candidate_selector(midasi)
                 return (True, u'')
@@ -1327,8 +1331,8 @@ class Context(object):
                 # Start okuri-ari conversion.
                 if len(self.__current_state().okuri_rom_kana_state[1]) == 0:
                     self.__current_state().conv_state = CONV_STATE_SELECT
-                    midasi = self.__katakana_to_hiragana(\
-                        self.__zenkaku_katakana(\
+                    midasi = katakana_to_hiragana(\
+                        zenkaku_katakana(\
                             self.__current_state().rom_kana_state[0] + okuri))
                     self.__activate_candidate_selector(midasi, True)
                 return (True, u'')
@@ -1562,7 +1566,7 @@ elements will be "[[DictEdit]] かんが*え ", "▽", "かんが", "*え" .'''
         else:
             katakana, hiragana = next_output
             if self.__current_state().input_mode == INPUT_MODE_HANKAKU_KATAKANA:
-                katakana = self.__hankaku_katakana(katakana)
+                katakana = hankaku_katakana(katakana)
             if self.__current_state().input_mode == INPUT_MODE_HIRAGANA:
                 output += hiragana
             elif self.__current_state().input_mode in (INPUT_MODE_KATAKANA,
