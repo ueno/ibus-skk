@@ -740,6 +740,66 @@ def compile_rom_kana_rule(rule):
         _compile_rom_kana_rule(tree, input_state, rule[input_state])
     return tree
 
+def num_to_latin(num):
+    return num
+
+def num_to_jisx0208_latin(num):
+    return ''.join([NUM_WIDE_LATIN_TABLE[c] for c in num])
+
+def num_to_type2_kanji(num):
+    return ''.join([NUM_KANJI_TABLE1[c] for c in num])
+
+def num_to_kanji(num, digit_table, kurai_table):
+    ndigits = len(num)
+    result = list()
+    for index, digit in enumerate(num):
+        if int(digit) > 0:
+            result.append(digit_table[digit])
+            index = ndigits - index - 1
+            kurai = kurai_table.get(index, None)
+            if kurai:
+                result.append(kurai)
+            elif index % 4 > 0:
+                result.append(kurai_table[index % 4])
+    return ''.join(result)
+
+def num_to_type3_kanji(num):
+    return num_to_kanji(num,
+                        NUM_KANJI_TABLE1,
+                        NUM_KANJI_KURAIDORI_TABLE1)
+
+def num_to_type5_kanji(num):
+    return num_to_kanji(num,
+                        NUM_KANJI_TABLE2,
+                        NUM_KANJI_KURAIDORI_TABLE2)
+
+NUM_CONVERTERS = (num_to_latin,
+                  num_to_jisx0208_latin,
+                  num_to_type2_kanji,
+                  num_to_type3_kanji,
+                  num_to_latin,
+                  num_to_type5_kanji)
+
+def replace_num_with_hash(midasi):
+    return (re.sub('[0-9]+', '#', midasi),
+            [num.group() for num in re.finditer('[0-9]+', midasi)])
+
+def substitute_num(candidate, num_list):
+    if len(num_list) == 0:
+        return candidate
+    _num_index = [0]
+    def replace_hash_with_num(match):
+        if len(num_list) == 0:
+            return match.group(0)
+        converter_index = int(match.group(1))
+        if converter_index >= len(NUM_CONVERTERS):
+            return match.group(0)
+        converter = NUM_CONVERTERS[converter_index]
+        result = converter(num_list[_num_index[0]])
+        _num_index[0] += 1
+        return result
+    return re.sub('#([0-9]+)', replace_hash_with_num, candidate)
+
 class CandidateSelector(object):
     PAGE_SIZE = 7
     PAGINATION_START = 4
@@ -944,65 +1004,6 @@ class Context(object):
             return output
         return None
 
-    def __num_to_latin(self, num):
-        return num
-
-    def __num_to_jisx0208_latin(self, num):
-        return ''.join([NUM_WIDE_LATIN_TABLE[c] for c in num])
-
-    def __num_to_type2_kanji(self, num):
-        return ''.join([NUM_KANJI_TABLE1[c] for c in num])
-
-    def __num_to_kanji(self, num, digit_table, kurai_table):
-        ndigits = len(num)
-        result = list()
-        for index, digit in enumerate(num):
-            if int(digit) > 0:
-                result.append(digit_table[digit])
-                index = ndigits - index - 1
-                kurai = kurai_table.get(index, None)
-                if kurai:
-                    result.append(kurai)
-                elif index % 4 > 0:
-                    result.append(kurai_table[index % 4])
-        return ''.join(result)
-
-    def __num_to_type3_kanji(self, num):
-        return self.__num_to_kanji(num,
-                                   NUM_KANJI_TABLE1,
-                                   NUM_KANJI_KURAIDORI_TABLE1)
-
-    def __num_to_type5_kanji(self, num):
-        return self.__num_to_kanji(num,
-                                   NUM_KANJI_TABLE2,
-                                   NUM_KANJI_KURAIDORI_TABLE2)
-
-    __num_converters = (__num_to_latin,
-                        __num_to_jisx0208_latin,
-                        __num_to_type2_kanji,
-                        __num_to_type3_kanji,
-                        __num_to_latin,
-                        __num_to_type5_kanji)
-
-    def __replace_num_with_hash(self, midasi):
-        return (re.sub('[0-9]+', '#', midasi),
-                [num.group() for num in re.finditer('[0-9]+', midasi)])
-
-    def __substitute_num(self, candidate, num_list):
-        if len(num_list) == 0:
-            return candidate
-        _num_index = [0]
-        def replace_hash_with_num(match):
-            if len(num_list) == 0:
-                return match.group(0)
-            converter = self.__num_converters[int(match.group(1))]
-            result = converter(self, num_list[_num_index[0]])
-            _num_index[0] += 1
-            return result
-        return re.sub('#([0-%d])' % (len(self.__num_converters) - 1),
-                      replace_hash_with_num,
-                      candidate)
-
     def __hiragana_to_katakana(self, kana):
         diff = ord(u'ア') - ord(u'あ')
         def to_katakana(letter):
@@ -1075,13 +1076,13 @@ class Context(object):
         return output
 
     def __activate_candidate_selector(self, midasi, okuri=False):
-        midasi, num_list = self.__replace_num_with_hash(midasi)
+        midasi, num_list = replace_num_with_hash(midasi)
         self.__current_state().midasi = midasi
         usr_candidates = self.__usrdict.lookup(midasi)
         sys_candidates = self.__sysdict.lookup(midasi, okuri)
         candidates = self.__merge_candidates(usr_candidates,
                                              sys_candidates)
-        candidates = [(self.__substitute_num(candidate[0], num_list),
+        candidates = [(substitute_num(candidate[0], num_list),
                        candidate[1])
                       for candidate in candidates]
         self.__candidate_selector.set_candidates(candidates)
