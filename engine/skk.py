@@ -940,6 +940,32 @@ class State(object):
 
         self.kuten = None
 
+class Key(object):
+    def __init__(self, keystr):
+        self.__keystr = keystr
+        self.__is_ctrl = keystr.startswith('ctrl+')
+        if self.__is_ctrl:
+            keystr = keystr[5:]
+        self.__is_shift = keystr.startswith('shift+')
+        if self.__is_shift:
+            keystr = keystr[6:]
+            self.__letter = keystr.upper()
+        else:
+            self.__letter = keystr
+        self.__keyval = keystr
+
+    def __str__(self):
+        return self.__keystr
+
+    letter = property(lambda self: self.__letter)
+    keyval = property(lambda self: self.__keyval)
+
+    def is_ctrl(self):
+        return self.__is_ctrl
+
+    def is_shift(self):
+        return self.__is_shift
+
 class Context(object):
     def __init__(self, usrdict, sysdict, candidate_selector):
         '''Create an SKK context.
@@ -1093,27 +1119,16 @@ class Context(object):
             self.__current_state().conv_state = CONV_STATE_START
             self.__enter_dict_edit()
 
-    def press_key(self, key):
-        '''Process a key press event KEY.
+    def press_key(self, keystr):
+        '''Process a key press event KEYSTR.
 
-        KEY is in the format of ["ctrl+"]["shift+"]<lower case ASCII letter>.
+        KEYSTR is in the format of ["ctrl+"]["shift+"]<lower case ASCII letter>.
 
         The return value is a tuple (HANDLED, OUTPUT) where HANDLED is
         True if the event was handled internally (otherwise False),
         and OUTPUT is a committable string (if any).'''
-        keyval = key
-        is_ctrl = keyval.startswith('ctrl+')
-        if is_ctrl:
-            keyval = keyval[5:]
-        is_shift = keyval.startswith('shift+')
-        if is_shift:
-            keyval = keyval[6:]
-        if is_shift:
-            letter = keyval.upper()
-        else:
-            letter = keyval
-
-        if key == 'ctrl+g':
+        key = Key(keystr)
+        if str(key) == 'ctrl+g':
             if self.dict_edit_level() > 0 and \
                     self.__current_state().conv_state == CONV_STATE_NONE:
                 self.__abort_dict_edit()
@@ -1136,36 +1151,35 @@ class Context(object):
                 self.__current_state().conv_state = CONV_STATE_START
             return (True, u'')
 
-        if key == 'ctrl+h' or key == 'backspace':
+        if str(key) in ('ctrl+h', 'backspace'):
             return self.delete_char()
 
         rom_kana_pending = self.__current_state().rom_kana_state and \
             len(self.__current_state().rom_kana_state[1]) > 0
 
         if self.__current_state().conv_state == CONV_STATE_NONE:
-            input_mode = INPUT_MODE_TRANSITION_RULE.get(key, dict()).\
+            input_mode = INPUT_MODE_TRANSITION_RULE.get(str(key), dict()).\
                 get(self.__current_state().input_mode)
             if not rom_kana_pending and input_mode is not None:
                 self.reset()
                 self.activate_input_mode(input_mode)
                 return (True, u'')
 
-            if self.dict_edit_level() > 0 and \
-                    (key == 'ctrl+j' or key == 'return'):
+            if self.dict_edit_level() > 0 and str(key) in ('ctrl+j', 'return'):
                 return (True, self.__leave_dict_edit())
 
             # Ignore ctrl+key and non-ASCII characters.
-            if is_ctrl or key in ('return', 'escape', 'backspace') or \
-                    0x20 > ord(letter) or ord(letter) > 0x7E:
+            if key.is_ctrl() or str(key) in ('return', 'escape', 'backspace') or \
+                    0x20 > ord(key.letter) or ord(key.letter) > 0x7E:
                 return (False, u'')
 
             if self.__current_state().input_mode == INPUT_MODE_LATIN:
-                return (True, letter)
+                return (True, key.letter)
             elif self.__current_state().input_mode == INPUT_MODE_WIDE_LATIN:
-                return (True, WIDE_LATIN_TABLE[ord(letter)])
+                return (True, WIDE_LATIN_TABLE[ord(key.letter)])
 
             # Start KUTEN input.
-            if key == '\\':
+            if str(key) == '\\':
                 if not self.__kuten_codec:
                     import codecs
                     try:
@@ -1178,23 +1192,23 @@ class Context(object):
                 return (True, u'')
 
             # Start rom-kan mode with abbrev enabled (/).
-            if not rom_kana_pending and keyval == '/':
+            if not rom_kana_pending and key.keyval == '/':
                 self.__current_state().conv_state = CONV_STATE_START
                 self.__current_state().abbrev = True
                 return (True, u'')
 
             # Start rom-kan mode (shift+q).
-            if is_shift and keyval == u'q':
+            if key.is_shift() and key.keyval == 'q':
                 self.__current_state().conv_state = CONV_STATE_START
                 return (True, u'')
 
             # Start rom-kan mode and insert a character which
             # triggered the transition.
-            if is_shift and keyval.isalpha():
+            if key.is_shift() and key.keyval.isalpha():
                 self.__current_state().conv_state = CONV_STATE_START
 
             self.__current_state().rom_kana_state = \
-                self.__convert_rom_kana(keyval,
+                self.__convert_rom_kana(key.keyval,
                                         self.__current_state().rom_kana_state)
             if self.__current_state().conv_state == CONV_STATE_NONE and \
                     len(self.__current_state().rom_kana_state[1]) == 0:
@@ -1206,7 +1220,7 @@ class Context(object):
             return (True, u'')
 
         elif self.__current_state().conv_state == CONV_STATE_START:
-            input_mode = INPUT_MODE_TRANSITION_RULE.get(key, dict()).\
+            input_mode = INPUT_MODE_TRANSITION_RULE.get(str(key), dict()).\
                 get(self.__current_state().input_mode)
             if rom_kana_pending or self.__current_state().abbrev:
                 input_mode = None
@@ -1254,7 +1268,7 @@ class Context(object):
                 self.activate_input_mode(input_mode)
                 return (True, output)
 
-            if key == 'ctrl+j' or key == 'return':
+            if str(key) in ('ctrl+j', 'return'):
                 kuten = self.__current_state().kuten
                 if kuten is not None:
                     input_mode = self.__current_state().input_mode
@@ -1286,12 +1300,12 @@ class Context(object):
                     self.reset()
                     self.activate_input_mode(input_mode)
                     return (True, u'')
-                if re.match('\A[0-9a-f]\Z', letter):
-                    self.__current_state().kuten += key.upper()
+                if re.match('\A[0-9a-f]\Z', key.letter):
+                    self.__current_state().kuten += key.letter.upper()
                 return (True, u'')
 
             # Start TAB(\C-i) completion.
-            if keyval == u'\t' or (is_ctrl and letter == 'i'):
+            if key.keyval == '\t' or (key.is_ctrl() and key.letter == 'i'):
                 self.__current_state().rom_kana_state = \
                     self.__convert_nn(self.__current_state().rom_kana_state)
                 if self.__current_state().completer is None:
@@ -1314,12 +1328,12 @@ class Context(object):
             # Start okuri-nasi conversion.
             auto_start_henkan_keyword = None
             rom_kana_state = tuple(self.__current_state().rom_kana_state)
-            rom_kana_state = self.__convert_rom_kana(keyval, rom_kana_state)
+            rom_kana_state = self.__convert_rom_kana(key.keyval, rom_kana_state)
             for keyword in AUTO_START_HENKAN_KEYWORDS:
                 if rom_kana_state[0].endswith(keyword):
                     self.__current_state().auto_start_henkan_keyword = keyword
                     break
-            if keyval == u' ' or \
+            if key.keyval == u' ' or \
                     self.__current_state().auto_start_henkan_keyword:
                 self.__current_state().conv_state = CONV_STATE_SELECT
                 self.__current_state().rom_kana_state = \
@@ -1330,7 +1344,7 @@ class Context(object):
                 self.__activate_candidate_selector(midasi)
                 return (True, u'')
 
-            if is_shift and \
+            if key.is_shift() and \
                     len(self.__current_state().rom_kana_state[1]) == 0 and \
                     not self.__current_state().okuri_rom_kana_state:
                 self.__current_state().okuri_rom_kana_state = \
@@ -1338,9 +1352,9 @@ class Context(object):
 
             if self.__current_state().okuri_rom_kana_state:
                 okuri = (self.__current_state().okuri_rom_kana_state[1] or \
-                             keyval)[0]
+                             key.keyval)[0]
                 self.__current_state().okuri_rom_kana_state = \
-                    self.__convert_rom_kana(keyval, self.__current_state().okuri_rom_kana_state)
+                    self.__convert_rom_kana(key.keyval, self.__current_state().okuri_rom_kana_state)
 
                 # Start okuri-ari conversion.
                 if len(self.__current_state().okuri_rom_kana_state[1]) == 0:
@@ -1352,29 +1366,29 @@ class Context(object):
                 return (True, u'')
 
             # Ignore ctrl+key and non-ASCII characters.
-            if is_ctrl or key in ('return', 'escape', 'backspace') or \
-                    0x20 > ord(letter) or ord(letter) > 0x7E:
+            if key.is_ctrl() or str(key) in ('return', 'escape', 'backspace') or \
+                    0x20 > ord(key.letter) or ord(key.letter) > 0x7E:
                 return (False, u'')
 
             if self.__current_state().abbrev:
                 self.__current_state().rom_kana_state = \
-                    (self.__current_state().rom_kana_state[0] + keyval,
+                    (self.__current_state().rom_kana_state[0] + key.keyval,
                      u'',
                      self.__rom_kana_rule_tree)
             else:
                 self.__current_state().rom_kana_state = \
-                    self.__convert_rom_kana(keyval,
+                    self.__convert_rom_kana(key.keyval,
                                             self.__current_state().rom_kana_state)
             return (True, u'')
 
         elif self.__current_state().conv_state == CONV_STATE_SELECT:
-            if letter.isspace():
+            if key.letter.isspace():
                 index = self.__candidate_selector.index()
                 if self.next_candidate() is None:
                     self.__candidate_selector.set_index(index)
                     self.__enter_dict_edit()
                 return (True, u'')
-            elif key == 'x':
+            elif str(key) == 'x':
                 if self.previous_candidate() is None:
                     self.__current_state().conv_state = CONV_STATE_START
                 return (True, u'')
@@ -1383,9 +1397,9 @@ class Context(object):
                 if self.dict_edit_level() > 0:
                     self.__current_state().dict_edit_output += output
                     output = u''
-                if key == 'ctrl+j' or key == 'return':
+                if str(key) in ('ctrl+j', 'return'):
                     return (True, output)
-                return (True, output + self.press_key(key)[1])
+                return (True, output + self.press_key(str(key))[1])
 
     def __init_completer(self, compkey):
         return itertools.chain(self.__usrdict.completer(compkey),
