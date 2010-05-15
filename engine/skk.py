@@ -1040,9 +1040,10 @@ class Context(object):
         self.__current_state().candidates.insert(0, (dict_edit_output, None))
         self.__candidate_selector.set_index(0)
         output = self.kakutei()
-        if self.dict_edit_level() < 1:
-            return output
-        return None
+        if self.dict_edit_level() > 0:
+            self.__current_state().dict_edit_output += output
+            return None
+        return output
 
     def activate_input_mode(self, input_mode):
         '''Switch the current input mode to INPUT_MODE.'''
@@ -1075,8 +1076,6 @@ class Context(object):
         input_mode = self.__current_state().input_mode
         self.reset()
         self.activate_input_mode(input_mode)
-        if self.dict_edit_level() > 0:
-            self.__current_state().dict_edit_output += output
         return output
 
     def __activate_candidate_selector(self, midasi, okuri=False):
@@ -1201,6 +1200,7 @@ class Context(object):
                     len(self.__current_state().rom_kana_state[1]) == 0:
                 output = self.kakutei()
                 if self.dict_edit_level() > 0:
+                    self.__current_state().dict_edit_output += output
                     return (True, u'')
                 return (True, output)
             return (True, u'')
@@ -1215,28 +1215,41 @@ class Context(object):
                 kana = hiragana_to_katakana(\
                     self.__current_state().rom_kana_state[0])
                 self.kakutei()
+                if self.dict_edit_level() > 0:
+                    self.__current_state().dict_edit_output += kana
+                    return (True, u'')
                 return (True, kana)
             elif self.__current_state().input_mode == INPUT_MODE_KATAKANA and \
                     input_mode == INPUT_MODE_HIRAGANA:
                 kana = katakana_to_hiragana(\
                     self.__current_state().rom_kana_state[0])
                 self.kakutei()
+                if self.dict_edit_level() > 0:
+                    self.__current_state().dict_edit_output += kana
+                    return (True, u'')
                 return (True, kana)
             elif self.__current_state().input_mode == INPUT_MODE_HANKAKU_KATAKANA and \
                     input_mode == INPUT_MODE_KATAKANA:
                 kana = zenkaku_katakana(\
                     self.__current_state().rom_kana_state[0])
                 self.kakutei()
+                if self.dict_edit_level() > 0:
+                    self.__current_state().dict_edit_output += kana
+                    return (True, u'')
                 return (True, kana)
             elif self.__current_state().input_mode == INPUT_MODE_KATAKANA and \
                     input_mode == INPUT_MODE_HANKAKU_KATAKANA:
                 kana = zenkaku_katakana(\
                     self.__current_state().rom_kana_state[0])
                 self.kakutei()
+                if self.dict_edit_level() > 0:
+                    self.__current_state().dict_edit_output += kana
+                    return (True, u'')
                 return (True, kana)
             elif input_mode is not None and not self.__current_state().abbrev:
                 output = self.kakutei()
                 if self.dict_edit_level() > 0:
+                    self.__current_state().dict_edit_output += output
                     output = u''
                 self.activate_input_mode(input_mode)
                 return (True, output)
@@ -1263,6 +1276,7 @@ class Context(object):
 
                 output = self.kakutei()
                 if self.dict_edit_level() > 0:
+                    self.__current_state().dict_edit_output += output
                     return (True, u'')
                 return (True, output)
 
@@ -1367,6 +1381,7 @@ class Context(object):
             else:
                 output = self.kakutei()
                 if self.dict_edit_level() > 0:
+                    self.__current_state().dict_edit_output += output
                     output = u''
                 if key == 'ctrl+j' or key == 'return':
                     return (True, output)
@@ -1392,6 +1407,9 @@ class Context(object):
         if self.__current_state().conv_state == CONV_STATE_SELECT:
             self.__current_state().conv_state = CONV_STATE_NONE
             output = self.kakutei()
+            if self.dict_edit_level() > 0:
+                self.__current_state().dict_edit_output += output[:-1]
+                return (True, u'')
             return (True, output[:-1])
         if self.__current_state().okuri_rom_kana_state:
             state = self.__delete_char_from_rom_kana_state(\
@@ -1436,6 +1454,7 @@ class Context(object):
             return (False, u'')
         output = self.kakutei()
         if self.dict_edit_level() > 0:
+            self.__current_state().dict_edit_output += output
             return (True, u'')
         return (True, output)
 
