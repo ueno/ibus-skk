@@ -941,6 +941,13 @@ class State(object):
         self.kuten = None
 
 class Key(object):
+    __letters = {
+#        'return': '\r',
+        'escape': '\e',
+        'backspace': '\h',
+        'tab': '\t'
+        }
+
     def __init__(self, keystr):
         self.__keystr = keystr
         self.__is_ctrl = keystr.startswith('ctrl+')
@@ -949,10 +956,14 @@ class Key(object):
         self.__is_shift = keystr.startswith('shift+')
         if self.__is_shift:
             keystr = keystr[6:]
+        self.__keyval = keystr
+
+        if Key.__letters.has_key(keystr.lower()):
+            self.__letter = Key.__letters[keystr.lower()]
+        elif self.__is_shift:
             self.__letter = keystr.upper()
         else:
             self.__letter = keystr
-        self.__keyval = keystr
 
     def __str__(self):
         return self.__keystr
@@ -1169,7 +1180,8 @@ class Context(object):
                 return (True, self.__leave_dict_edit())
 
             # Ignore ctrl+key and non-ASCII characters.
-            if key.is_ctrl() or str(key) in ('return', 'escape', 'backspace') or \
+            if key.is_ctrl() or \
+                    str(key) in ('return', 'escape', 'backspace') or \
                     0x20 > ord(key.letter) or ord(key.letter) > 0x7E:
                 return (False, u'')
 
