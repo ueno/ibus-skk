@@ -1186,9 +1186,17 @@ class Context(object):
                 return (False, u'')
 
             if self.__current_state().input_mode == INPUT_MODE_LATIN:
-                return (True, key.letter)
+                output = key.letter
+                if self.dict_edit_level() > 0:
+                    self.__current_state().dict_edit_output += output
+                    return (True, u'')
+                return (True, output)
             elif self.__current_state().input_mode == INPUT_MODE_WIDE_LATIN:
-                return (True, WIDE_LATIN_TABLE[ord(key.letter)])
+                output = WIDE_LATIN_TABLE[ord(key.letter)]
+                if self.dict_edit_level() > 0:
+                    self.__current_state().dict_edit_output += output
+                    return (True, u'')
+                return (True, output)
 
             # Start KUTEN input.
             if str(key) == '\\':

@@ -502,6 +502,11 @@ class TestSKK(unittest.TestCase):
         self.__skk.press_key(u'a')
         self.__skk.press_key(u'q')
         self.assertEqual(self.__skk.preedit, u'[DictEdit] かたかな カタカナ')
+        self.__skk.press_key(u'backspace')
+        self.__skk.press_key(u'l')
+        self.__skk.press_key(u'n')
+        self.__skk.press_key(u'a')
+        self.assertEqual(self.__skk.preedit, u'[DictEdit] かたかな カタカna')
 
     def testhankaku(self):
         self.__skk.reset()
