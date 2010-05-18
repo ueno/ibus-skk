@@ -501,7 +501,7 @@
                             <property name="receives_default">True</property>
                             <property name="has_tooltip">True</property>
                             <property name="relief">none</property>
-                            <property name="uri">http://glade.gnome.org</property>
+                            <property name="uri">http://github.com/ueno/ibus-skk</property>
                           </object>
                           <packing>
                             <property name="position">3</property>
