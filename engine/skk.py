@@ -1166,15 +1166,21 @@ class Context(object):
             return self.delete_char()
 
         rom_kana_pending = self.__current_state().rom_kana_state and \
-            len(self.__current_state().rom_kana_state[1]) > 0
-
+            len(self.__current_state().rom_kana_state[1]) > 0 and \
+            not self.__current_state().rom_kana_state[1].endswith(u'n')
         if self.__current_state().conv_state == CONV_STATE_NONE:
             input_mode = INPUT_MODE_TRANSITION_RULE.get(str(key), dict()).\
                 get(self.__current_state().input_mode)
             if not rom_kana_pending and input_mode is not None:
+                if self.__current_state().rom_kana_state:
+                    self.__current_state().rom_kana_state = \
+                        self.__convert_nn(self.__current_state().rom_kana_state)
+                    output = self.__current_state().rom_kana_state[0]
+                else:
+                    output = u''
                 self.reset()
                 self.activate_input_mode(input_mode)
-                return (True, u'')
+                return (True, output)
 
             if self.dict_edit_level() > 0 and str(key) in ('ctrl+j', 'return'):
                 return (True, self.__leave_dict_edit())
@@ -1230,9 +1236,13 @@ class Context(object):
             self.__current_state().rom_kana_state = \
                 self.__convert_rom_kana(key.keyval,
                                         self.__current_state().rom_kana_state)
+            output = self.__current_state().rom_kana_state[0]
             if self.__current_state().conv_state == CONV_STATE_NONE and \
-                    len(self.__current_state().rom_kana_state[1]) == 0:
-                output = self.kakutei()
+                    len(output) > 0:
+                self.__current_state().rom_kana_state = \
+                    (u'',
+                     self.__current_state().rom_kana_state[1],
+                     self.__current_state().rom_kana_state[2])
                 if self.dict_edit_level() > 0:
                     self.__current_state().dict_edit_output += output
                     return (True, u'')
@@ -1246,6 +1256,8 @@ class Context(object):
                 input_mode = None
             if self.__current_state().input_mode == INPUT_MODE_HIRAGANA and \
                     input_mode == INPUT_MODE_KATAKANA:
+                self.__current_state().rom_kana_state = \
+                    self.__convert_nn(self.__current_state().rom_kana_state)
                 kana = hiragana_to_katakana(\
                     self.__current_state().rom_kana_state[0])
                 self.kakutei()
@@ -1255,6 +1267,8 @@ class Context(object):
                 return (True, kana)
             elif self.__current_state().input_mode == INPUT_MODE_KATAKANA and \
                     input_mode == INPUT_MODE_HIRAGANA:
+                self.__current_state().rom_kana_state = \
+                    self.__convert_nn(self.__current_state().rom_kana_state)
                 kana = katakana_to_hiragana(\
                     self.__current_state().rom_kana_state[0])
                 self.kakutei()
@@ -1264,6 +1278,8 @@ class Context(object):
                 return (True, kana)
             elif self.__current_state().input_mode == INPUT_MODE_HANKAKU_KATAKANA and \
                     input_mode == INPUT_MODE_KATAKANA:
+                self.__current_state().rom_kana_state = \
+                    self.__convert_nn(self.__current_state().rom_kana_state)
                 kana = zenkaku_katakana(\
                     self.__current_state().rom_kana_state[0])
                 self.kakutei()
@@ -1273,6 +1289,8 @@ class Context(object):
                 return (True, kana)
             elif self.__current_state().input_mode == INPUT_MODE_KATAKANA and \
                     input_mode == INPUT_MODE_HANKAKU_KATAKANA:
+                self.__current_state().rom_kana_state = \
+                    self.__convert_nn(self.__current_state().rom_kana_state)
                 kana = zenkaku_katakana(\
                     self.__current_state().rom_kana_state[0])
                 self.kakutei()
