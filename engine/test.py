@@ -151,6 +151,14 @@ class TestSKK(unittest.TestCase):
         # nX -> ンX
         self.__skk.press_key(u'n')
         self.assertEqual(self.__skk.press_key(u'.'), (True, u'ン。'))
+        # ww -> っw
+        self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
+        self.__skk.press_key(u'w')
+        handled, output = self.__skk.press_key(u'w')
+        self.assertTrue(handled)
+        self.assertEqual(output, u'っ')
+        self.assertEqual(self.__skk.preedit, u'w')
 
     def testhiraganakatakana(self):
         self.__skk.reset()
@@ -194,14 +202,6 @@ class TestSKK(unittest.TestCase):
         handled, output = self.__skk.press_key(u'q')
         self.assertTrue(handled)
         self.assertEqual(output, u'ン')
-        # ww -> っw
-        self.__skk.reset()
-        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
-        self.__skk.press_key(u'w')
-        handled, output = self.__skk.press_key(u'w')
-        self.assertTrue(handled)
-        self.assertEqual(output, u'っ')
-        self.assertEqual(self.__skk.preedit, u'w')
 
     def testokurinasi(self):
         self.__skk.reset()
