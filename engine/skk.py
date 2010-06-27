@@ -1171,8 +1171,9 @@ class Context(object):
         if self.__current_state().conv_state == CONV_STATE_NONE:
             input_mode = INPUT_MODE_TRANSITION_RULE.get(str(key), dict()).\
                 get(self.__current_state().input_mode)
-            if not rom_kana_pending and input_mode is not None:
-                if self.__current_state().rom_kana_state:
+            if input_mode is not None and self.rom_kana_rule != ROM_KANA_KZIK:
+                if not rom_kana_pending and \
+                        self.__current_state().rom_kana_state:
                     self.__current_state().rom_kana_state = \
                         self.__convert_nn(self.__current_state().rom_kana_state)
                     output = self.__current_state().rom_kana_state[0]

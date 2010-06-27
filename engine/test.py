@@ -125,6 +125,18 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(self.__skk.conv_state, skk.CONV_STATE_NONE)
         self.assertEqual(self.__skk.preedit, u'')
         self.assertEqual(self.__skk.input_mode, skk.INPUT_MODE_HIRAGANA)
+        # wwl -> っ and HIRAGANA to LATIN
+        self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
+        self.__skk.press_key(u'w')
+        handled, output = self.__skk.press_key(u'w')
+        self.assertTrue(handled)
+        self.assertEqual(output, u'っ')
+        handled, output = self.__skk.press_key(u'l')
+        self.assertTrue(handled)
+        self.assertEqual(output, u'')
+        self.assertEqual(self.__skk.preedit, u'')
+        self.assertEqual(self.__skk.input_mode, skk.INPUT_MODE_LATIN)
 
     def testromkana(self):
         self.__skk.reset()
