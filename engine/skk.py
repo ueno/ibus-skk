@@ -684,11 +684,16 @@ class UsrDict(DictBase):
         self.__dict_changed = True
 
 class SkkServ(DictBase):
+    # Workaround for
+    # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=583784
+    # Some servers read extra dictionaries encoded in EUC-JIS-2004.
+    ENCODING = 'EUC-JIS-2004'
+
     HOST='localhost'
     PORT=1178
     BUFSIZ = 4096
 
-    def __init__(self, host=HOST, port=PORT, encoding=DictBase.ENCODING):
+    def __init__(self, host=HOST, port=PORT, encoding=SkkServ.ENCODING):
         self.__host = host
         self.__port = port
         self.__encoding = encoding

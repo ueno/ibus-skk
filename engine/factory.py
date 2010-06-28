@@ -65,7 +65,11 @@ class EngineFactory(ibus.EngineFactoryBase):
             else:
                 host = _config.get_value('skkserv_host', 'localhost')
                 port = int(_config.get_value('skkserv_port', '1178'))
-                return skk.SkkServ(host, port)
+                args = [host, port]
+                encoding = _config.get_value('skkserv_encoding')
+                if encoding:
+                    args.append(encoding)
+                return skk.SkkServ(*args)
         except:
             return skk.EmptyDict()
 
@@ -77,5 +81,6 @@ class EngineFactory(ibus.EngineFactoryBase):
         if section == 'engine/SKK':
             engine.Engine.config.set_value(name, value)
             if name in ('sysdict_type', 'sysdict',
-                        'skkserv_host', 'skkserv_port'):
+                        'skkserv_host', 'skkserv_port',
+                        'skkserv_encoding'):
                 engine.Engine.sysdict = self.__load_sysdict(engine.Engine.config)
