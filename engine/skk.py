@@ -693,7 +693,7 @@ class SkkServ(DictBase):
     PORT=1178
     BUFSIZ = 4096
 
-    def __init__(self, host=HOST, port=PORT, encoding=SkkServ.ENCODING):
+    def __init__(self, host=HOST, port=PORT, encoding=ENCODING):
         self.__host = host
         self.__port = port
         self.__encoding = encoding
