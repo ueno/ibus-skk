@@ -132,6 +132,7 @@ class TestSKK(unittest.TestCase):
         handled, output = self.__skk.press_key(u'w')
         self.assertTrue(handled)
         self.assertEqual(output, u'っ')
+        self.assertEqual(self.__skk.preedit, u'w')
         handled, output = self.__skk.press_key(u'l')
         self.assertTrue(handled)
         self.assertEqual(output, u'')
@@ -583,6 +584,14 @@ class TestSKK(unittest.TestCase):
         handled, output = self.__skk.press_key(u'/')
         self.assertTrue(handled)
         self.assertEqual(output, u'・')
+
+        self.__skk.reset();
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
+        self.__skk.press_key(u'/')
+        handled, output = self.__skk.press_key(u']')
+        self.assertTrue(handled)
+        self.assertEqual(output, u'')
+        self.assertEqual(self.__skk.preedit, u'▽]')
 
     def testkuten(self):
         self.__skk.reset()

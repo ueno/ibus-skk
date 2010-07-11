@@ -1371,12 +1371,13 @@ class Context(object):
 
             # Start okuri-nasi conversion.
             auto_start_henkan_keyword = None
-            rom_kana_state = tuple(self.__current_state().rom_kana_state)
-            rom_kana_state = self.__convert_rom_kana(key.keyval, rom_kana_state)
-            for keyword in AUTO_START_HENKAN_KEYWORDS:
-                if rom_kana_state[0].endswith(keyword):
-                    self.__current_state().auto_start_henkan_keyword = keyword
-                    break
+            if not self.__current_state().abbrev:
+                rom_kana_state = tuple(self.__current_state().rom_kana_state)
+                rom_kana_state = self.__convert_rom_kana(key.keyval, rom_kana_state)
+                for keyword in AUTO_START_HENKAN_KEYWORDS:
+                    if rom_kana_state[0].endswith(keyword):
+                        self.__current_state().auto_start_henkan_keyword = keyword
+                        break
             if key.keyval == u' ' or \
                     self.__current_state().auto_start_henkan_keyword:
                 self.__current_state().conv_state = CONV_STATE_SELECT
