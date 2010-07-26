@@ -1079,6 +1079,8 @@ class Context(object):
     def __leave_dict_edit(self):
         dict_edit_output = self.__current_state().dict_edit_output
         self.__abort_dict_edit()
+        if len(dict_edit_output) == 0:
+            return None
         self.__current_state().candidates.insert(0, (dict_edit_output, None))
         self.__candidate_selector.set_index(0)
         output = self.kakutei()
