@@ -1,5 +1,6 @@
 - add more tests
-- KUTEN input
+- rewrite in C
+- allow multiple dictionaries
 - transient error message
 - NICOLA (thumb shift keyboard)
 - CDB dictionaries
