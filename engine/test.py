@@ -261,6 +261,15 @@ class TestSKK(unittest.TestCase):
         self.__skk.press_key(u't')
         self.assertEqual(self.__skk.preedit, u'▽つか*っt')
 
+        # Debian Bug#591052
+        self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
+        self.__skk.press_key(u'shift+k')
+        self.__skk.press_key(u'a')
+        self.__skk.press_key(u'n')
+        self.__skk.press_key(u'shift+j')
+        self.assertEqual(self.__skk.preedit, u'▽かん*j')
+
     def testcompletion(self):
         self.__skk.reset()
         self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
