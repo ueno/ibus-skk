@@ -1399,11 +1399,13 @@ class Context(object):
                 self.__activate_candidate_selector(midasi)
                 return (True, u'')
 
-            if key.is_shift() and \
-                    len(self.__current_state().rom_kana_state[1]) == 0 and \
-                    not self.__current_state().okuri_rom_kana_state:
-                self.__current_state().okuri_rom_kana_state = \
-                    (u'', u'', self.__rom_kana_rule_tree)
+            if key.is_shift():
+                rom_kana_state = self.__convert_nn(self.__current_state().rom_kana_state)
+                if len(rom_kana_state[1]) == 0 and \
+                        not self.__current_state().okuri_rom_kana_state:
+                    self.__current_state().rom_kana_state = rom_kana_state
+                    self.__current_state().okuri_rom_kana_state = \
+                        (u'', u'', self.__rom_kana_rule_tree)
 
             if self.__current_state().okuri_rom_kana_state:
                 okuri = (self.__current_state().okuri_rom_kana_state[1] or \
