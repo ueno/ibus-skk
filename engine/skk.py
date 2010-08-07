@@ -97,6 +97,7 @@ ROM_KANA_RULE = {
     # u'h': (u'', (u'オ', u'お')),
     u'ha': (None, (u'ハ', u'は')),
     u'he': (None, (u'ヘ', u'へ')),
+    u'hh': (u'h', (u'ッ', u'っ')),
     u'hi': (None, (u'ヒ', u'ひ')),
     u'ho': (None, (u'ホ', u'ほ')),
     u'hu': (None, (u'フ', u'ふ')),
