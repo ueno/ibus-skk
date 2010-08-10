@@ -40,12 +40,11 @@ skk.xml: skk.xml.in
 	) > $@
 
 test:
-	$(ENV) \
-		DBUS_DEBUG=true \
-		IBUS_SKK_PKGDATADIR=$(abs_top_srcdir) \
-		PYTHONPATH=$(builddir)/.libs:@pyexecdir@ \
-		$(PYTHON) \
-		$(srcdir)/main.py
+	DBUS_DEBUG=true \
+	IBUS_SKK_PKGDATADIR=$(abs_top_srcdir) \
+	PYTHONPATH=$(builddir)/.libs:@pyexecdir@ \
+	$(PYTHON) \
+	$(srcdir)/main.py
 
 EXTRA_DIST = \
 	skk.xml.in.in \

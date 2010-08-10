@@ -38,9 +38,9 @@ EXTRA_DIST = \
 	$(NULL)
 
 test:
-	$(ENV) DBUS_DEBUG=true \
-		   LANG=en_US \
-		   PYTHONPATH=$(abs_top_srcdir):$(pyexecdir) \
-		   IBUS_LOCALEDIR=@localedir@ \
-		   $(PYTHON) $(srcdir)/main.py
+	DBUS_DEBUG=true \
+	LANG=en_US \
+	PYTHONPATH=$(abs_top_srcdir):$(pyexecdir) \
+	IBUS_LOCALEDIR=@localedir@ \
+	$(PYTHON) $(srcdir)/main.py
 

@@ -45,10 +45,6 @@ m4_define([ibus_datedisplay], ibus_maybe_datedisplay)
 DATE_DISPLAY="ibus_datedisplay"
 AC_SUBST(DATE_DISPLAY)
 
-# check env
-AC_PATH_PROG(ENV, env)
-AC_SUBST(ENV)
-
 # check python
 AM_PATH_PYTHON([2.5])
 
