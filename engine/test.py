@@ -172,6 +172,11 @@ class TestSKK(unittest.TestCase):
         self.assertTrue(handled)
         self.assertEqual(output, u'っ')
         self.assertEqual(self.__skk.preedit, u'w')
+        # zl -> →
+        self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
+        self.__skk.press_key(u'z')
+        self.assertEqual(self.__skk.press_key(u'l'), (True, u'→'))
 
     def testhiraganakatakana(self):
         self.__skk.reset()
