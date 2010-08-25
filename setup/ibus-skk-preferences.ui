@@ -244,7 +244,7 @@
                             <child>
                               <object class="GtkTable" id="table2">
                                 <property name="visible">True</property>
-                                <property name="n_rows">6</property>
+                                <property name="n_rows">7</property>
                                 <property name="n_columns">2</property>
                                 <property name="column_spacing">6</property>
                                 <property name="row_spacing">6</property>
@@ -417,6 +417,40 @@
                                     <property name="bottom_attach">6</property>
                                   </packing>
                                 </child>
+                                <child>
+                                  <object class="GtkAlignment" id="alignment15">
+                                    <property name="visible">True</property>
+                                    <child>
+                                      <object class="GtkLabel" id="label17">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">Initial Input Mode:</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="top_attach">6</property>
+                                    <property name="bottom_attach">7</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkAlignment" id="alignment16">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">1</property>
+                                    <property name="xscale">0.5</property>
+                                    <child>
+                                      <object class="GtkComboBox" id="initial_input_mode">
+                                        <property name="visible">True</property>
+                                        <property name="model">initial_input_mode_liststore</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                    <property name="top_attach">6</property>
+                                    <property name="bottom_attach">7</property>
+                                  </packing>
+                                </child>
                               </object>
                             </child>
                           </object>
@@ -572,19 +606,25 @@
     <columns>
       <!-- column-name column1 -->
       <column type="gchararray"/>
+      <!-- column-name column2 -->
+      <column type="gint"/>
     </columns>
     <data>
       <row>
         <col id="0">&#x3002;&#x3001;</col>
+        <col id="1">0</col>
       </row>
       <row>
         <col id="0">&#xFF0E;&#xFF0C;</col>
+        <col id="1">1</col>
       </row>
       <row>
         <col id="0">&#x3002;&#xFF0C;</col>
+        <col id="1">2</col>
       </row>
       <row>
         <col id="0">&#xFF0E;&#x3001;</col>
+        <col id="1">3</col>
       </row>
     </data>
   </object>
@@ -603,6 +643,24 @@
       <row>
         <col id="0" translatable="yes">KZIK</col>
         <col id="1">1</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="initial_input_mode_liststore">
+    <columns>
+      <!-- column-name column1 -->
+      <column type="gchararray"/>
+      <!-- column-name column2 -->
+      <column type="gint"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Hiragana</col>
+        <col id="1">1</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Latin</col>
+        <col id="1">3</col>
       </row>
     </data>
   </object>

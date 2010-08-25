@@ -175,15 +175,18 @@ class Engine(ibus.EngineBase):
             list(iter(auto_start_henkan_keywords))
         self.__skk.rom_kana_rule = self.config.get_value('rom_kana_rule',
                                                          skk.ROM_KANA_NORMAL)
+        self.__initial_input_mode = \
+            self.config.get_value('initial_input_mode',
+                                  skk.INPUT_MODE_HIRAGANA)
         self.__skk.translated_strings['dict-edit-prompt'] =\
             _(u'DictEdit').decode('UTF-8')
         self.__skk.translated_strings['kuten-prompt'] =\
             _(u'Kuten([MM]KKTT) ').decode('UTF-8')
         self.__skk.reset()
-        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
+        self.__skk.activate_input_mode(self.__initial_input_mode)
         self.__prop_dict = dict()
         self.__prop_list = self.__init_props()
-        self.__input_mode = self.__skk.input_mode
+        self.__input_mode = skk.INPUT_MODE_NONE
         self.__update_input_mode()
         self.__suspended_mode = None
 
@@ -343,6 +346,9 @@ class Engine(ibus.EngineBase):
                                                          skk.KUTOUTEN_JP)
         self.__skk.rom_kana_rule = self.config.get_value('rom_kana_rule',
                                                          skk.ROM_KANA_NORMAL)
+        self.__initial_input_mode = \
+            self.config.get_value('initial_input_mode',
+                                  skk.INPUT_MODE_HIRAGANA)
         self.__skk.auto_start_henkan_keywords = \
             list(iter(self.config.get_value('auto_start_henkan_keywords',
                                             ''.join(skk.AUTO_START_HENKAN_KEYWORDS))))
@@ -453,7 +459,7 @@ class Engine(ibus.EngineBase):
 
     def reset(self):
         self.__skk.reset()
-        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
+        self.__skk.activate_input_mode(self.__initial_input_mode)
 
     def property_activate(self, prop_name, state):
         # print "PropertyActivate(%s, %d)" % (prop_name, state)

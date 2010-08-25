@@ -7,6 +7,18 @@ import config
 sys.path.insert(0, os.path.join(os.getenv('IBUS_SKK_PKGDATADIR'), 'engine'))
 import skk
 
+def get_index_by_value (widget, value):
+    model = widget.get_model()
+    _iter = model.get_iter_root()
+    index = 0
+    _value = None
+    while _iter:
+        _value, = model.get(_iter, 1)
+        if _value == value:
+            return index
+        index += 1
+        _iter = model.iter_next(_iter)
+    
 class PreferencesDialog:
     def __init__(self):
         locale.setlocale(locale.LC_ALL, '')
@@ -33,6 +45,8 @@ class PreferencesDialog:
         self.__auto_start_henkan_keywords = \
             self.__builder.get_object('auto_start_henkan_keywords')
         self.__rom_kana_rule = self.__builder.get_object('rom_kana_rule')
+        self.__initial_input_mode = \
+            self.__builder.get_object('initial_input_mode')
 
         self.__usrdict.set_filename(self.__config.usrdict_path)
         sysdict_type = self.__config.get_value('sysdict_type', 'file')
@@ -54,8 +68,10 @@ class PreferencesDialog:
         renderer = gtk.CellRendererText()
         self.__period_style.pack_start(renderer)
         self.__period_style.set_attributes(renderer, text=0)
-        self.__period_style.set_active(\
+        index = get_index_by_value(\
+            self.__period_style,
             self.__config.get_value('period_style', skk.KUTOUTEN_JP))
+        self.__period_style.set_active(index)
 
         self.__auto_start_henkan_keywords.set_text(\
             self.__config.get_value('auto_start_henkan_keywords',
@@ -77,8 +93,19 @@ class PreferencesDialog:
         renderer = gtk.CellRendererText()
         self.__rom_kana_rule.pack_start(renderer)
         self.__rom_kana_rule.set_attributes(renderer, text=0)
-        self.__rom_kana_rule.set_active(\
+        index = get_index_by_value(\
+            self.__rom_kana_rule,
             self.__config.get_value('rom_kana_rule', skk.ROM_KANA_NORMAL))
+        self.__rom_kana_rule.set_active(index)
+
+        renderer = gtk.CellRendererText()
+        self.__initial_input_mode.pack_start(renderer)
+        self.__initial_input_mode.set_attributes(renderer, text=0)
+        index = get_index_by_value(\
+            self.__initial_input_mode,
+            self.__config.get_value('initial_input_mode',
+                                    skk.INPUT_MODE_HIRAGANA))
+        self.__initial_input_mode.set_active(index)
 
         self.__usrdict.connect('file-set', self.__usrdict_file_set_cb)
         self.__sysdict_file.connect('toggled', self.__sysdict_toggle_cb)
@@ -93,6 +120,7 @@ class PreferencesDialog:
         self.__pagination_start.connect('changed', self.__pagination_start_changed_cb)
         self.__show_annotation.connect('toggled', self.__show_annotation_changed_cb)
         self.__rom_kana_rule.connect('changed', self.__rom_kana_rule_changed_cb)
+        self.__initial_input_mode.connect('changed', self.__initial_input_mode_changed_cb)
 
     def __sysdict_toggle_cb(self, widget):
         sysdict_type = 'file' if self.__sysdict_file.get_active() else 'skkserv'
@@ -139,6 +167,12 @@ class PreferencesDialog:
 
     def __rom_kana_rule_changed_cb(self, widget):
         self.__config.set_value('rom_kana_rule', widget.get_active())
+
+    def __initial_input_mode_changed_cb(self, widget):
+        _iter = widget.get_active_iter()
+        if _iter:
+            val, = widget.get_model().get(_iter, 1)
+            self.__config.set_value('initial_input_mode', val)
 
     def run(self):
         return self.__dialog.run()
