@@ -1181,23 +1181,32 @@ class Context(object):
         if str(key) in ('ctrl+h', 'backspace'):
             return self.delete_char()
 
+        # Check rom-kana conversion is in progress.
         rom_kana_pending = self.__current_state().rom_kana_state and \
             len(self.__current_state().rom_kana_state[1]) > 0 and \
             not self.__current_state().rom_kana_state[1].endswith(u'n')
         if self.__current_state().conv_state == CONV_STATE_NONE:
-            input_mode = INPUT_MODE_TRANSITION_RULE.get(str(key), dict()).\
-                get(self.__current_state().input_mode)
-            if input_mode is not None and self.rom_kana_rule != ROM_KANA_KZIK:
-                if not rom_kana_pending and \
-                        self.__current_state().rom_kana_state:
-                    self.__current_state().rom_kana_state = \
-                        self.__convert_nn(self.__current_state().rom_kana_state)
-                    output = self.__current_state().rom_kana_state[0]
-                else:
-                    output = u''
-                self.reset()
-                self.activate_input_mode(input_mode)
-                return (True, output)
+            # Check if KEY will be consumed in the next rom-kana conversion.
+            rom_kana_accepts_key = False
+            if rom_kana_pending:
+                rom_kana_accepts_key = key.keyval in \
+                    self.__current_state().rom_kana_state[2]
+            # If KEY will be consumed in the next rom-kana conversion,
+            # skip input mode transition.
+            if not rom_kana_accepts_key:
+                input_mode = INPUT_MODE_TRANSITION_RULE.get(str(key), dict()).\
+                    get(self.__current_state().input_mode)
+                if input_mode is not None:
+                    if not rom_kana_pending and \
+                            self.__current_state().rom_kana_state:
+                        self.__current_state().rom_kana_state = \
+                            self.__convert_nn(self.__current_state().rom_kana_state)
+                        output = self.__current_state().rom_kana_state[0]
+                    else:
+                        output = u''
+                    self.reset()
+                    self.activate_input_mode(input_mode)
+                    return (True, output)
 
             if self.dict_edit_level() > 0 and str(key) in ('ctrl+j', 'return'):
                 return (True, self.__leave_dict_edit())
