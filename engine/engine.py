@@ -300,14 +300,14 @@ class Engine(ibus.EngineBase):
         if state & modifier.CONTROL_MASK:
             keychr = u'ctrl+' + keychr
         handled, output = self.__skk.press_key(keychr)
+        if output:
+            self.commit_text(ibus.Text(output))
         if handled:
-            if output:
-                self.commit_text(ibus.Text(output))
             gobject.idle_add(self.__skk.usrdict.save,
                              priority = gobject.PRIORITY_LOW)
             self.__update()
-            return True
-        return False
+        # http://github.com/ueno/ibus-skk/issues/#issue/5
+        return True
 
     def __invalidate(self):
         if self.__is_invalidate:
