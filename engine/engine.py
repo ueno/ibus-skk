@@ -306,7 +306,13 @@ class Engine(ibus.EngineBase):
             gobject.idle_add(self.__skk.usrdict.save,
                              priority = gobject.PRIORITY_LOW)
             self.__update()
+            return True
+        # In case that the pre-edit buffer is empty and the key is
+        # backspace or cursor movement keys, leave the processing to
+        # the application.  See
         # http://github.com/ueno/ibus-skk/issues/#issue/5
+        if len(self.__skk.preedit) == 0:
+            return False
         return True
 
     def __invalidate(self):
