@@ -1,17 +1,40 @@
-ibus-skk -- a Japanese input engine for IBus.
+ibus-skk -- a Japanese SKK input engine for IBus
 
-How to install:
+* What's it?
 
-$ sudo apt-get install skkdic
-$ ./autogen.sh --prefix=/usr
+ibus-skk is an implementation of the SKK (Simple Kana-Kanji) input
+method on the IBus input method framework.  Since SKK is quite
+different from other Japanese input methods, if you haven't heard of
+it, please consult the following Web pages before complaining about
+the differences:
+
+http://openlab.jp/skk/
+https://secure.wikimedia.org/wikipedia/ja/wiki/SKK
+
+* How to install
+
+$ sudo apt-get install libibus-dev skkdic
+$ ./configure --prefix=/usr # --libdir=/usr/lib64
+$ make
 $ sudo make install
 
-Tips:
+* Tips
 
-* If you want to convert the encoding of ~/.skk-ibus-jisyo from EUC-JP
-  to UTF-8, do:
+If you want to convert the encoding of ~/.skk-ibus-jisyo from EUC-JP
+to UTF-8, do:
 
 $ iconv -f EUC-JP -t UTF-8 < ~/.skk-ibus-jisyo > ~/.skk-ibus-jisyo.UTF-8
 $ mv ~/.skk-ibus-jisyo.UTF-8 ~/.skk-ibus-jisyo
 $ sed -i '1s/^;;; -\*- coding: euc-jp -\*-/;;; -*- coding: utf-8 -*-/' \
   ~/.skk-ibus-jisyo
+
+* How to report bugs
+
+Use the issue trackers on either GitHub, Red Hat BugZilla, or Debian BTS:
+
+http://github.com/ueno/ibus-skk/issues
+https://bugzilla.redhat.com/buglist.cgi?component=ibus-skk&product=Fedora
+http://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=ibus-skk;dist=unstable
+
+If you can write Python, it would be helpful to add some failure test
+cases in engine/test.py and to attach the diff to the bug reports.
