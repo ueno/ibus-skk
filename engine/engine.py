@@ -292,7 +292,7 @@ class Engine(ibus.EngineBase):
         else:
             keychr = unichr(keyval)
             if 0x20 > ord(keychr) or ord(keychr) > 0x7E:
-                return False
+                return len(self.__skk.preedit) > 0
         if keychr.isalpha():
             keychr = keychr.lower()
         if state & modifier.SHIFT_MASK:
