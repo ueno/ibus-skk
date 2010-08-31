@@ -568,6 +568,9 @@ class TestSKK(unittest.TestCase):
         self.__skk.press_key(u'n')
         self.__skk.press_key(u'a')
         self.assertEqual(self.__skk.preedit, u'[DictEdit] かたかな カタカna')
+        # http://github.com/ueno/ibus-skk/issues/#issue/4
+        handled, output = self.__skk.press_key(u'ctrl+m')
+        self.assertEqual(output, u'カタカna')
 
     def testhankaku(self):
         self.__skk.reset()

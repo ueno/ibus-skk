@@ -1208,7 +1208,7 @@ class Context(object):
                     self.activate_input_mode(input_mode)
                     return (True, output)
 
-            if self.dict_edit_level() > 0 and str(key) in ('ctrl+j', 'return'):
+            if self.dict_edit_level() > 0 and str(key) in ('ctrl+j', 'ctrl+m', 'return'):
                 return (True, self.__leave_dict_edit())
 
             # Ignore ctrl+key and non-ASCII characters.
