@@ -175,6 +175,8 @@ class Engine(ibus.EngineBase):
             list(iter(auto_start_henkan_keywords))
         self.__skk.rom_kana_rule = self.config.get_value('rom_kana_rule',
                                                          skk.ROM_KANA_NORMAL)
+        self.__skk.egg_like_newline = self.config.get_value('egg_like_newline',
+                                                            True)
         self.__initial_input_mode = \
             self.config.get_value('initial_input_mode',
                                   skk.INPUT_MODE_HIRAGANA)

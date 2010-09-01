@@ -1010,6 +1010,7 @@ class Context(object):
         self.rom_kana_rule = ROM_KANA_NORMAL
         self.kutouten_type = KUTOUTEN_JP
         self.auto_start_henkan_keywords = AUTO_START_HENKAN_KEYWORDS
+        self.egg_like_newline = True
         self.translated_strings = dict(TRANSLATED_STRINGS)
         self.reset()
 
@@ -1473,6 +1474,8 @@ class Context(object):
                     self.__current_state().dict_edit_output += output
                     output = u''
                 if str(key) in ('ctrl+j', 'return'):
+                    if not self.egg_like_newline:
+                        output += u'\n'
                     return (True, output)
                 return (True, output + self.press_key(str(key))[1])
 
