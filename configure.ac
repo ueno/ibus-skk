@@ -78,6 +78,8 @@ engine/skk.xml.in
 setup/Makefile
 setup/ibus-setup-skk
 icons/Makefile
+scripts/Makefile
+scripts/ibus-skk-convert-jisyo
 m4/Makefile
 ])
 

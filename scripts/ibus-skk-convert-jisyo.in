@@ -1,0 +1,101 @@
+#!@PYTHON@
+# -*- coding: utf-8 -*-
+#
+# ibus-skk - The SKK engine for IBus
+#
+# Copyright (C) 2009-2010 Daiki Ueno <ueno@unixuser.org>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+
+from __future__ import with_statement
+from optparse import OptionParser
+import sys, os, re
+
+parser = OptionParser()
+parser.add_option("-f", "--from-file", dest="src_path",
+                  help="read user dictionary from FILE",
+                  metavar="FILE")
+parser.add_option("-F", "--from-encoding", dest="src_encoding",
+                  help="assume the encoding of the input as ENCODING",
+                  metavar="ENCODING")
+parser.add_option("-t", "--to-file", dest="dst_path",
+                  help="write user dictionary to FILE",
+                  metavar="FILE")
+parser.add_option("-T", "--to-encoding", dest="dst_encoding",
+                  help="assume the encoding of the output as ENCODING",
+                  metavar="ENCODING")
+(options, args) = parser.parse_args()
+
+src_path = options.src_path or os.path.expanduser('~/.skk-ibus-jisyo')
+dst_path = options.dst_path or os.path.expanduser('~/.skk-ibus-jisyo')
+src_encoding = options.src_encoding
+dst_encoding = options.dst_encoding or 'UTF-8'
+
+coding_cookie_pattern = \
+    re.compile('\A\s*;+\s*-\*-\s*coding:\s*(\S+?)\s*-\*-')
+
+encoding_to_coding_system = {
+    'UTF-8': 'utf-8',
+    'EUC-JP': 'euc-jp',
+    'Shift_JIS': 'shift_jis',
+    'ISO-2022-JP': 'iso-2022-jp'
+    }
+
+coding_system_to_encoding = dict()
+for encoding, coding_system in encoding_to_coding_system.items():
+    coding_system_to_encoding[coding_system] = encoding
+
+if src_encoding is None:
+    with open(src_path, 'r') as fp:
+        line = fp.readline()
+        if line:
+            match = re.match(coding_cookie_pattern, line)
+            if match:
+                encoding = coding_system_to_encoding.get(match.group(1))
+                if encoding:
+                    src_encoding = encoding
+
+if src_encoding is None:
+    print >> sys.stderr, "Can't determine input encoding"
+    exit(1)
+
+tmp_path = dst_path
+if src_path == dst_path:
+    if src_encoding == dst_encoding:
+        print >> sys.stderr, "No need to convert"
+        exit(0)
+    tmp_path += '.tmp'
+
+ok = raw_input("Convert from %s (%s) to %s (%s) (y/N) " % (src_path,
+                                                           src_encoding,
+                                                           dst_path,
+                                                           dst_encoding))
+if ok != 'y':
+    exit(1)
+    
+with open(src_path, 'r') as sp:
+    line = sp.readline()
+    if not (line and re.match(coding_cookie_pattern, line)):
+        sp.seek(0)
+    with open(tmp_path, 'a') as tp:
+        tp.write(';; -*- coding: %s -*-\n' % \
+                     encoding_to_coding_system.get(dst_encoding))
+        for line in sp:
+            line = line.decode(src_encoding)
+            tp.write(line.encode(dst_encoding))
+    
+if src_path == dst_path:
+    os.rename(tmp_path, dst_path)
