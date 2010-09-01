@@ -1473,8 +1473,9 @@ class Context(object):
                 if self.dict_edit_level() > 0:
                     self.__current_state().dict_edit_output += output
                     output = u''
-                if str(key) in ('ctrl+j', 'return'):
-                    if str(key) == 'return' and not self.egg_like_newline:
+                if str(key) in ('ctrl+j', 'ctrl+m', 'return'):
+                    if str(key) in ('ctrl+m', 'return') and \
+                            not self.egg_like_newline:
                         output += u'\n'
                     return (True, output)
                 return (True, output + self.press_key(str(key))[1])
