@@ -292,6 +292,8 @@ class Engine(ibus.EngineBase):
         else:
             keychr = unichr(keyval)
             if 0x20 > ord(keychr) or ord(keychr) > 0x7E:
+                # If the pre-edit buffer is visible, always handle key events:
+                # http://github.com/ueno/ibus-skk/issues/#issue/5
                 return len(self.__skk.preedit) > 0
         if keychr.isalpha():
             keychr = keychr.lower()
@@ -307,13 +309,9 @@ class Engine(ibus.EngineBase):
                              priority = gobject.PRIORITY_LOW)
             self.__update()
             return True
-        # In case that the pre-edit buffer is empty and the key is
-        # backspace or cursor movement keys, leave the processing to
-        # the application.  See
+        # If the pre-edit buffer is visible, always handle key events:
         # http://github.com/ueno/ibus-skk/issues/#issue/5
-        if len(self.__skk.preedit) == 0:
-            return False
-        return True
+        return len(self.__skk.preedit) > 0
 
     def __invalidate(self):
         if self.__is_invalidate:
