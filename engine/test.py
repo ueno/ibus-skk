@@ -232,6 +232,14 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(self.__skk.preedit, u'▼愛')
         self.__skk.press_key(u' ')
         self.assertEqual(self.__skk.preedit, u'▼哀')
+        # skk-egg-like-newline
+        self.__skk.egg_like_newline = False
+        self.assertEqual(self.__skk.press_key(u'return'), (True, u'哀\n'))
+        self.__skk.press_key(u'shift+a')
+        self.__skk.press_key(u'i')
+        self.__skk.press_key(u' ')
+        self.__skk.egg_like_newline = True
+        self.assertEqual(self.__skk.press_key(u'return'), (True, u'哀'))
 
     def testokuriari(self):
         self.__skk.reset()
