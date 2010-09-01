@@ -179,6 +179,7 @@
                                 <child>
                                   <object class="GtkLabel" id="label5">
                                     <property name="visible">True</property>
+                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">_User Dictionary File:</property>
                                     <property name="use_underline">True</property>
                                   </object>
@@ -186,6 +187,7 @@
                                 <child>
                                   <object class="GtkLabel" id="label10">
                                     <property name="visible">True</property>
+                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">System Dictionary _Type:</property>
                                     <property name="use_underline">True</property>
                                   </object>
@@ -197,6 +199,7 @@
                                 <child>
                                   <object class="GtkLabel" id="label13">
                                     <property name="visible">True</property>
+                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">System Dictionary _File:</property>
                                     <property name="use_underline">True</property>
                                   </object>
@@ -208,6 +211,7 @@
                                 <child>
                                   <object class="GtkLabel" id="label14">
                                     <property name="visible">True</property>
+                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">SKK _Server:</property>
                                     <property name="use_underline">True</property>
                                   </object>
@@ -252,6 +256,7 @@
                                   <object class="GtkLabel" id="label4">
                                     <property name="visible">True</property>
                                     <property name="tooltip_text" translatable="yes">Start conversion by some characters</property>
+                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">_Auto-start Conversion Characters:</property>
                                     <property name="use_underline">True</property>
                                   </object>
@@ -283,6 +288,7 @@
                                 <child>
                                   <object class="GtkLabel" id="label11">
                                     <property name="visible">True</property>
+                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">_Period Style:</property>
                                     <property name="use_underline">True</property>
                                   </object>
@@ -307,6 +313,7 @@
                                 <child>
                                   <object class="GtkLabel" id="label12">
                                     <property name="visible">True</property>
+                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Candidate _Window Page Size:</property>
                                     <property name="use_underline">True</property>
                                   </object>
@@ -339,6 +346,7 @@
                                 <child>
                                   <object class="GtkLabel" id="label15">
                                     <property name="visible">True</property>
+                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Candidate Window Pa_gination Start:</property>
                                     <property name="use_underline">True</property>
                                   </object>
@@ -387,6 +395,7 @@
                                     <child>
                                       <object class="GtkLabel" id="label16">
                                         <property name="visible">True</property>
+                                        <property name="xalign">0</property>
                                         <property name="label" translatable="yes">Rom/Kana Conversion _Table:</property>
                                         <property name="use_underline">True</property>
                                         <property name="width_chars">2</property>
@@ -423,6 +432,7 @@
                                     <child>
                                       <object class="GtkLabel" id="label17">
                                         <property name="visible">True</property>
+                                        <property name="xalign">0</property>
                                         <property name="label" translatable="yes">Initial Input Mode:</property>
                                       </object>
                                     </child>
