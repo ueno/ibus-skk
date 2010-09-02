@@ -472,20 +472,15 @@ class SysDict(DictBase):
 
     def reload(self):
         try:
-            mtime = os.path.getmtime(self.__path)
-        except OSError:
-            mtime = 0
-        if mtime <= self.__mtime:
-            return
-        try:
-            self.__load()
-        except IOError:
+            if os.path.getmtime(self.__path) > self.__mtime:
+                self.__okuri_ari = list()
+                self.__okuri_nasi = list()
+                self.__load()
+                self.__mtime = mtime
+        except IOError, OSError:
             pass
-        self.__mtime = mtime
 
     def __load(self):
-        self.__okuri_ari = list()
-        self.__okuri_nasi = list()
         with open(self.__path, 'r') as fp:
             # Skip headers.
             while True:
