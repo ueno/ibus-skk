@@ -541,7 +541,7 @@ class SysDict(DictBase):
         else:
             offsets = self.__okuri_nasi
         if len(offsets) == 0:
-            self.reload(self.__path, self.__encoding)
+            self.reload()
         try:
             return self.__lookup(midasi, offsets)
         except IOError:

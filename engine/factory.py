@@ -62,7 +62,7 @@ class EngineFactory(ibus.EngineFactoryBase):
         try:
             if sysdict_type == 'file':
                 instances = list()
-                for path in _config.sysdict_paths:
+                for path in _config.sysdict_paths():
                     instances.append(skk.SysDict(path))
                 return skk.MultiSysDict(instances)
             else:
