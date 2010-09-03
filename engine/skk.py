@@ -762,7 +762,7 @@ def hiragana_to_katakana(kana):
         if ord(u'ぁ') <= ord(letter) and ord(letter) <= ord(u'ん'):
             return unichr(ord(letter) + diff)
         return letter
-    return ''.join(map(to_katakana, kana)).replace(u'ウ゛', u'ヴ')
+    return u''.join(map(to_katakana, kana)).replace(u'ウ゛', u'ヴ')
 
 def katakana_to_hiragana(kana):
     diff = ord(u'ア') - ord(u'あ')
@@ -770,7 +770,7 @@ def katakana_to_hiragana(kana):
         if ord(u'ァ') <= ord(letter) and ord(letter) <= ord(u'ン'):
             return unichr(ord(letter) - diff)
         return letter
-    return ''.join(map(to_hiragana, kana.replace(u'ヴ', u'ウ゛')))
+    return u''.join(map(to_hiragana, kana.replace(u'ヴ', u'ウ゛')))
 
 def hankaku_katakana(kana):
     def to_hankaku(letter):
@@ -779,7 +779,7 @@ def hankaku_katakana(kana):
         elif ord(u'ァ') <= ord(letter) and ord(letter) <= ord(u'ン'):
             return ZENKAKU_TO_HANKAKU_KATAKANA_TABLE[letter]
         return letter
-    return ''.join(map(to_hankaku, kana))
+    return u''.join(map(to_hankaku, kana))
 
 def zenkaku_katakana(kana):
     def to_zenkaku(letter):
@@ -788,16 +788,16 @@ def zenkaku_katakana(kana):
         elif ord(u'ｦ') <= ord(letter) and ord(letter) <= ord(u'ﾝ'):
             return HANKAKU_TO_ZENKAKU_KATAKANA_TABLE[letter]
         return letter
-    return unicodedata.normalize('NFC', ''.join(map(to_zenkaku, kana)))
+    return unicodedata.normalize('NFC', u''.join(map(to_zenkaku, kana)))
 
 def num_to_latin(num):
     return num
 
 def num_to_jisx0208_latin(num):
-    return ''.join([NUM_WIDE_LATIN_TABLE[c] for c in num])
+    return u''.join([NUM_WIDE_LATIN_TABLE[c] for c in num])
 
 def num_to_type2_kanji(num):
-    return ''.join([NUM_KANJI_TABLE1[c] for c in num])
+    return u''.join([NUM_KANJI_TABLE1[c] for c in num])
 
 def num_to_kanji(num, digit_table, kurai_table):
     ndigits = len(num)
@@ -811,7 +811,7 @@ def num_to_kanji(num, digit_table, kurai_table):
                 result.append(kurai)
             elif index % 4 > 0:
                 result.append(kurai_table[index % 4])
-    return ''.join(result)
+    return u''.join(result)
 
 def num_to_type3_kanji(num):
     return num_to_kanji(num,
@@ -1638,7 +1638,7 @@ elements will be "[[DictEdit]] かんが*え ", "▽", "かんが", "*え" .'''
                              auto_start_henkan_keyword or u''))
         return (prompt, prefix, u'', u'')
 
-    preedit = property(lambda self: ''.join(self.preedit_components()))
+    preedit = property(lambda self: u''.join(self.preedit_components()))
 
     def __convert_nn(self, state):
         output, pending, tree = state
