@@ -19,6 +19,10 @@ class Config:
     sysdict_path = property(lambda self: self.get_value(\
             'sysdict', self.__sysdict_path()))
 
+    def sysdict_paths(self):
+        return self.get_value('sysdict_paths',
+                              [self.sysdict_path] if self.sysdict_path else None)
+
     def __usrdict_path(self):
         usrdict_path = os.path.expanduser(self.__usrdict_path_unexpanded)
         open(usrdict_path, 'a+').close()

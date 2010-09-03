@@ -577,6 +577,25 @@ class SysDict(DictBase):
         except IOError:
             return iter(list())
 
+class MultiSysDict(DictBase):
+    def __init__(self, instances):
+        self.__instances = instances
+
+    def reload(self):
+        for sysdict in self.__instances:
+            sysdict.reload()
+            
+    def lookup(self, midasi, okuri=False):
+        for sysdict in self.__instances:
+            candidate = sysdict.lookup(midasi, okuri)
+            if candidate:
+                return candidate
+
+    def completer(self, midasi):
+        return reduce(lambda x, y: x + y,
+                      [sysdict.completer(midasi)
+                       for sysdict in self.__instances])
+    
 class UsrDict(DictBase):
     PATH = '~/.skk-ibus-jisyo'
     HISTSIZE = 128

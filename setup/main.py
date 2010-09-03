@@ -33,9 +33,13 @@ class PreferencesDialog:
         self.__dialog = self.__builder.get_object('dialog')
 
         self.__usrdict = self.__builder.get_object('usrdict')
-        self.__sysdict_file = self.__builder.get_object('sysdict_file')
         self.__sysdict = self.__builder.get_object('sysdict')
-        self.__sysdict_skkserv = self.__builder.get_object('sysdict_skkserv')
+        self.__sysdict_liststore = self.__builder.get_object('sysdict_liststore')
+        self.__add_sysdict = self.__builder.get_object('add_sysdict')
+        self.__remove_sysdict = self.__builder.get_object('remove_sysdict')
+        self.__up_sysdict = self.__builder.get_object('up_sysdict')
+        self.__down_sysdict = self.__builder.get_object('down_sysdict')
+        self.__use_skkserv = self.__builder.get_object('use_skkserv')
         self.__skkserv_host = self.__builder.get_object('skkserv_host')
         self.__skkserv_port = self.__builder.get_object('skkserv_port')
         self.__period_style = self.__builder.get_object('period_style')
@@ -51,16 +55,17 @@ class PreferencesDialog:
 
         self.__usrdict.set_filename(self.__config.usrdict_path)
         sysdict_type = self.__config.get_value('sysdict_type', 'file')
-        if sysdict_type == 'file':
-            self.__sysdict_file.set_active(True)
-            self.__sysdict_skkserv.set_active(False)
-        else:
-            self.__sysdict_file.set_active(False)
-            self.__sysdict_skkserv.set_active(True)
+        if sysdict_type == 'skkserv':
+            self.__use_skkserv.set_active(True)
         self.__set_sysdict_widgets_sensitivity(sysdict_type)
-        sysdict_path = self.__config.sysdict_path
-        if sysdict_path:
-            self.__sysdict.set_filename(sysdict_path)
+
+        # sysdict treeview
+        renderer = gtk.CellRendererText()
+        column = gtk.TreeViewColumn("path", renderer, text=0)
+        self.__sysdict.append_column(column)
+        for path in self.__config.sysdict_paths():
+            self.__sysdict_liststore.append((path,))
+
         self.__skkserv_host.set_text(\
             self.__config.get_value('skkserv_host', skk.SkkServ.HOST))
         self.__skkserv_port.set_numeric(True)
@@ -114,9 +119,13 @@ class PreferencesDialog:
             self.__config.get_value('egg_like_newline', True))
 
         self.__usrdict.connect('file-set', self.__usrdict_file_set_cb)
-        self.__sysdict_file.connect('toggled', self.__sysdict_toggle_cb)
-        self.__sysdict_skkserv.connect('toggled', self.__sysdict_toggle_cb)
-        self.__sysdict.connect('file-set', self.__sysdict_file_set_cb)
+        self.__use_skkserv.connect('toggled', self.__use_skkserv_toggle_cb)
+        self.__add_sysdict.connect('clicked', self.__add_sysdict_clicked_cb)
+        self.__remove_sysdict.connect('clicked', self.__remove_sysdict_clicked_cb)
+        self.__up_sysdict.connect('clicked', self.__up_sysdict_clicked_cb)
+        self.__down_sysdict.connect('clicked', self.__down_sysdict_clicked_cb)
+        self.__sysdict.get_selection().connect_after('changed',
+                                                     self.__sysdict_selection_changed_cb)
         self.__skkserv_host.connect('changed', self.__skkserv_host_changed_cb)
         self.__skkserv_port.connect('changed', self.__skkserv_port_changed_cb)
         self.__period_style.connect('changed', self.__period_style_changed_cb)
@@ -129,23 +138,86 @@ class PreferencesDialog:
         self.__initial_input_mode.connect('changed', self.__initial_input_mode_changed_cb)
         self.__egg_like_newline.connect('toggled', self.__egg_like_newline_changed_cb)
 
-    def __sysdict_toggle_cb(self, widget):
-        sysdict_type = 'file' if self.__sysdict_file.get_active() else 'skkserv'
+    def __use_skkserv_toggle_cb(self, widget):
+        sysdict_type = 'skkserv' if self.__use_skkserv.get_active() else 'file'
         self.__config.set_value('sysdict_type', sysdict_type)
         self.__set_sysdict_widgets_sensitivity(sysdict_type)
 
     def __set_sysdict_widgets_sensitivity(self, sysdict_type):
         if sysdict_type == 'file':
             self.__sysdict.set_sensitive(True)
+            self.__add_sysdict.set_sensitive(True)
             self.__skkserv_host.set_sensitive(False)
             self.__skkserv_port.set_sensitive(False)
+            self.__sysdict_entry_buttons_set_sensitivity(\
+                self.__sysdict.get_selection().get_selected()[1] is not None)
         else:
             self.__sysdict.set_sensitive(False)
+            self.__add_sysdict.set_sensitive(False)
             self.__skkserv_host.set_sensitive(True)
             self.__skkserv_port.set_sensitive(True)
+            self.__sysdict_entry_buttons_set_sensitivity(False)
 
-    def __sysdict_file_set_cb(self, widget):
-        self.__config.set_value('sysdict', widget.get_filename())
+    def __add_sysdict_clicked_cb(self, widget):
+        chooser = gtk.FileChooserDialog(\
+            title="Open Dictionary File",
+            parent=self.__dialog,
+            action=gtk.FILE_CHOOSER_ACTION_OPEN,
+            buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                     gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+        if chooser.run() == gtk.RESPONSE_OK:
+            model = self.__sysdict.get_model()
+            path = chooser.get_filename()
+            _iter = model.get_iter_root()
+            while _iter:
+                _value, = model.get(_iter, 0)
+                if _value == path:
+                    break
+                _iter = model.iter_next(_iter)
+            if not _iter:
+                model.append((path,))
+                self.__set_sysdict_from_model(model)
+        chooser.hide()
+
+    def __remove_sysdict_clicked_cb(self, widget):
+        model, paths = self.__sysdict.get_selection().get_selected_rows()
+        for path in paths:
+            model.remove(model.get_iter(path))
+        self.__set_sysdict_from_model(model)
+
+    def __up_sysdict_clicked_cb(self, widget):
+        model, _iter = self.__sysdict.get_selection().get_selected()
+        if _iter:
+            path = model.get_path(_iter)
+            if path[0] > 0:
+                model.move_before(_iter, model.get_iter((path[0] - 1,)))
+        self.__set_sysdict_from_model(model)
+
+    def __down_sysdict_clicked_cb(self, widget):
+        model, _iter = self.__sysdict.get_selection().get_selected()
+        if _iter:
+            path = model.get_path(_iter)
+            if path[0] < len(model) - 1:
+                model.move_after(_iter, model.get_iter((path[0] + 1,)))
+        self.__set_sysdict_from_model(model)
+
+    def __set_sysdict_from_model(self, model):
+        paths = list()
+        _iter = model.get_iter_root()
+        while _iter:
+            value, = model.get(_iter, 0)
+            paths.append(value)
+            _iter = model.iter_next(_iter)
+        self.__config.set_value('sysdict_paths', paths)
+        
+    def __sysdict_entry_buttons_set_sensitivity(self, sensitive):
+        self.__remove_sysdict.set_sensitive(sensitive)
+        self.__up_sysdict.set_sensitive(sensitive)
+        self.__down_sysdict.set_sensitive(sensitive)
+        
+    def __sysdict_selection_changed_cb(self, selection):
+        self.__sysdict_entry_buttons_set_sensitivity(\
+            selection.get_selected()[1] is not None)
 
     def __usrdict_file_set_cb(self, widget):
         self.__config.set_value('usrdict', widget.get_filename())
