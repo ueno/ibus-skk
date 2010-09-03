@@ -227,8 +227,7 @@ class Engine(ibus.EngineBase):
         skk_props.append(input_mode_prop)
 
         skk_props.append(ibus.Property(key=u"setup",
-                                         icon=u"ibus-setup",
-                                         tooltip=_(u"Configure SKK")))
+                                       tooltip=_(u"Configure SKK")))
 
         return skk_props
 
