@@ -1385,7 +1385,7 @@ class Context(object):
             self.__current_state().completer = None
             self.__current_state().completion_seen = None
 
-            # Start okuri-nasi conversion.
+            # Check if KEY triggers auto conversion.
             auto_start_henkan_keyword = None
             if not self.__current_state().abbrev:
                 rom_kana_state = tuple(self.__current_state().rom_kana_state)
@@ -1394,6 +1394,15 @@ class Context(object):
                     if rom_kana_state[0].endswith(keyword):
                         self.__current_state().auto_start_henkan_keyword = keyword
                         break
+
+            # If midasi is empty, switch back to CONV_STATE_NONE
+            # instead of CONV_STATE_SELECT.
+            if key.keyval == u' ' and \
+                    len(self.__current_state().rom_kana_state[0]) == 0:
+                self.__current_state().conv_state = CONV_STATE_NONE
+                return (True, u'')
+
+            # Start okuri-nasi conversion.
             if key.keyval == u' ' or \
                     self.__current_state().auto_start_henkan_keyword:
                 self.__current_state().conv_state = CONV_STATE_SELECT
