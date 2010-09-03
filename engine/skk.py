@@ -1215,11 +1215,10 @@ class Context(object):
                 return (False, u'')
 
             if self.__current_state().input_mode == INPUT_MODE_LATIN:
-                output = key.letter
                 if self.dict_edit_level() > 0:
-                    self.__current_state().dict_edit_output += output
+                    self.__current_state().dict_edit_output += key.letter
                     return (True, u'')
-                return (True, output)
+                return (False, u'')
             elif self.__current_state().input_mode == INPUT_MODE_WIDE_LATIN:
                 output = WIDE_LATIN_TABLE[ord(key.letter)]
                 if self.dict_edit_level() > 0:
