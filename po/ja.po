@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ibus-skk 1.2.0.20091108\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-03 18:55+0900\n"
+"POT-Creation-Date: 2010-09-03 20:41+0900\n"
 "PO-Revision-Date: 2010-09-03 18:55+0900\n"
 "Last-Translator: Daiki Ueno <ueno@unixuser.org>\n"
 "Language-Team: Japanese\n"
@@ -50,7 +50,7 @@ msgstr "全角英数"
 msgid "HankakuKatakana"
 msgstr "半角カタカナ"
 
-#: ../engine/engine.py:231
+#: ../engine/engine.py:230
 msgid "Configure SKK"
 msgstr "SKKの設定"
 
@@ -68,7 +68,7 @@ msgstr "追加"
 
 #: ../setup/ibus-skk-preferences.ui.h:3
 msgid "Behavior"
-msgstr "<b>動作</b>"
+msgstr "動作"
 
 #: ../setup/ibus-skk-preferences.ui.h:4
 msgid "Candidate Window Pa_gination Start:"
