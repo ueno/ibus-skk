@@ -1328,7 +1328,7 @@ class Context(object):
                 self.activate_input_mode(input_mode)
                 return (True, output)
 
-            if str(key) in ('ctrl+j', 'return'):
+            if str(key) in ('ctrl+j', 'ctrl+m', 'return'):
                 kuten = self.__current_state().kuten
                 if kuten is not None:
                     input_mode = self.__current_state().input_mode
@@ -1352,6 +1352,9 @@ class Context(object):
                 if self.dict_edit_level() > 0:
                     self.__current_state().dict_edit_output += output
                     return (True, u'')
+                if str(key) in ('ctrl+m', 'return') and \
+                        not self.egg_like_newline:
+                    output += u'\n'
                 return (True, output)
 
             if self.__current_state().kuten is not None:

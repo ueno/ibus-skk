@@ -232,14 +232,30 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(self.__skk.preedit, u'▼愛')
         self.__skk.press_key(u' ')
         self.assertEqual(self.__skk.preedit, u'▼哀')
-        # skk-egg-like-newline
+
+    def testegglikenewline(self):
+        self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
+        # CONV_STATE_START
+        self.__skk.press_key(u'shift+a')
+        self.__skk.press_key(u'i')
         self.__skk.egg_like_newline = False
-        self.assertEqual(self.__skk.press_key(u'return'), (True, u'哀\n'))
+        self.assertEqual(self.__skk.press_key(u'return'), (True, u'あい\n'))
+        self.__skk.press_key(u'shift+a')
+        self.__skk.press_key(u'i')
+        self.__skk.egg_like_newline = True
+        self.assertEqual(self.__skk.press_key(u'return'), (True, u'あい'))
+        # CONV_STATE_SELECT
+        self.__skk.press_key(u'shift+a')
+        self.__skk.press_key(u'i')
+        self.__skk.press_key(u' ')
+        self.__skk.egg_like_newline = False
+        self.assertEqual(self.__skk.press_key(u'return'), (True, u'愛\n'))
         self.__skk.press_key(u'shift+a')
         self.__skk.press_key(u'i')
         self.__skk.press_key(u' ')
         self.__skk.egg_like_newline = True
-        self.assertEqual(self.__skk.press_key(u'return'), (True, u'哀'))
+        self.assertEqual(self.__skk.press_key(u'return'), (True, u'愛'))
 
     def testokuriari(self):
         self.__skk.reset()
