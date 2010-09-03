@@ -191,7 +191,7 @@ class PreferencesDialog:
             path = model.get_path(_iter)
             if path[0] > 0:
                 model.move_before(_iter, model.get_iter((path[0] - 1,)))
-        self.__set_sysdict_from_model(model)
+                self.__set_sysdict_from_model(model)
 
     def __down_sysdict_clicked_cb(self, widget):
         model, _iter = self.__sysdict.get_selection().get_selected()
@@ -199,7 +199,7 @@ class PreferencesDialog:
             path = model.get_path(_iter)
             if path[0] < len(model) - 1:
                 model.move_after(_iter, model.get_iter((path[0] + 1,)))
-        self.__set_sysdict_from_model(model)
+                self.__set_sysdict_from_model(model)
 
     def __set_sysdict_from_model(self, model):
         paths = list()
