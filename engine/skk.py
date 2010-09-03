@@ -472,7 +472,8 @@ class SysDict(DictBase):
 
     def reload(self):
         try:
-            if os.path.getmtime(self.__path) > self.__mtime:
+            mtime = os.path.getmtime(self.__path)
+            if mtime > self.__mtime:
                 self.__okuri_ari = list()
                 self.__okuri_nasi = list()
                 self.__load()
