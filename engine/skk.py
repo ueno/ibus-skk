@@ -1027,6 +1027,7 @@ class Context(object):
         self.auto_start_henkan_keywords = AUTO_START_HENKAN_KEYWORDS
         self.egg_like_newline = True
         self.translated_strings = dict(TRANSLATED_STRINGS)
+        self.debug = False
         self.reset()
 
     def __check_dict(self, _dict):
@@ -1445,8 +1446,16 @@ class Context(object):
                         (u'', u'', self.__rom_kana_rule_tree)
 
             if self.__current_state().okuri_rom_kana_state:
-                okuri = (self.__current_state().okuri_rom_kana_state[1] or \
-                             key.keyval)[0]
+                okuri = None
+                # Issue#10: check OUTPUT was produced by 'n'
+                for nn in (u'ん', u'ン', u'ﾝ'):
+                    if self.__current_state().okuri_rom_kana_state[0].\
+                            startswith(nn):
+                        okuri = u'n'
+                        break
+                if not okuri:
+                    okuri = (self.__current_state().okuri_rom_kana_state[1] or \
+                                 key.keyval)[0]
                 self.__current_state().okuri_rom_kana_state = \
                     self.__convert_rom_kana(key.keyval, self.__current_state().okuri_rom_kana_state)
 
