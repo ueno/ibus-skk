@@ -586,13 +586,12 @@ class MultiSysDict(DictBase):
             sysdict.reload()
             
     def lookup(self, midasi, okuri=False):
-        candidates = list()
-        for sysdict in self.__instances:
-            candidates.extend(sysdict.lookup(midasi, okuri))
-        return candidates
+        return reduce(lambda x, y: x.extend(y),
+                      [sysdict.lookup(midasi, okuri)
+                       for sysdict in self.__instances])
 
     def completer(self, midasi):
-        return reduce(lambda x, y: x + y,
+        return reduce(lambda x, y: x.extend(y),
                       [sysdict.completer(midasi)
                        for sysdict in self.__instances])
     
