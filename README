@@ -20,7 +20,7 @@ $ sudo make install
 
 * How to report bugs
 
-Use the issue trackers on either GitHub, Red Hat BugZilla, or Debian BTS:
+Use the issue trackers on either GitHub, Red Hat Bugzilla, or Debian BTS:
 
 http://github.com/ueno/ibus-skk/issues
 https://bugzilla.redhat.com/buglist.cgi?component=ibus-skk&product=Fedora
