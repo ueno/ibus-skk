@@ -487,18 +487,19 @@ class SysDict(DictBase):
             while True:
                 pos = fp.tell()
                 line = fp.readline()
-                if not line or not line.startswith(';'):
+                if not line:
                     break
-
-            offsets = self.__okuri_ari
-            offsets.append(pos)
+                if line.startswith(';; okuri-ari entries.'):
+                    offsets = self.__okuri_ari
+                    pos = fp.tell()
+                    break
             while True:
                 pos = fp.tell()
                 line = fp.readline()
                 if not line:
                     break
                 # A comment line seperating okuri-ari/okuri-nasi entries.
-                if line.startswith(';'):
+                if line.startswith(';; okuri-nasi entries.'):
                     offsets = self.__okuri_nasi
                 else:
                     offsets.append(pos)
@@ -586,14 +587,13 @@ class MultiSysDict(DictBase):
             sysdict.reload()
             
     def lookup(self, midasi, okuri=False):
-        return reduce(lambda x, y: x.extend(y),
+        return reduce(lambda x, y: x + y,
                       [sysdict.lookup(midasi, okuri)
                        for sysdict in self.__instances])
 
     def completer(self, midasi):
-        return reduce(lambda x, y: x.extend(y),
-                      [sysdict.completer(midasi)
-                       for sysdict in self.__instances])
+        return itertools.chain(*[sysdict.completer(midasi)
+                                 for sysdict in self.__instances])
     
 class UsrDict(DictBase):
     PATH = '~/.skk-ibus-jisyo'
