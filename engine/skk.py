@@ -472,6 +472,10 @@ class SysDict(DictBase):
 
     path = property(lambda self: self.__path)
 
+    def __del__(self):
+        if self.__mmap:
+            self.__mmap.close()
+
     def reload(self):
         try:
             mtime = os.path.getmtime(self.__path)
