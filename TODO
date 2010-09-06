@@ -2,5 +2,4 @@
 - rewrite in C
 - error message using libnotify
 - NICOLA (thumb shift keyboard)
-- speed up dictionary lookup (mmap or CDB?)
 
