@@ -467,6 +467,7 @@ class SysDict(DictBase):
         self.__path = path
         self.__mtime = 0
         self.__encoding = encoding
+        self.__mmap = None
         self.reload()
 
     path = property(lambda self: self.__path)
@@ -484,6 +485,8 @@ class SysDict(DictBase):
 
     def __load(self):
         with open(self.__path, 'r') as fp:
+            if self.__mmap:
+                self.__mmap.close()
             self.__mmap = mmap.mmap(fp.fileno(), 0, prot=mmap.PROT_READ)
             while True:
                 pos = self.__mmap.tell()
