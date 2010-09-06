@@ -1,11 +1,15 @@
 import gtk
 import locale
 import os, sys
-import gettext
 import config
+import gettext
 
 sys.path.insert(0, os.path.join(os.getenv('IBUS_SKK_PKGDATADIR'), 'engine'))
 import skk
+
+from gettext import dgettext
+_  = lambda a : dgettext("ibus-skk", a)
+N_ = lambda a : a
 
 def get_index_by_value (widget, value):
     model = widget.get_model()
@@ -160,7 +164,7 @@ class PreferencesDialog:
 
     def __add_sysdict_clicked_cb(self, widget):
         chooser = gtk.FileChooserDialog(\
-            title="Open Dictionary File",
+            title=_("Open Dictionary File"),
             parent=self.__dialog,
             action=gtk.FILE_CHOOSER_ACTION_OPEN,
             buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
