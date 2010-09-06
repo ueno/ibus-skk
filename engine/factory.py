@@ -83,7 +83,7 @@ class EngineFactory(ibus.EngineFactoryBase):
     def __config_value_changed_cb(self, bus_config, section, name, value):
         if section == 'engine/SKK':
             engine.Engine.config.set_value(name, value)
-            if name in ('sysdict_type', 'sysdict',
+            if name in ('sysdict_type', 'sysdict_paths',
                         'skkserv_host', 'skkserv_port',
                         'skkserv_encoding'):
                 engine.Engine.sysdict = self.__load_sysdict(engine.Engine.config)
