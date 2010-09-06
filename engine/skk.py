@@ -417,7 +417,7 @@ TRANSLATED_STRINGS = {
 }
 
 class DictBase(object):
-    ENCODING = 'EUC-JP'
+    ENCODING = 'EUC-JIS-2004'
 
     def split_candidates(self, line):
         '''Parse a single candidate line into a list of candidates.'''
