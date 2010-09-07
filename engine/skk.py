@@ -463,18 +463,40 @@ class EmptyDict(DictBase):
         return iter(list())
 
 class SysDict(DictBase):
-    def __init__(self, path, encoding=DictBase.ENCODING):
+    def __init__(self, path, encoding=DictBase.ENCODING, use_mmap=True):
         self.__path = path
         self.__mtime = 0
         self.__encoding = encoding
         self.__mmap = None
+        self.__file = None
+        self.__use_mmap = use_mmap
         self.reload()
 
     path = property(lambda self: self.__path)
 
-    def __del__(self):
+    def __get_fp(self):
+        if not self.__file:
+            self.__file = open(self.__path, 'r')
+        if self.__use_mmap and not self.__mmap:
+            try:
+                self.__mmap = mmap.mmap(self.__file.fileno(), 0,
+                                        prot=mmap.PROT_READ)
+                self.__file.close()
+                self.__file = None
+            except IOError:
+                pass
+        return (self.__mmap or self.__file)
+
+    def __close(self):
+        if self.__file:
+            self.__file.close()
+            self.__file = None
         if self.__mmap:
             self.__mmap.close()
+            self.__mmap = None
+        
+    def __del__(self):
+        self.__close()
 
     def reload(self):
         try:
@@ -488,38 +510,37 @@ class SysDict(DictBase):
             pass
 
     def __load(self):
-        with open(self.__path, 'r') as fp:
-            if self.__mmap:
-                self.__mmap.close()
-            self.__mmap = mmap.mmap(fp.fileno(), 0, prot=mmap.PROT_READ)
-            while True:
-                pos = self.__mmap.tell()
-                line = self.__mmap.readline()
-                if not line:
-                    break
-                if line.startswith(';; okuri-ari entries.'):
-                    offsets = self.__okuri_ari
-                    pos = self.__mmap.tell()
-                    break
-            while True:
-                pos = self.__mmap.tell()
-                line = self.__mmap.readline()
-                if not line:
-                    break
-                # A comment line seperating okuri-ari/okuri-nasi entries.
-                if line.startswith(';; okuri-nasi entries.'):
-                    offsets = self.__okuri_nasi
-                else:
-                    offsets.append(pos)
-            self.__okuri_ari.reverse()
+        self.__close()
+        fp = self.__get_fp()
+        while True:
+            pos = fp.tell()
+            line = fp.readline()
+            if not line:
+                break
+            if line.startswith(';; okuri-ari entries.'):
+                offsets = self.__okuri_ari
+                pos = fp.tell()
+                break
+        while True:
+            pos = fp.tell()
+            line = fp.readline()
+            if not line:
+                break
+            # A comment line seperating okuri-ari/okuri-nasi entries.
+            if line.startswith(';; okuri-nasi entries.'):
+                offsets = self.__okuri_nasi
+            else:
+                offsets.append(pos)
+        self.__okuri_ari.reverse()
 
     def __search_pos(self, offsets, _cmp):
-        self.__mmap.seek(0)
+        fp = self.__get_fp()
+        fp.seek(0)
         begin, end = 0, len(offsets) - 1
         pos = begin + (end - begin) / 2
         while begin <= end:
-            self.__mmap.seek(offsets[pos])
-            line = self.__mmap.readline()
+            fp.seek(offsets[pos])
+            line = fp.readline()
             r = _cmp(line)
             if r == 0:
                 return (pos, line)
@@ -564,16 +585,17 @@ class SysDict(DictBase):
         r = self.__search_pos(self.__okuri_nasi, _completer_cmp)
         if r:
             pos, line = r
+            fp = self.__get_fp()
             while pos >= 0:
-                self.__mmap.seek(self.__okuri_nasi[pos])
-                line = self.__mmap.readline()
+                fp.seek(self.__okuri_nasi[pos])
+                line = fp.readline()
                 if not line.startswith(midasi):
                     pos += 1
                     break
                 pos -= 1
             while pos < len(self.__okuri_nasi):
-                self.__mmap.seek(self.__okuri_nasi[pos])
-                line = self.__mmap.readline()
+                fp.seek(self.__okuri_nasi[pos])
+                line = fp.readline()
                 _midasi, candidates = line.split(' ', 1)
                 yield _midasi.decode(self.__encoding)
                 pos += 1
