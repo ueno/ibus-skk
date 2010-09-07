@@ -266,7 +266,8 @@ class Engine(ibus.EngineBase):
                 self.__skk.next_candidate(False)
                 self.__update()
                 return True
-            elif self.__candidate_selector.lookup_table_visible():
+            elif state == 0 and \
+                    self.__candidate_selector.lookup_table_visible():
                 try:
                     index = self.__candidate_selector.\
                         key_to_index(unichr(keyval).lower())
