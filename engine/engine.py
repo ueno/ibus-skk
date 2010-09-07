@@ -61,9 +61,6 @@ class CandidateSelector(skk.CandidateSelector):
             elif not move_over_pages:
                 self.__lookup_table.set_cursor_pos(self.index() -
                                                    self.pagination_start)
-            else:
-                self.__lookup_table.page_down()
-                self.__lookup_table.set_cursor_pos_in_current_page(0)
         return self.candidate()
 
     def previous_candidate(self, move_over_pages=True):
@@ -74,9 +71,6 @@ class CandidateSelector(skk.CandidateSelector):
             elif not move_over_pages:
                 self.__lookup_table.set_cursor_pos(self.index() -
                                                    self.pagination_start)
-            else:
-                self.__lookup_table.page_up()
-                self.__lookup_table.set_cursor_pos_in_current_page(0)
         return self.candidate()
 
     __emacsclient_paths = ('/usr/bin/emacsclient',
@@ -324,24 +318,32 @@ class Engine(ibus.EngineBase):
     def page_up(self):
         if self.__lookup_table.page_up():
             self.page_up_lookup_table()
+            self.__candidate_selector.previous_candidate(True)
+            self.__update()
             return True
         return False
 
     def page_down(self):
         if self.__lookup_table.page_down():
             self.page_down_lookup_table()
+            self.__candidate_selector.next_candidate(True)
+            self.__update()
             return True
         return False
 
     def cursor_up(self):
         if self.__lookup_table.cursor_up():
             self.cursor_up_lookup_table()
+            self.__candidate_selector.previous_candidate(False)
+            self.__update()
             return True
         return False
 
     def cursor_down(self):
         if self.__lookup_table.cursor_down():
             self.cursor_down_lookup_table()
+            self.__candidate_selector.next_candidate(False)
+            self.__update()
             return True
         return False
 
