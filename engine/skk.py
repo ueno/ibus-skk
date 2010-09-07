@@ -578,6 +578,9 @@ class SysDict(DictBase):
         except IOError:
             return iter(list())
 
+def append_candidates(x, y):
+    return x + [cy for cy in y if cy[0] not in [cx[0] for cx in x]]
+
 class MultiSysDict(DictBase):
     def __init__(self, instances):
         self.__instances = instances
@@ -587,7 +590,7 @@ class MultiSysDict(DictBase):
             sysdict.reload()
             
     def lookup(self, midasi, okuri=False):
-        return reduce(lambda x, y: x + y,
+        return reduce(append_candidates,
                       [sysdict.lookup(midasi, okuri)
                        for sysdict in self.__instances])
 
@@ -1152,8 +1155,7 @@ class Context(object):
         self.__current_state().midasi = midasi
         usr_candidates = self.__usrdict.lookup(midasi)
         sys_candidates = self.__sysdict.lookup(midasi, okuri)
-        candidates = self.__merge_candidates(usr_candidates,
-                                             sys_candidates)
+        candidates = append_candidates(usr_candidates, sys_candidates)
         candidates = [(substitute_num(candidate[0], num_list),
                        candidate[1])
                       for candidate in candidates]
@@ -1584,11 +1586,6 @@ class Context(object):
             self.__current_state().dict_edit_output += output
             return (True, u'')
         return (True, output)
-
-    def __merge_candidates(self, usr_candidates, sys_candidates):
-        return usr_candidates + \
-            [candidate for candidate in sys_candidates
-             if candidate not in usr_candidates]
 
     def dict_edit_level(self):
         '''Return the recursion level of dict-edit mode.'''
