@@ -23,4 +23,4 @@ prefix=@prefix@
 datarootdir=@datarootdir@
 export IBUS_LOCALEDIR=@localedir@
 cd @prefix@/share/ibus-skk/setup/
-exec python @prefix@/share/ibus-skk/setup/main.py $@
+exec @PYTHON@ @prefix@/share/ibus-skk/setup/main.py $@
