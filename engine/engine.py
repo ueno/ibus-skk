@@ -109,6 +109,13 @@ class CandidateSelector(skk.CandidateSelector):
         else:
             raise IndexError('invalid key position %d' % pos)
 
+    def pos_to_index(self, pos):
+        if self.__lookup_table.set_cursor_pos_in_current_page(pos):
+            index = self.__lookup_table.get_cursor_pos()
+            return self.__pagination_start + index
+        else:
+            raise IndexError('invalid key position %d' % pos)
+
 class Engine(ibus.EngineBase):
     config = None
     sysdict = None
@@ -347,6 +354,20 @@ class Engine(ibus.EngineBase):
             return True
         return False
 
+    def candidate_clicked(self, index, button, state):
+        try:
+            index = self.__candidate_selector.pos_to_index(index)
+            handled, output = self.__skk.select_candidate(index)
+            if handled:
+                if output:
+                    self.commit_text(ibus.Text(output))
+                gobject.idle_add(self.__skk.usrdict.save,
+                                 priority = gobject.PRIORITY_LOW)
+                self.__lookup_table.clean()
+                self.__update()
+        except IndexError:
+            pass
+        
     def __possibly_update_config(self):
         if self.__skk.usrdict.path != self.config.usrdict_path:
             self.__skk.usrdict = skk.UsrDict(self.config.usrdict_path)
