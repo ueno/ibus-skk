@@ -29,6 +29,7 @@ import re
 import unicodedata
 from kzik import KZIK_RULE
 import struct
+import mmap
 
 # Converted from skk-rom-kana-base-rule in skk-vars.el.
 ROM_KANA_RULE = {
@@ -462,13 +463,40 @@ class EmptyDict(DictBase):
         return iter(list())
 
 class SysDict(DictBase):
-    def __init__(self, path, encoding=DictBase.ENCODING):
+    def __init__(self, path, encoding=DictBase.ENCODING, use_mmap=True):
         self.__path = path
         self.__mtime = 0
         self.__encoding = encoding
+        self.__mmap = None
+        self.__file = None
+        self.__use_mmap = use_mmap
         self.reload()
 
     path = property(lambda self: self.__path)
+
+    def __get_fp(self):
+        if not self.__file:
+            self.__file = open(self.__path, 'r')
+        if self.__use_mmap and not self.__mmap:
+            try:
+                self.__mmap = mmap.mmap(self.__file.fileno(), 0,
+                                        prot=mmap.PROT_READ)
+                self.__file.close()
+                self.__file = None
+            except IOError:
+                pass
+        return (self.__mmap or self.__file)
+
+    def __close(self):
+        if self.__file:
+            self.__file.close()
+            self.__file = None
+        if self.__mmap:
+            self.__mmap.close()
+            self.__mmap = None
+        
+    def __del__(self):
+        self.__close()
 
     def reload(self):
         try:
@@ -482,36 +510,37 @@ class SysDict(DictBase):
             pass
 
     def __load(self):
-        with open(self.__path, 'r') as fp:
-            # Skip headers.
-            while True:
+        self.__close()
+        fp = self.__get_fp()
+        while True:
+            pos = fp.tell()
+            line = fp.readline()
+            if not line:
+                break
+            if line.startswith(';; okuri-ari entries.'):
+                offsets = self.__okuri_ari
                 pos = fp.tell()
-                line = fp.readline()
-                if not line:
-                    break
-                if line.startswith(';; okuri-ari entries.'):
-                    offsets = self.__okuri_ari
-                    pos = fp.tell()
-                    break
-            while True:
-                pos = fp.tell()
-                line = fp.readline()
-                if not line:
-                    break
-                # A comment line seperating okuri-ari/okuri-nasi entries.
-                if line.startswith(';; okuri-nasi entries.'):
-                    offsets = self.__okuri_nasi
-                else:
-                    offsets.append(pos)
-            self.__okuri_ari.reverse()
+                break
+        while True:
+            pos = fp.tell()
+            line = fp.readline()
+            if not line:
+                break
+            # A comment line seperating okuri-ari/okuri-nasi entries.
+            if line.startswith(';; okuri-nasi entries.'):
+                offsets = self.__okuri_nasi
+            else:
+                offsets.append(pos)
+        self.__okuri_ari.reverse()
 
-    def __search_pos(self, fp, offsets, _cmp):
+    def __search_pos(self, offsets, _cmp):
+        fp = self.__get_fp()
         fp.seek(0)
         begin, end = 0, len(offsets) - 1
         pos = begin + (end - begin) / 2
         while begin <= end:
             fp.seek(offsets[pos])
-            line = fp.next()
+            line = fp.readline()
             r = _cmp(line)
             if r == 0:
                 return (pos, line)
@@ -523,18 +552,17 @@ class SysDict(DictBase):
         return None
         
     def __lookup(self, midasi, offsets):
-        with open(self.__path, 'r') as fp:
-            midasi = midasi.encode(self.__encoding)
-            def _lookup_cmp(line):
-                _midasi, candidates = line.split(' ', 1)
-                return cmp(midasi, _midasi)
-            r = self.__search_pos(fp, offsets, _lookup_cmp)
-            if not r:
-                return list()
-            pos, line = r
+        midasi = midasi.encode(self.__encoding)
+        def _lookup_cmp(line):
             _midasi, candidates = line.split(' ', 1)
-            candidates = candidates.decode(self.__encoding)
-            return self.split_candidates(candidates)
+            return cmp(midasi, _midasi)
+        r = self.__search_pos(offsets, _lookup_cmp)
+        if not r:
+            return list()
+        pos, line = r
+        _midasi, candidates = line.split(' ', 1)
+        candidates = candidates.decode(self.__encoding)
+        return self.split_candidates(candidates)
 
     def lookup(self, midasi, okuri=False):
         if okuri:
@@ -549,28 +577,28 @@ class SysDict(DictBase):
             return list()
 
     def __completer(self, midasi):
-        with open(self.__path, 'r') as fp:
-            midasi = midasi.encode(self.__encoding)
-            def _completer_cmp(line):
-                if line.startswith(midasi):
-                    return 0
-                return cmp(midasi, line)
-            r = self.__search_pos(fp, self.__okuri_nasi, _completer_cmp)
-            if r:
-                pos, line = r
-                while pos >= 0:
-                    fp.seek(self.__okuri_nasi[pos])
-                    line = fp.next()
-                    if not line.startswith(midasi):
-                        pos += 1
-                        break
-                    pos -= 1
-                while pos < len(self.__okuri_nasi):
-                    fp.seek(self.__okuri_nasi[pos])
-                    line = fp.next()
-                    _midasi, candidates = line.split(' ', 1)
-                    yield _midasi.decode(self.__encoding)
+        midasi = midasi.encode(self.__encoding)
+        def _completer_cmp(line):
+            if line.startswith(midasi):
+                return 0
+            return cmp(midasi, line)
+        r = self.__search_pos(self.__okuri_nasi, _completer_cmp)
+        if r:
+            pos, line = r
+            fp = self.__get_fp()
+            while pos >= 0:
+                fp.seek(self.__okuri_nasi[pos])
+                line = fp.readline()
+                if not line.startswith(midasi):
                     pos += 1
+                    break
+                pos -= 1
+            while pos < len(self.__okuri_nasi):
+                fp.seek(self.__okuri_nasi[pos])
+                line = fp.readline()
+                _midasi, candidates = line.split(' ', 1)
+                yield _midasi.decode(self.__encoding)
+                pos += 1
                 
     def completer(self, midasi):
         try:
