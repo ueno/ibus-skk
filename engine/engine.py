@@ -178,6 +178,9 @@ class Engine(ibus.EngineBase):
                                                          skk.ROM_KANA_NORMAL)
         self.__skk.egg_like_newline = self.config.get_value('egg_like_newline',
                                                             True)
+        self.__skk.direct_input_on_latin = \
+            self.config.get_value('direct_input_on_latin',
+                                  False)
         self.__initial_input_mode = \
             self.config.get_value('initial_input_mode',
                                   skk.INPUT_MODE_HIRAGANA)

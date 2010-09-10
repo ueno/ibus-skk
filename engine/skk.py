@@ -1056,6 +1056,7 @@ class Context(object):
         self.kutouten_type = KUTOUTEN_JP
         self.auto_start_henkan_keywords = AUTO_START_HENKAN_KEYWORDS
         self.egg_like_newline = True
+        self.direct_input_on_latin = False
         self.translated_strings = dict(TRANSLATED_STRINGS)
         self.debug = False
         self.reset()
@@ -1267,7 +1268,10 @@ class Context(object):
                 if self.dict_edit_level() > 0:
                     self.__current_state().dict_edit_output += key.letter
                     return (True, u'')
-                return (False, u'')
+                if self.direct_input_on_latin:
+                    return (False, u'')
+                else:
+                    return (True, key.letter)
             elif self.__current_state().input_mode == INPUT_MODE_WIDE_LATIN:
                 output = WIDE_LATIN_TABLE[ord(key.letter)]
                 if self.dict_edit_level() > 0:
