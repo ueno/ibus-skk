@@ -270,7 +270,7 @@ class Engine(ibus.EngineBase):
                 self.__skk.next_candidate(False)
                 self.__update()
                 return True
-            elif state == 0 and \
+            elif state & modifier.CONTROL_MASK == 0 and \
                     self.__candidate_selector.lookup_table_visible():
                 try:
                     index = self.__candidate_selector.\
