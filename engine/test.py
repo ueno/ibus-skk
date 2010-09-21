@@ -664,6 +664,15 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(output, u'')
         self.assertEqual(self.__skk.preedit, u'▽]')
 
+        # Ignore "shift+" in abbrev mode (Issue#16).
+        self.__skk.reset();
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
+        self.__skk.press_key(u'/')
+        handled, output = self.__skk.press_key(u'shift+(')
+        self.assertTrue(handled)
+        self.assertEqual(output, u'')
+        self.assertEqual(self.__skk.preedit, u'▽(')
+
     def testkuten(self):
         self.__skk.reset()
         self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)

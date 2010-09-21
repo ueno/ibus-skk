@@ -1436,7 +1436,7 @@ class Context(object):
                 self.__activate_candidate_selector(midasi)
                 return (True, u'')
 
-            if key.is_shift():
+            if key.is_shift() and not self.__current_state().abbrev:
                 rom_kana_state = self.__convert_nn(self.__current_state().rom_kana_state)
                 if len(rom_kana_state[1]) == 0 and \
                         not self.__current_state().okuri_rom_kana_state:
