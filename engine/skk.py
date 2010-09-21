@@ -866,6 +866,11 @@ def zenkaku_katakana(kana):
         return letter
     return unicodedata.normalize('NFC', u''.join(map(to_zenkaku, kana)))
 
+def zenkaku_ascii(ascii):
+    def to_zenkaku(letter):
+        return HANKAKU_TO_ZENKAKU_ASCII_TABLE.get(letter, letter)
+    return u''.join(map(to_zenkaku, ascii))
+    
 def num_to_latin(num):
     return num
 
@@ -1410,13 +1415,12 @@ class Context(object):
 
             # Convert hankaku to zenkaku with ctrl+q in abbrev mode (Issue#17).
             if self.__current_state().abbrev and str(key) == 'ctrl+q':
-                hankaku = self.__current_state().rom_kana_state[0]
-                zenkaku = HANKAKU_TO_ZENKAKU_ASCII_TABLE.get(hankaku, hankaku)
+                ascii = zenkaku_ascii(self.__current_state().rom_kana_state[0])
                 self.kakutei()
                 if self.dict_edit_level() > 0:
-                    self.__current_state().dict_edit_output += zenkaku
+                    self.__current_state().dict_edit_output += ascii
                     return (True, u'')
-                return (True, zenkaku)
+                return (True, ascii)
 
             if str(key) in ('ctrl+j', 'ctrl+m', 'return'):
                 kuten = self.__current_state().kuten

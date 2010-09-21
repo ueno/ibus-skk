@@ -685,10 +685,11 @@ class TestSKK(unittest.TestCase):
         self.__skk.reset();
         self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.press_key(u'/')
-        handled, output = self.__skk.press_key(u'a')
+        self.__skk.press_key(u'a')
+        self.__skk.press_key(u'a')
         handled, output = self.__skk.press_key(u'ctrl+q')
         self.assertTrue(handled)
-        self.assertEqual(output, u'ａ')
+        self.assertEqual(output, u'ａａ')
 
     def testkuten(self):
         self.__skk.reset()
