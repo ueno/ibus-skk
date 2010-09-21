@@ -673,6 +673,14 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(output, u'')
         self.assertEqual(self.__skk.preedit, u'▽(')
 
+        self.__skk.reset();
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
+        self.__skk.press_key(u'/')
+        handled, output = self.__skk.press_key(u'shift+a')
+        self.assertTrue(handled)
+        self.assertEqual(output, u'')
+        self.assertEqual(self.__skk.preedit, u'▽A')
+
         # Convert hankaku to zenkaku with ctrl+q (Issue#17).
         self.__skk.reset();
         self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)

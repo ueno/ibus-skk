@@ -1507,7 +1507,15 @@ class Context(object):
                 self.__activate_candidate_selector(midasi)
                 return (True, u'')
 
-            if key.is_shift() and not self.__current_state().abbrev:
+            # If in abbrev mode, just append the letter to the output.
+            if self.__current_state().abbrev:
+                self.__current_state().rom_kana_state = \
+                    (self.__current_state().rom_kana_state[0] + key.letter,
+                     u'',
+                     self.__rom_kana_rule_tree)
+                return (True, u'')
+
+            if key.is_shift():
                 rom_kana_state = self.__convert_nn(self.__current_state().rom_kana_state)
                 if len(rom_kana_state[1]) == 0 and \
                         not self.__current_state().okuri_rom_kana_state:
@@ -1543,15 +1551,9 @@ class Context(object):
                     0x20 > ord(key.letter) or ord(key.letter) > 0x7E:
                 return (False, u'')
 
-            if self.__current_state().abbrev:
-                self.__current_state().rom_kana_state = \
-                    (self.__current_state().rom_kana_state[0] + key.keyval,
-                     u'',
-                     self.__rom_kana_rule_tree)
-            else:
-                self.__current_state().rom_kana_state = \
-                    self.__convert_rom_kana(key.keyval,
-                                            self.__current_state().rom_kana_state)
+            self.__current_state().rom_kana_state = \
+                self.__convert_rom_kana(key.keyval,
+                                        self.__current_state().rom_kana_state)
             return (True, u'')
 
         elif self.__current_state().conv_state == CONV_STATE_SELECT:
