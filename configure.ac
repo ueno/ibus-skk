@@ -19,7 +19,19 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-AC_INIT([ibus-skk], [1.0.0])
+# if not 1, append datestamp to the version number.
+m4_define([package_name], [ibus-skk])
+m4_define([ibus_released], [1])
+m4_define([ibus_major_version], [1])
+m4_define([ibus_minor_version], [3])
+m4_define([ibus_micro_version], [0])
+m4_define(ibus_maybe_datestamp,
+    m4_esyscmd([if test x]ibus_released[ != x1; then date +.%Y%m%d | tr -d '\n\r'; fi]))
+
+m4_define([ibus_version],
+    ibus_major_version.ibus_minor_version.ibus_micro_version[]ibus_maybe_datestamp)
+
+AC_INIT([package_name], [ibus_version], [http://github.com/ueno/ibus-skk/issues], [package_name])
 AM_INIT_AUTOMAKE([1.10])
 AC_GNU_SOURCE
 

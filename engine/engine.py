@@ -61,9 +61,6 @@ class CandidateSelector(skk.CandidateSelector):
             elif not move_over_pages:
                 self.__lookup_table.set_cursor_pos(self.index() -
                                                    self.pagination_start)
-            else:
-                self.__lookup_table.page_down()
-                self.__lookup_table.set_cursor_pos_in_current_page(0)
         return self.candidate()
 
     def previous_candidate(self, move_over_pages=True):
@@ -74,9 +71,6 @@ class CandidateSelector(skk.CandidateSelector):
             elif not move_over_pages:
                 self.__lookup_table.set_cursor_pos(self.index() -
                                                    self.pagination_start)
-            else:
-                self.__lookup_table.page_up()
-                self.__lookup_table.set_cursor_pos_in_current_page(0)
         return self.candidate()
 
     __emacsclient_paths = ('/usr/bin/emacsclient',
@@ -109,6 +103,13 @@ class CandidateSelector(skk.CandidateSelector):
         if key not in self.__keys:
             raise IndexError('%s is not a valid key' % key)
         pos = self.__keys.index(key)
+        if self.__lookup_table.set_cursor_pos_in_current_page(pos):
+            index = self.__lookup_table.get_cursor_pos()
+            return self.__pagination_start + index
+        else:
+            raise IndexError('invalid key position %d' % pos)
+
+    def pos_to_index(self, pos):
         if self.__lookup_table.set_cursor_pos_in_current_page(pos):
             index = self.__lookup_table.get_cursor_pos()
             return self.__pagination_start + index
@@ -177,6 +178,9 @@ class Engine(ibus.EngineBase):
                                                          skk.ROM_KANA_NORMAL)
         self.__skk.egg_like_newline = self.config.get_value('egg_like_newline',
                                                             True)
+        self.__skk.direct_input_on_latin = \
+            self.config.get_value('direct_input_on_latin',
+                                  False)
         self.__initial_input_mode = \
             self.config.get_value('initial_input_mode',
                                   skk.INPUT_MODE_HIRAGANA)
@@ -266,7 +270,8 @@ class Engine(ibus.EngineBase):
                 self.__skk.next_candidate(False)
                 self.__update()
                 return True
-            elif self.__candidate_selector.lookup_table_visible():
+            elif state & modifier.CONTROL_MASK == 0 and \
+                    self.__candidate_selector.lookup_table_visible():
                 try:
                     index = self.__candidate_selector.\
                         key_to_index(unichr(keyval).lower())
@@ -323,27 +328,49 @@ class Engine(ibus.EngineBase):
     def page_up(self):
         if self.__lookup_table.page_up():
             self.page_up_lookup_table()
+            self.__candidate_selector.previous_candidate(True)
+            self.__update()
             return True
         return False
 
     def page_down(self):
         if self.__lookup_table.page_down():
             self.page_down_lookup_table()
+            self.__candidate_selector.next_candidate(True)
+            self.__update()
             return True
         return False
 
     def cursor_up(self):
         if self.__lookup_table.cursor_up():
             self.cursor_up_lookup_table()
+            self.__candidate_selector.previous_candidate(False)
+            self.__update()
             return True
         return False
 
     def cursor_down(self):
         if self.__lookup_table.cursor_down():
             self.cursor_down_lookup_table()
+            self.__candidate_selector.next_candidate(False)
+            self.__update()
             return True
         return False
 
+    def candidate_clicked(self, index, button, state):
+        try:
+            index = self.__candidate_selector.pos_to_index(index)
+            handled, output = self.__skk.select_candidate(index)
+            if handled:
+                if output:
+                    self.commit_text(ibus.Text(output))
+                gobject.idle_add(self.__skk.usrdict.save,
+                                 priority = gobject.PRIORITY_LOW)
+                self.__lookup_table.clean()
+                self.__update()
+        except IndexError:
+            pass
+        
     def __possibly_update_config(self):
         if self.__skk.usrdict.path != self.config.usrdict_path:
             self.__skk.usrdict = skk.UsrDict(self.config.usrdict_path)

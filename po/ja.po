@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ibus-skk 1.2.0.20091108\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-03 20:41+0900\n"
-"PO-Revision-Date: 2010-09-03 18:55+0900\n"
+"POT-Creation-Date: 2010-09-06 12:39+0900\n"
+"PO-Revision-Date: 2010-09-06 12:40+0900\n"
 "Last-Translator: Daiki Ueno <ueno@unixuser.org>\n"
 "Language-Team: Japanese\n"
 "Language: \n"
@@ -57,6 +57,10 @@ msgstr "SKKの設定"
 #: ../engine/factory.py:37
 msgid "SKK"
 msgstr "SKK"
+
+#: ../setup/main.py:166
+msgid "Open Dictionary File"
+msgstr "辞書ファイルを開く"
 
 #: ../setup/ibus-skk-preferences.ui.h:1
 msgid "About"
@@ -124,7 +128,7 @@ msgstr "IBus-SKKの設定"
 
 #: ../setup/ibus-skk-preferences.ui.h:19
 msgid "Show Annotation"
-msgstr "アノテーションを表示"
+msgstr "候補の注釈を表示する"
 
 #: ../setup/ibus-skk-preferences.ui.h:20
 msgid "Up"
@@ -132,7 +136,7 @@ msgstr "上へ"
 
 #: ../setup/ibus-skk-preferences.ui.h:21
 msgid "Use SKK server"
-msgstr "SKK サーバを使用"
+msgstr "SKK サーバを使う"
 
 #: ../setup/ibus-skk-preferences.ui.h:22
 msgid "_Auto-start Conversion Characters:"
@@ -157,9 +161,6 @@ msgstr "ユーザ辞書ファイル(_U):"
 
 #~ msgid "Start conversion by some characters"
 #~ msgstr "キーワードによる自動変換の開始"
-
-#~ msgid "System Dictionary _File:"
-#~ msgstr "システム辞書ファイル(_F):"
 
 #~ msgid "System Dictionary _Type:"
 #~ msgstr "システム辞書の形式(_T):"

@@ -1,5 +1,6 @@
 import ibus
 import os, os.path
+import dbus
 
 class Config:
     __sysdict_paths = ('/usr/share/skk/SKK-JISYO',
@@ -21,7 +22,7 @@ class Config:
 
     def sysdict_paths(self):
         return self.get_value('sysdict_paths',
-                              [self.sysdict_path] if self.sysdict_path else None)
+                              [self.sysdict_path] if self.sysdict_path else dbus.Array(signature='s'))
 
     def __usrdict_path(self):
         usrdict_path = os.path.expanduser(self.__usrdict_path_unexpanded)

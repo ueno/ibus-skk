@@ -92,8 +92,8 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(self.__skk.input_mode, skk.INPUT_MODE_LATIN)
         # 'q' letter in LATIN
         handled, output = self.__skk.press_key(u'q')
-        self.assertFalse(handled)
-        self.assertEqual(output, u'')
+        self.assert_(handled)
+        self.assertEqual(output, u'q')
         self.assertEqual(self.__skk.conv_state, skk.CONV_STATE_NONE)
         self.assertEqual(self.__skk.preedit, u'')
         self.assertEqual(self.__skk.input_mode, skk.INPUT_MODE_LATIN)
@@ -703,8 +703,8 @@ class TestSKK(unittest.TestCase):
         # Don't start KUTEN input on {wide,}latin input mode.
         self.__skk.activate_input_mode(skk.INPUT_MODE_LATIN)
         handled, output = self.__skk.press_key(u'\\')
-        self.assertFalse(handled)
-        self.assertEqual(output, u'')
+        self.assertTrue(handled)
+        self.assertEqual(output, u'\\')
         self.__skk.activate_input_mode(skk.INPUT_MODE_WIDE_LATIN)
         handled, output = self.__skk.press_key(u'\\')
         self.assertTrue(handled)
