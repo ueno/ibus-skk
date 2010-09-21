@@ -348,6 +348,33 @@ ZENKAKU_TO_HANKAKU_KATAKANA_TABLE = {
     #u'ヵ': u'ｶ', u'ヶ': u'ｹ'
 }
 
+HANKAKU_TO_ZENKAKU_ASCII_TABLE = {
+    u' ': u'　',
+    u':': u'：', u'\;': u'；', u'?': u'？', u'!': u'！',
+    u'\'': u'´', u'`': u'｀', u'^': u'＾', u'_': u'＿', u'-': u'ー', u'-': u'—',
+    u'-': u'‐',
+    u'/': u'／', u'\\': u'＼', u'~': u'〜', u'|': u'｜', u'`': u'‘',
+    u'\'': u'’', u'\"': u'“', u'\"': u'”',
+    u'(': u'（', u')': u'）', u'[': u'［', u']': u'］', u'{': u'｛', u'}': u'｝', 
+    u'<': u'〈', u'>': u'〉', u'｢': u'「', u'｣': u'」', 
+    u'+': u'＋', u'-': u'−', u'=': u'＝', u'<': u'＜', u'>': u'＞',
+    u'\'': u'′', u'\"': u'″', u'\\': u'￥', u'$': u'＄', u'%': u'％',
+    u'#': u'＃', u'&': u'＆', u'*': u'＊',
+    u'@': u'＠',
+    u'0': u'０', u'1': u'１', u'2': u'２', u'3': u'３', u'4': u'４', 
+    u'5': u'５', u'6': u'６', u'7': u'７', u'8': u'８', u'9': u'９', 
+    u'A': u'Ａ', u'B': u'Ｂ', u'C': u'Ｃ', u'D': u'Ｄ', u'E': u'Ｅ', 
+    u'F': u'Ｆ', u'G': u'Ｇ', u'H': u'Ｈ', u'I': u'Ｉ', u'J': u'Ｊ', 
+    u'K': u'Ｋ', u'L': u'Ｌ', u'M': u'Ｍ', u'N': u'Ｎ', u'O': u'Ｏ', 
+    u'P': u'Ｐ', u'Q': u'Ｑ', u'R': u'Ｒ', u'S': u'Ｓ', u'T': u'Ｔ', 
+    u'U': u'Ｕ', u'V': u'Ｖ', u'W': u'Ｗ', u'X': u'Ｘ', u'Y': u'Ｙ', u'Z': u'Ｚ', 
+    u'a': u'ａ', u'b': u'ｂ', u'c': u'ｃ', u'd': u'ｄ', u'e': u'ｅ', 
+    u'f': u'ｆ', u'g': u'ｇ', u'h': u'ｈ', u'i': u'ｉ', u'j': u'ｊ', 
+    u'k': u'ｋ', u'l': u'ｌ', u'm': u'ｍ', u'n': u'ｎ', u'o': u'ｏ', 
+    u'p': u'ｐ', u'q': u'ｑ', u'r': u'ｒ', u's': u'ｓ', u't': u'ｔ', 
+    u'u': u'ｕ', u'v': u'ｖ', u'w': u'ｗ', u'x': u'ｘ', u'y': u'ｙ', u'z': u'ｚ'
+    }
+
 HANKAKU_TO_ZENKAKU_KATAKANA_TABLE = dict()
 for zenkaku, hankaku in ZENKAKU_TO_HANKAKU_KATAKANA_TABLE.iteritems():
     HANKAKU_TO_ZENKAKU_KATAKANA_TABLE[hankaku] = zenkaku
@@ -1346,6 +1373,16 @@ class Context(object):
                     output = u''
                 self.activate_input_mode(input_mode)
                 return (True, output)
+
+            # Convert hankaku to zenkaku with ctrl+q in abbrev mode (Issue#17).
+            if self.__current_state().abbrev and str(key) == 'ctrl+q':
+                hankaku = self.__current_state().rom_kana_state[0]
+                zenkaku = HANKAKU_TO_ZENKAKU_ASCII_TABLE.get(hankaku, hankaku)
+                self.kakutei()
+                if self.dict_edit_level() > 0:
+                    self.__current_state().dict_edit_output += zenkaku
+                    return (True, u'')
+                return (True, zenkaku)
 
             if str(key) in ('ctrl+j', 'ctrl+m', 'return'):
                 kuten = self.__current_state().kuten
