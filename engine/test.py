@@ -29,6 +29,7 @@ class TestSKK(unittest.TestCase):
                         if line.startswith(';; okuri-nasi'):
                             tp.write(u'#/# /#0月#0日/#1／#1/#1月#1日/\n'.encode('EUC-JP'))
                             tp.write(u'#ひき /#1匹/#3匹/#0匹/#2匹/\n'.encode('EUC-JP'))
+                            tp.write(u'>し /氏/\n'.encode('EUC-JP'))
                         if line.startswith('greek '):
                             tp.write(u'request /リクエスト/\n'.encode('EUC-JP'))
 
@@ -310,6 +311,23 @@ class TestSKK(unittest.TestCase):
         self.__skk.press_key(u'a')
         self.assertEqual(self.__skk.preedit, u'▼踏んだ')
         self.__skk.debug = False
+
+        # Issue#19
+        self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
+        self.__skk.press_key(u'shift+a')
+        self.__skk.press_key(u'z')
+        self.__skk.press_key(u'u')
+        self.__skk.press_key(u'm')
+        self.__skk.press_key(u'a')
+        self.__skk.press_key(u' ')
+        self.assertEqual(self.__skk.preedit, u'▼東')
+        self.__skk.press_key(u'>')
+        self.__skk.press_key(u's')
+        self.__skk.press_key(u'h')
+        self.__skk.press_key(u'i')
+        self.__skk.press_key(u' ')
+        self.assertEqual(self.__skk.preedit, u'▼氏')
 
     def testcompletion(self):
         self.__skk.reset()
