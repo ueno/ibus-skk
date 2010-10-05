@@ -1501,6 +1501,8 @@ class Context(object):
 
             # Start okuri-nasi conversion.
             if key.keyval == u' ' or \
+                    (len(self.__current_state().rom_kana_state[0]) > 0 and \
+                         key.keyval == u'>') or \
                     self.__current_state().auto_start_henkan_keyword:
                 self.__current_state().conv_state = CONV_STATE_SELECT
                 self.__current_state().rom_kana_state = \
@@ -1508,6 +1510,8 @@ class Context(object):
                 midasi = katakana_to_hiragana(\
                     zenkaku_katakana(\
                         self.__current_state().rom_kana_state[0]))
+                if key.keyval == u'>':
+                    midasi += u'>'
                 self.__activate_candidate_selector(midasi)
                 return (True, u'')
 
@@ -1589,6 +1593,8 @@ class Context(object):
                             not self.egg_like_newline:
                         output += u'\n'
                     return (True, output)
+                if str(key) == '>':
+                    self.__current_state().conv_state = CONV_STATE_START
                 return (True, output + self.press_key(str(key))[1])
 
     def __init_completer(self, compkey):

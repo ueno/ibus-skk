@@ -32,6 +32,8 @@ class TestSKK(unittest.TestCase):
                             tp.write(u'>し /氏/\n'.encode('EUC-JP'))
                         if line.startswith('greek '):
                             tp.write(u'request /リクエスト/\n'.encode('EUC-JP'))
+                        if line.startswith(u'ちょう '.encode('EUC-JP')):
+                            tp.write(u'ちょう> /超/\n'.encode('EUC-JP'))
 
         self.__skk = skk.Context(usrdict=skk.UsrDict(usrdict_path),
                                  sysdict=skk.SysDict(sysdict_path),
@@ -323,11 +325,19 @@ class TestSKK(unittest.TestCase):
         self.__skk.press_key(u' ')
         self.assertEqual(self.__skk.preedit, u'▼東')
         self.__skk.press_key(u'>')
+        self.assertEqual(self.__skk.preedit, u'▽>')
         self.__skk.press_key(u's')
         self.__skk.press_key(u'h')
         self.__skk.press_key(u'i')
         self.__skk.press_key(u' ')
         self.assertEqual(self.__skk.preedit, u'▼氏')
+        self.__skk.kakutei()
+        self.__skk.press_key(u'shift+t')
+        self.__skk.press_key(u'y')
+        self.__skk.press_key(u'o')
+        self.__skk.press_key(u'u')
+        self.__skk.press_key(u'>')
+        self.assertEqual(self.__skk.preedit, u'▼超')
 
     def testcompletion(self):
         self.__skk.reset()
