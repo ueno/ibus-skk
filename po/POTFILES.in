@@ -3,4 +3,4 @@ engine/main.py
 engine/engine.py
 engine/factory.py
 setup/main.py
-[type: gettext/glade]setup/ibus-skk-preferences.ui
+[type: gettext/glade]setup/ibus-skk-preferences.ui.in

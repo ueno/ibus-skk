@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ibus-skk 1.2.0.20091108\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-06 12:39+0900\n"
-"PO-Revision-Date: 2010-09-06 12:40+0900\n"
+"POT-Creation-Date: 2010-10-06 17:28+0900\n"
+"PO-Revision-Date: 2010-10-06 17:29+0900\n"
 "Last-Translator: Daiki Ueno <ueno@unixuser.org>\n"
 "Language-Team: Japanese\n"
 "Language: \n"
@@ -18,39 +18,39 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ../engine/engine.py:184
+#: ../engine/engine.py:188
 msgid "DictEdit"
 msgstr "辞書登録"
 
-#: ../engine/engine.py:186
+#: ../engine/engine.py:190
 msgid "Kuten([MM]KKTT) "
 msgstr "区点([MM]KKTT) "
 
-#: ../engine/engine.py:201
+#: ../engine/engine.py:205
 msgid "Switch input mode"
 msgstr "入力モード切替"
 
-#: ../engine/engine.py:207 ../setup/ibus-skk-preferences.ui.h:8
+#: ../engine/engine.py:211 ../setup/ibus-skk-preferences.ui.in.h:8
 msgid "Hiragana"
 msgstr "ひらがな"
 
-#: ../engine/engine.py:210
+#: ../engine/engine.py:214
 msgid "Katakana"
 msgstr "カタカナ"
 
-#: ../engine/engine.py:213 ../setup/ibus-skk-preferences.ui.h:11
+#: ../engine/engine.py:217 ../setup/ibus-skk-preferences.ui.in.h:11
 msgid "Latin"
 msgstr "英数"
 
-#: ../engine/engine.py:216
+#: ../engine/engine.py:220
 msgid "Wide Latin"
 msgstr "全角英数"
 
-#: ../engine/engine.py:219
+#: ../engine/engine.py:223
 msgid "HankakuKatakana"
 msgstr "半角カタカナ"
 
-#: ../engine/engine.py:230
+#: ../engine/engine.py:234
 msgid "Configure SKK"
 msgstr "SKKの設定"
 
@@ -58,112 +58,98 @@ msgstr "SKKの設定"
 msgid "SKK"
 msgstr "SKK"
 
-#: ../setup/main.py:166
+#: ../setup/main.py:199
 msgid "Open Dictionary File"
 msgstr "辞書ファイルを開く"
 
-#: ../setup/ibus-skk-preferences.ui.h:1
+#: ../setup/ibus-skk-preferences.ui.in.h:1
 msgid "About"
 msgstr "情報"
 
-#: ../setup/ibus-skk-preferences.ui.h:2
+#: ../setup/ibus-skk-preferences.ui.in.h:2
 msgid "Add.."
 msgstr "追加"
 
-#: ../setup/ibus-skk-preferences.ui.h:3
+#: ../setup/ibus-skk-preferences.ui.in.h:3
 msgid "Behavior"
 msgstr "動作"
 
-#: ../setup/ibus-skk-preferences.ui.h:4
+#: ../setup/ibus-skk-preferences.ui.in.h:4
 msgid "Candidate Window Pa_gination Start:"
 msgstr "候補ウィンドウの表示開始位置(_G):"
 
-#: ../setup/ibus-skk-preferences.ui.h:5
+#: ../setup/ibus-skk-preferences.ui.in.h:5
 msgid "Candidate _Window Page Size:"
 msgstr "候補ウィンドウの項目数(_W):"
 
-#: ../setup/ibus-skk-preferences.ui.h:6
+#: ../setup/ibus-skk-preferences.ui.in.h:6
 msgid "Dictionary"
 msgstr "辞書"
 
-#: ../setup/ibus-skk-preferences.ui.h:7
+#: ../setup/ibus-skk-preferences.ui.in.h:7
 msgid "Down"
 msgstr "下へ"
 
-#: ../setup/ibus-skk-preferences.ui.h:9
+#: ../setup/ibus-skk-preferences.ui.in.h:9
 msgid "Initial Input Mode:"
 msgstr "初期入力モード"
 
-#: ../setup/ibus-skk-preferences.ui.h:10
+#: ../setup/ibus-skk-preferences.ui.in.h:10
 msgid "KZIK"
 msgstr "KZIK"
 
-#: ../setup/ibus-skk-preferences.ui.h:12
+#: ../setup/ibus-skk-preferences.ui.in.h:12
 msgid "Normal"
 msgstr "標準"
 
-#: ../setup/ibus-skk-preferences.ui.h:13
+#: ../setup/ibus-skk-preferences.ui.in.h:13
 msgid "Port:"
 msgstr "ポート:"
 
-#: ../setup/ibus-skk-preferences.ui.h:14
+#: ../setup/ibus-skk-preferences.ui.in.h:14
 msgid "Remove"
 msgstr "削除"
 
-#: ../setup/ibus-skk-preferences.ui.h:15
+#: ../setup/ibus-skk-preferences.ui.in.h:15
 msgid "Return-key doesn't insert new line on commit"
 msgstr "確定時にリターンキーを押しても改行を挿入しない"
 
-#: ../setup/ibus-skk-preferences.ui.h:16
+#: ../setup/ibus-skk-preferences.ui.in.h:16
 msgid "Rom/Kana Conversion _Table:"
 msgstr "ローマ字かな変換テーブル(_T):"
 
-#: ../setup/ibus-skk-preferences.ui.h:17
+#: ../setup/ibus-skk-preferences.ui.in.h:17
 msgid "SKK input method for IBus"
 msgstr "IBus入力プラットフォーム用SKKエンジン"
 
-#: ../setup/ibus-skk-preferences.ui.h:18
+#: ../setup/ibus-skk-preferences.ui.in.h:18
 msgid "Setup - IBus-SKK"
 msgstr "IBus-SKKの設定"
 
-#: ../setup/ibus-skk-preferences.ui.h:19
+#: ../setup/ibus-skk-preferences.ui.in.h:19
 msgid "Show Annotation"
 msgstr "候補の注釈を表示する"
 
-#: ../setup/ibus-skk-preferences.ui.h:20
+#: ../setup/ibus-skk-preferences.ui.in.h:20
 msgid "Up"
 msgstr "上へ"
 
-#: ../setup/ibus-skk-preferences.ui.h:21
+#: ../setup/ibus-skk-preferences.ui.in.h:21
 msgid "Use SKK server"
 msgstr "SKK サーバを使う"
 
-#: ../setup/ibus-skk-preferences.ui.h:22
+#: ../setup/ibus-skk-preferences.ui.in.h:22
+msgid "Use mmap"
+msgstr "mmap を使う"
+
+#: ../setup/ibus-skk-preferences.ui.in.h:23
 msgid "_Auto-start Conversion Characters:"
 msgstr "自動変換を開始する文字(_A):"
 
-#: ../setup/ibus-skk-preferences.ui.h:23
+#: ../setup/ibus-skk-preferences.ui.in.h:24
 msgid "_Period Style:"
 msgstr "句読点の形式(_P):"
 
-#: ../setup/ibus-skk-preferences.ui.h:24
+#: ../setup/ibus-skk-preferences.ui.in.h:25
 msgid "_User dictionary: "
 msgstr "ユーザ辞書ファイル(_U):"
-
-#~ msgid "<b>Dictionaries</b>"
-#~ msgstr "<b>辞書</b>"
-
-#~ msgid "File"
-#~ msgstr "ファイル"
-
-#~ msgid "SKK _Server:"
-#~ msgstr "SKK サーバ(_S):"
-
-#~ msgid "Start conversion by some characters"
-#~ msgstr "キーワードによる自動変換の開始"
-
-#~ msgid "System Dictionary _Type:"
-#~ msgstr "システム辞書の形式(_T):"
-
-#~ msgid "Register to Dictionary"
-#~ msgstr "辞書登録"

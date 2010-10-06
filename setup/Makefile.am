@@ -35,6 +35,7 @@ CLEANFILES = \
 
 EXTRA_DIST = \
 	ibus-setup-skk.in \
+	ibus-skk-preferences.ui.in \
 	$(NULL)
 
 test:
