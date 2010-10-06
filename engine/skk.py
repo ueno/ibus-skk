@@ -1306,7 +1306,7 @@ class Context(object):
                 return (True, output)
 
             # Start KUTEN input.
-            if str(key) == '\\':
+            if key.letter == '\\':
                 if not self.__kuten_codec:
                     import codecs
                     try:
@@ -1567,7 +1567,7 @@ class Context(object):
                     self.__candidate_selector.set_index(index)
                     self.__enter_dict_edit()
                 return (True, u'')
-            elif str(key) == 'x':
+            elif key.letter == 'x':
                 if self.previous_candidate() is None:
                     self.__current_state().conv_state = CONV_STATE_START
                 return (True, u'')
@@ -1589,7 +1589,7 @@ class Context(object):
                             not self.egg_like_newline:
                         output += u'\n'
                     return (True, output)
-                if str(key) == '>':
+                if key.letter == '>':
                     self.__current_state().conv_state = CONV_STATE_START
                 return (True, output + self.press_key(str(key))[1])
 
