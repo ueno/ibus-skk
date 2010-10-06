@@ -301,10 +301,6 @@ class Engine(ibus.EngineBase):
                 # If the pre-edit buffer is visible, always handle key events:
                 # http://github.com/ueno/ibus-skk/issues/#issue/5
                 return len(self.__skk.preedit) > 0
-        if keychr.isalpha():
-            keychr = keychr.lower()
-        if state & modifier.SHIFT_MASK:
-            keychr = u'shift+' + keychr
         if state & modifier.CONTROL_MASK:
             keychr = u'ctrl+' + keychr
         handled, output = self.__skk.press_key(keychr)

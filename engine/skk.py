@@ -414,7 +414,7 @@ INPUT_MODE_TRANSITION_RULE = {
         INPUT_MODE_HIRAGANA: INPUT_MODE_KATAKANA,
         INPUT_MODE_KATAKANA: INPUT_MODE_HIRAGANA
         },
-    u'shift+l': {
+    u'L': {
         INPUT_MODE_HIRAGANA: INPUT_MODE_WIDE_LATIN,
         INPUT_MODE_KATAKANA: INPUT_MODE_WIDE_LATIN
         },
@@ -1034,25 +1034,20 @@ class State(object):
 class Key(object):
     __letters = {
 #        'return': '\r',
-        'escape': '\e',
-        'backspace': '\h',
-        'tab': '\t'
+        u'escape': u'\e',
+        u'backspace': u'\h',
+        u'tab': u'\t'
         }
 
     def __init__(self, keystr):
         self.__keystr = keystr
-        self.__is_ctrl = keystr.startswith('ctrl+')
+        self.__is_ctrl = keystr.startswith(u'ctrl+')
         if self.__is_ctrl:
             keystr = keystr[5:]
-        self.__is_shift = keystr.startswith('shift+')
-        if self.__is_shift:
-            keystr = keystr[6:]
         self.__keyval = keystr
 
         if Key.__letters.has_key(keystr.lower()):
             self.__letter = Key.__letters[keystr.lower()]
-        elif self.__is_shift:
-            self.__letter = keystr.upper()
         else:
             self.__letter = keystr
 
@@ -1064,9 +1059,6 @@ class Key(object):
 
     def is_ctrl(self):
         return self.__is_ctrl
-
-    def is_shift(self):
-        return self.__is_shift
 
 class Context(object):
     def __init__(self, usrdict, sysdict, candidate_selector):
@@ -1225,10 +1217,21 @@ class Context(object):
             self.__current_state().conv_state = CONV_STATE_START
             self.__enter_dict_edit()
 
+    def __rom_kana_has_pending(self):
+        if self.__current_state().rom_kana_state is None:
+            return False
+        output, pending, tree = self.__current_state().rom_kana_state
+        return len(pending) > 0 and not pending.endswith(u'n')
+
+    def __rom_kana_key_is_acceptable(self, key):
+        if not self.__rom_kana_has_pending():
+            return False
+        return key.letter.lower() in self.__current_state().rom_kana_state[2]
+
     def press_key(self, keystr):
         '''Process a key press event KEYSTR.
 
-        KEYSTR is in the format of ["ctrl+"]["shift+"]<lower case ASCII letter>.
+        KEYSTR is in the format of ["ctrl+"]<ASCII letter>.
 
         The return value is a tuple (HANDLED, OUTPUT) where HANDLED is
         True if the event was handled internally (otherwise False),
@@ -1260,23 +1263,14 @@ class Context(object):
         if str(key) in ('ctrl+h', 'backspace'):
             return self.delete_char()
 
-        # Check rom-kana conversion is in progress.
-        rom_kana_pending = self.__current_state().rom_kana_state and \
-            len(self.__current_state().rom_kana_state[1]) > 0 and \
-            not self.__current_state().rom_kana_state[1].endswith(u'n')
         if self.__current_state().conv_state == CONV_STATE_NONE:
-            # Check if KEY will be consumed in the next rom-kana conversion.
-            rom_kana_accepts_key = False
-            if rom_kana_pending:
-                rom_kana_accepts_key = key.keyval in \
-                    self.__current_state().rom_kana_state[2]
             # If KEY will be consumed in the next rom-kana conversion,
             # skip input mode transition.
-            if not rom_kana_accepts_key:
+            if not self.__rom_kana_key_is_acceptable(key):
                 input_mode = INPUT_MODE_TRANSITION_RULE.get(str(key), dict()).\
                     get(self.__current_state().input_mode)
                 if input_mode is not None:
-                    if not rom_kana_pending and \
+                    if not self.__rom_kana_has_pending() and \
                             self.__current_state().rom_kana_state:
                         self.__current_state().rom_kana_state = \
                             self.__convert_nn(self.__current_state().rom_kana_state)
@@ -1325,23 +1319,23 @@ class Context(object):
                 return (True, u'')
 
             # Start rom-kan mode with abbrev enabled (/).
-            if not rom_kana_pending and key.keyval == '/':
+            if not self.__rom_kana_has_pending() and key.letter == '/':
                 self.__current_state().conv_state = CONV_STATE_START
                 self.__current_state().abbrev = True
                 return (True, u'')
 
-            # Start rom-kan mode (shift+q).
-            if key.is_shift() and key.keyval == 'q':
+            # Start rom-kan mode (Q).
+            if key.letter == 'Q':
                 self.__current_state().conv_state = CONV_STATE_START
                 return (True, u'')
 
             # Start rom-kan mode and insert a character which
             # triggered the transition.
-            if key.is_shift() and key.keyval.isalpha():
+            if key.letter.isupper():
                 self.__current_state().conv_state = CONV_STATE_START
 
             self.__current_state().rom_kana_state = \
-                self.__convert_rom_kana(key.keyval,
+                self.__convert_rom_kana(key.letter.lower(),
                                         self.__current_state().rom_kana_state)
             output = self.__current_state().rom_kana_state[0]
             if self.__current_state().conv_state == CONV_STATE_NONE and \
@@ -1359,7 +1353,7 @@ class Context(object):
         elif self.__current_state().conv_state == CONV_STATE_START:
             input_mode = INPUT_MODE_TRANSITION_RULE.get(str(key), dict()).\
                 get(self.__current_state().input_mode)
-            if rom_kana_pending or self.__current_state().abbrev:
+            if self.__rom_kana_has_pending() or self.__current_state().abbrev:
                 input_mode = None
             if self.__current_state().input_mode == INPUT_MODE_HIRAGANA and \
                     input_mode == INPUT_MODE_KATAKANA:
@@ -1462,7 +1456,7 @@ class Context(object):
                 return (True, u'')
 
             # Start TAB(\C-i) completion.
-            if key.keyval == '\t' or (key.is_ctrl() and key.letter == 'i'):
+            if key.letter == '\t' or (key.is_ctrl() and key.letter == 'i'):
                 self.__current_state().rom_kana_state = \
                     self.__convert_nn(self.__current_state().rom_kana_state)
                 if self.__current_state().completer is None:
@@ -1486,7 +1480,8 @@ class Context(object):
             auto_start_henkan_keyword = None
             if not self.__current_state().abbrev:
                 rom_kana_state = tuple(self.__current_state().rom_kana_state)
-                rom_kana_state = self.__convert_rom_kana(key.keyval, rom_kana_state)
+                rom_kana_state = self.__convert_rom_kana(key.letter.lower(),
+                                                         rom_kana_state)
                 for keyword in AUTO_START_HENKAN_KEYWORDS:
                     if rom_kana_state[0].endswith(keyword):
                         self.__current_state().auto_start_henkan_keyword = keyword
@@ -1494,15 +1489,15 @@ class Context(object):
 
             # If midasi is empty, switch back to CONV_STATE_NONE
             # instead of CONV_STATE_SELECT.
-            if key.keyval == u' ' and \
+            if key.letter == u' ' and \
                     len(self.__current_state().rom_kana_state[0]) == 0:
                 self.__current_state().conv_state = CONV_STATE_NONE
                 return (True, u'')
 
             # Start okuri-nasi conversion.
-            if key.keyval == u' ' or \
+            if key.letter == u' ' or \
                     (len(self.__current_state().rom_kana_state[0]) > 0 and \
-                         key.keyval == u'>') or \
+                         key.letter == u'>') or \
                     self.__current_state().auto_start_henkan_keyword:
                 self.__current_state().conv_state = CONV_STATE_SELECT
                 self.__current_state().rom_kana_state = \
@@ -1510,7 +1505,7 @@ class Context(object):
                 midasi = katakana_to_hiragana(\
                     zenkaku_katakana(\
                         self.__current_state().rom_kana_state[0]))
-                if key.keyval == u'>':
+                if key.letter == u'>':
                     midasi += u'>'
                 self.__activate_candidate_selector(midasi)
                 return (True, u'')
@@ -1523,7 +1518,7 @@ class Context(object):
                      self.__rom_kana_rule_tree)
                 return (True, u'')
 
-            if key.is_shift():
+            if key.letter.isupper():
                 rom_kana_state = self.__convert_nn(self.__current_state().rom_kana_state)
                 if len(rom_kana_state[1]) == 0 and \
                         not self.__current_state().okuri_rom_kana_state:
@@ -1541,9 +1536,10 @@ class Context(object):
                         break
                 if not okuri:
                     okuri = (self.__current_state().okuri_rom_kana_state[1] or \
-                                 key.keyval)[0]
+                                 key.letter.lower())[0]
                 self.__current_state().okuri_rom_kana_state = \
-                    self.__convert_rom_kana(key.keyval, self.__current_state().okuri_rom_kana_state)
+                    self.__convert_rom_kana(key.letter.lower(),
+                                            self.__current_state().okuri_rom_kana_state)
 
                 # Start okuri-ari conversion.
                 if len(self.__current_state().okuri_rom_kana_state[1]) == 0:
@@ -1560,7 +1556,7 @@ class Context(object):
                 return (False, u'')
 
             self.__current_state().rom_kana_state = \
-                self.__convert_rom_kana(key.keyval,
+                self.__convert_rom_kana(key.letter.lower(),
                                         self.__current_state().rom_kana_state)
             return (True, u'')
 
