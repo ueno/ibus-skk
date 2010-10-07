@@ -1,0 +1,8 @@
+{
+    "custom_rom_kana_rule": {
+	"-": [null, "-"],
+	":": [null, ":"],
+	";": [null, ";"],
+	"?": [null, "?"]
+    }
+}

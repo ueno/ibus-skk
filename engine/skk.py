@@ -1069,6 +1069,7 @@ class Context(object):
         self.__usrdict = None
         self.__sysdict = None
         self.__rom_kana_rule = None
+        self.__custom_rom_kana_rule = dict()
         self.__candidate_selector = candidate_selector
         self.__state_stack = list()
         self.__state_stack.append(State())
@@ -1077,6 +1078,7 @@ class Context(object):
         self.usrdict = usrdict
         self.sysdict = sysdict
         self.rom_kana_rule = ROM_KANA_NORMAL
+        self.custom_rom_kana_rule = dict()
         self.kutouten_type = KUTOUTEN_JP
         self.auto_start_henkan_keywords = AUTO_START_HENKAN_KEYWORDS
         self.egg_like_newline = True
@@ -1102,14 +1104,26 @@ class Context(object):
     usrdict = property(lambda self: self.__usrdict, set_usrdict)
     sysdict = property(lambda self: self.__sysdict, set_sysdict)
 
+    def __update_rom_kana_rule_tree(self):
+        rule = dict(ROM_KANA_RULES[self.__rom_kana_rule])
+        rule.update(self.custom_rom_kana_rule)
+        self.__rom_kana_rule_tree = compile_rom_kana_rule(rule)
+        
     def set_rom_kana_rule(self, rom_kana_rule):
         if self.__rom_kana_rule != rom_kana_rule:
             self.__rom_kana_rule = rom_kana_rule
-            self.__rom_kana_rule_tree = \
-                compile_rom_kana_rule(ROM_KANA_RULES[self.__rom_kana_rule])
+            self.__update_rom_kana_rule_tree()
 
     rom_kana_rule = property(lambda self: self.__rom_kana_rule,
                              set_rom_kana_rule)
+
+    def set_custom_rom_kana_rule(self, custom_rom_kana_rule):
+        if self.__custom_rom_kana_rule != custom_rom_kana_rule:
+            self.__custom_rom_kana_rule = custom_rom_kana_rule
+            self.__update_rom_kana_rule_tree()
+            
+    custom_rom_kana_rule = property(lambda self: self.__custom_rom_kana_rule,
+                                    set_custom_rom_kana_rule)
 
     def __current_state(self):
         return self.__state_stack[-1]

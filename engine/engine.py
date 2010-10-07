@@ -188,6 +188,8 @@ class Engine(ibus.EngineBase):
             _(u'DictEdit').decode('UTF-8')
         self.__skk.translated_strings['kuten-prompt'] =\
             _(u'Kuten([MM]KKTT) ').decode('UTF-8')
+        self.__skk.custom_rom_kana_rule = \
+            self.config.get_value('custom_rom_kana_rule', dict())
         self.__skk.reset()
         self.__skk.activate_input_mode(self.__initial_input_mode)
         self.__prop_dict = dict()

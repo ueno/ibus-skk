@@ -34,6 +34,7 @@ EXTRA_DIST = \
 	autogen.sh \
 	ibus-skk.spec.in \
 	python-config.py \
+	ibus-skk.conf.example \
 	$(NULL)
 
 noinst_DIST = \
