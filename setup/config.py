@@ -10,7 +10,7 @@ class Config:
                        '/usr/local/share/skk/SKK-JISYO',
                        '/usr/local/share/skk/SKK-JISYO.L')
     __usrdict_path_unexpanded = '~/.skk-ibus-jisyo'
-    __config_path_unexpanded = '~/.config/ibus-skk.conf'
+    __config_path_unexpanded = '~/.config/ibus-skk.json'
 
     def __init__(self, bus=ibus.Bus()):
         self.__bus = bus

@@ -18,11 +18,15 @@ $ ./configure --prefix=/usr # --libdir=/usr/lib64
 $ make
 $ sudo make install
 
-* Configuration file
+* Configuration
 
-You can customize the tables used in ibus-skk, such as romaji-to-kana
-conversion table, with ~/.config/ibus-skk.conf file.  Use
-ibus-skk.conf.example as a template.
+There is a GUI setup tool to customize ibus-skk.  It can be started
+from the command line by "ibus-setup-m17n", or from the language
+panel.
+
+For complex settings, such as romaji-to-kana conversion table, you can
+use configuration file located at ~/.config/ibus-skk.json.  Use
+ibus-skk.json.example as a template.
 
 * How to report bugs
 
