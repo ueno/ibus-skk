@@ -820,8 +820,13 @@ class SkkServ(DictBase):
 
 def compile_rom_kana_rule(rule):
     def _compile_rom_kana_rule(tree, input_state, arg):
+        if len(input_state) == 0:
+            return
         hd, tl = input_state[0], input_state[1:]
-        if hd not in tree:
+        if hd in tree:
+            if not isinstance(tree[hd], dict):
+                return
+        else:
             if not tl:
                 tree[hd] = arg
                 return
@@ -1078,7 +1083,6 @@ class Context(object):
         self.usrdict = usrdict
         self.sysdict = sysdict
         self.rom_kana_rule = ROM_KANA_NORMAL
-        self.custom_rom_kana_rule = dict()
         self.kutouten_type = KUTOUTEN_JP
         self.auto_start_henkan_keywords = AUTO_START_HENKAN_KEYWORDS
         self.egg_like_newline = True
