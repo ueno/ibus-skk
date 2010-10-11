@@ -304,7 +304,10 @@ class Engine(ibus.EngineBase):
                 # http://github.com/ueno/ibus-skk/issues/#issue/5
                 return len(self.__skk.preedit) > 0
         if state & modifier.CONTROL_MASK:
-            keychr = u'ctrl+' + keychr
+            # Some systems return 'J' if ctrl:nocaps xkb option is
+            # enabled and the user press CapsLock + 'j':
+            # http://github.com/ueno/ibus-skk/issues/#issue/22
+            keychr = u'ctrl+' + keychr.lower()
         handled, output = self.__skk.press_key(keychr)
         if output:
             self.commit_text(ibus.Text(output))
