@@ -21,6 +21,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import gobject
+import dbus
 import ibus
 from ibus import keysyms
 from ibus import modifier
@@ -189,7 +190,8 @@ class Engine(ibus.EngineBase):
         self.__skk.translated_strings['kuten-prompt'] =\
             _(u'Kuten([MM]KKTT) ').decode('UTF-8')
         self.__skk.custom_rom_kana_rule = \
-            self.config.get_value('custom_rom_kana_rule', dict())
+            self.config.get_value('custom_rom_kana_rule',
+                                  dbus.Dictionary(signature='sv'))
         self.__skk.reset()
         self.__skk.activate_input_mode(self.__initial_input_mode)
         self.__prop_dict = dict()
