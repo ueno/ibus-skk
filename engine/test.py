@@ -180,6 +180,11 @@ class TestSKK(unittest.TestCase):
         self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.press_key(u'z')
         self.assertEqual(self.__skk.press_key(u'l'), (True, u'→'))
+        # NA -> な
+        self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
+        self.__skk.press_key(u'N')
+        self.assertEqual(self.__skk.press_key(u'A'), (True, u'な'))
 
     def testhiraganakatakana(self):
         self.__skk.reset()
