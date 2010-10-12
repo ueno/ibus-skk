@@ -4,9 +4,6 @@ import os, sys
 import config
 import gettext
 
-sys.path.insert(0, os.path.join(os.getenv('IBUS_SKK_PKGDATADIR'), 'engine'))
-import skk
-
 from gettext import dgettext
 _  = lambda a : dgettext("ibus-skk", a)
 N_ = lambda a : a
@@ -59,11 +56,11 @@ class PreferencesDialog:
         self.__egg_like_newline = self.__builder.get_object('egg_like_newline')
 
         self.__usrdict.set_filename(self.__config.usrdict_path)
-        sysdict_type = self.__config.get_value('sysdict_type', 'file')
+        sysdict_type = self.__config.get_value('sysdict_type')
         if sysdict_type == 'skkserv':
             self.__use_skkserv.set_active(True)
         self.__set_sysdict_widgets_sensitivity(sysdict_type)
-        use_mmap = self.__config.get_value('use_mmap', True)
+        use_mmap = self.__config.get_value('use_mmap')
         self.__use_mmap.set_active(use_mmap)
 
         # sysdict treeview
@@ -74,43 +71,40 @@ class PreferencesDialog:
             self.__sysdict_liststore.append((path,))
 
         self.__skkserv_host.set_text(\
-            self.__config.get_value('skkserv_host', skk.SkkServ.HOST))
+            self.__config.get_value('skkserv_host'))
         self.__skkserv_port.set_numeric(True)
         self.__skkserv_port.set_range(0.0, 65535.0)
         self.__skkserv_port.set_value(\
-            int(self.__config.get_value('skkserv_port', skk.SkkServ.PORT)))
+            int(self.__config.get_value('skkserv_port')))
 
         renderer = gtk.CellRendererText()
         self.__period_style.pack_start(renderer)
         self.__period_style.set_attributes(renderer, text=0)
         index = get_index_by_value(\
             self.__period_style,
-            self.__config.get_value('period_style', skk.KUTOUTEN_JP))
+            self.__config.get_value('period_style'))
         self.__period_style.set_active(index)
 
         self.__auto_start_henkan_keywords.set_text(\
-            self.__config.get_value('auto_start_henkan_keywords',
-                                    ''.join(skk.AUTO_START_HENKAN_KEYWORDS)))
+            self.__config.get_value('auto_start_henkan_keywords'))
 
         self.__page_size.set_numeric(True)
         self.__page_size.set_range(7.0, 21.0)
         self.__page_size.set_value(\
-            int(self.__config.get_value('page_size',
-                                        skk.CandidateSelector.PAGE_SIZE)))
+            int(self.__config.get_value('page_size')))
         self.__pagination_start.set_numeric(True)
         self.__pagination_start.set_range(0.0, 7.0)
         self.__pagination_start.set_value(\
-            int(self.__config.get_value('pagination_start',
-                                        skk.CandidateSelector.PAGINATION_START)))
+            int(self.__config.get_value('pagination_start')))
         self.__show_annotation.set_active(\
-            self.__config.get_value('show_annotation', True))
+            self.__config.get_value('show_annotation'))
 
         renderer = gtk.CellRendererText()
         self.__rom_kana_rule.pack_start(renderer)
         self.__rom_kana_rule.set_attributes(renderer, text=0)
         index = get_index_by_value(\
             self.__rom_kana_rule,
-            self.__config.get_value('rom_kana_rule', skk.ROM_KANA_NORMAL))
+            self.__config.get_value('rom_kana_rule'))
         self.__rom_kana_rule.set_active(index)
 
         renderer = gtk.CellRendererText()
@@ -118,12 +112,11 @@ class PreferencesDialog:
         self.__initial_input_mode.set_attributes(renderer, text=0)
         index = get_index_by_value(\
             self.__initial_input_mode,
-            self.__config.get_value('initial_input_mode',
-                                    skk.INPUT_MODE_HIRAGANA))
+            self.__config.get_value('initial_input_mode'))
         self.__initial_input_mode.set_active(index)
 
         self.__egg_like_newline.set_active(\
-            self.__config.get_value('egg_like_newline', True))
+            self.__config.get_value('egg_like_newline'))
 
         self.__usrdict.connect('file-set', self.__usrdict_file_set_cb)
         self.__use_skkserv.connect('toggled', self.__use_skkserv_toggle_cb)

@@ -58,17 +58,17 @@ class EngineFactory(ibus.EngineFactoryBase):
         return super(EngineFactory, self).create_engine(engine_name)
 
     def __load_sysdict(self, _config):
-        sysdict_type = _config.get_value('sysdict_type', 'file')
+        sysdict_type = _config.get_value('sysdict_type')
         try:
             if sysdict_type == 'file':
-                use_mmap = _config.get_value('use_mmap', True)
+                use_mmap = _config.get_value('use_mmap')
                 instances = list()
                 for path in _config.sysdict_paths():
                     instances.append(skk.SysDict(path, use_mmap=use_mmap))
                 return skk.MultiSysDict(instances)
             else:
-                host = _config.get_value('skkserv_host', 'localhost')
-                port = int(_config.get_value('skkserv_port', '1178'))
+                host = _config.get_value('skkserv_host')
+                port = int(_config.get_value('skkserv_port'))
                 args = [host, port]
                 encoding = _config.get_value('skkserv_encoding')
                 if encoding:

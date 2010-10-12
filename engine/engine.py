@@ -21,7 +21,6 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import gobject
-import dbus
 import ibus
 from ibus import keysyms
 from ibus import modifier
@@ -150,11 +149,9 @@ class Engine(ibus.EngineBase):
         super(Engine, self).__init__(bus, object_path)
         self.__is_invalidate = False
         labels = [ibus.Text(c.upper() + u':') for c in self.__select_keys]
-        page_size = self.config.get_value('page_size',
-                                          skk.CandidateSelector.PAGE_SIZE)
+        page_size = self.config.get_value('page_size')
         pagination_start = \
-            self.config.get_value('pagination_start',
-                                  skk.CandidateSelector.PAGINATION_START)
+            self.config.get_value('pagination_start')
         self.__lookup_table = ibus.LookupTable(page_size=page_size,
                                                round=False,
                                                labels=labels)
@@ -168,30 +165,23 @@ class Engine(ibus.EngineBase):
         usrdict = skk.UsrDict(self.config.usrdict_path)
         self.__skk = skk.Context(usrdict, self.sysdict,
                                  self.__candidate_selector)
-        self.__skk.kutouten_type = self.config.get_value('period_style',
-                                                         skk.KUTOUTEN_JP)
+        self.__skk.kutouten_type = self.config.get_value('period_style')
         auto_start_henkan_keywords = \
-            self.config.get_value('auto_start_henkan_keywords',
-                                  ''.join(skk.AUTO_START_HENKAN_KEYWORDS))
+            self.config.get_value('auto_start_henkan_keywords')
         self.__skk.auto_start_henkan_keywords = \
             list(iter(auto_start_henkan_keywords))
-        self.__skk.rom_kana_rule = self.config.get_value('rom_kana_rule',
-                                                         skk.ROM_KANA_NORMAL)
-        self.__skk.egg_like_newline = self.config.get_value('egg_like_newline',
-                                                            True)
+        self.__skk.rom_kana_rule = self.config.get_value('rom_kana_rule')
+        self.__skk.egg_like_newline = self.config.get_value('egg_like_newline')
         self.__skk.direct_input_on_latin = \
-            self.config.get_value('direct_input_on_latin',
-                                  False)
+            self.config.get_value('direct_input_on_latin')
         self.__initial_input_mode = \
-            self.config.get_value('initial_input_mode',
-                                  skk.INPUT_MODE_HIRAGANA)
+            self.config.get_value('initial_input_mode')
         self.__skk.translated_strings['dict-edit-prompt'] =\
             _(u'DictEdit').decode('UTF-8')
         self.__skk.translated_strings['kuten-prompt'] =\
             _(u'Kuten([MM]KKTT) ').decode('UTF-8')
         self.__skk.custom_rom_kana_rule = \
-            self.config.get_value('custom_rom_kana_rule',
-                                  dbus.Dictionary(signature='sv'))
+            self.config.get_value('custom_rom_kana_rule')
         self.__skk.reset()
         self.__skk.activate_input_mode(self.__initial_input_mode)
         self.__prop_dict = dict()
@@ -377,16 +367,12 @@ class Engine(ibus.EngineBase):
     def __possibly_update_config(self):
         if self.__skk.usrdict.path != self.config.usrdict_path:
             self.__skk.usrdict = skk.UsrDict(self.config.usrdict_path)
-        self.__skk.kutouten_type = self.config.get_value('period_style',
-                                                         skk.KUTOUTEN_JP)
-        self.__skk.rom_kana_rule = self.config.get_value('rom_kana_rule',
-                                                         skk.ROM_KANA_NORMAL)
+        self.__skk.kutouten_type = self.config.get_value('period_style')
+        self.__skk.rom_kana_rule = self.config.get_value('rom_kana_rule')
         self.__initial_input_mode = \
-            self.config.get_value('initial_input_mode',
-                                  skk.INPUT_MODE_HIRAGANA)
+            self.config.get_value('initial_input_mode')
         self.__skk.auto_start_henkan_keywords = \
-            list(iter(self.config.get_value('auto_start_henkan_keywords',
-                                            ''.join(skk.AUTO_START_HENKAN_KEYWORDS))))
+            list(iter(self.config.get_value('auto_start_henkan_keywords')))
 
     # ABBREV_CURSOR_COLOR = (65, 105, 225)
     # INPUT_MODE_CURSOR_COLORS = {
@@ -436,7 +422,7 @@ class Engine(ibus.EngineBase):
         self.update_preedit_text(ibus.Text(preedit, attrs),
                                  len(preedit), len(preedit) > 0)
         visible = self.__candidate_selector.lookup_table_visible()
-        if self.config.get_value('show_annotation', True):
+        if self.config.get_value('show_annotation'):
             candidate = self.__candidate_selector.candidate()
             annotation = candidate[1] if candidate else None
             self.update_auxiliary_text(ibus.Text(annotation or u''), visible)
