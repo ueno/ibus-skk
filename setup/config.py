@@ -27,8 +27,16 @@ class Config:
         'rom_kana_rule': skk.ROM_KANA_NORMAL,
         'initial_input_mode': skk.INPUT_MODE_HIRAGANA,
         'egg_like_newline': True,
-        'custom_rom_kana_rule': dbus.Dictionary(signature='sv'),
         }
+
+    # Options which can only be specified in ~/.config/ibus-skk.json.
+    # This is a workaround for that currently IBus does not allows
+    # several complex types (e.g. dictionary) to be stored in its
+    # config mechanism.
+    __file_defaults = {
+        'custom_rom_kana_rule': dict()
+        }
+
 
     def __init__(self, bus=ibus.Bus()):
         self.__bus = bus
@@ -63,6 +71,9 @@ class Config:
 
     def __get_value(self, name, defval=None):
         value = self.__config_from_file.get(name)
+        if value is not None:
+            return value
+        value = self.__file_defaults.get(name)
         if value is not None:
             return value
         value = self.__config.get_value('engine/SKK', name, None)
