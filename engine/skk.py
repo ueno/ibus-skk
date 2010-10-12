@@ -1553,8 +1553,15 @@ class Context(object):
                 if not okuri:
                     okuri = (self.__current_state().okuri_rom_kana_state[1] or \
                                  key.letter.lower())[0]
+                # Workaround for:
+                # NA -> ▽な, NAN -> ▽な*n, NANA -> [DictEdit] な*んあ
+                # NA -> ▽な, NAN -> ▽な*n, NANa -> [DictEdit] な*な
+                if key.letter.isupper() and \
+                        key.letter.lower() in (u'a', u'i', u'u', u'e', u'o'):
+                    self.__current_state().okuri_rom_kana_state = \
+                        self.__convert_nn(self.__current_state().okuri_rom_kana_state)
                 self.__current_state().okuri_rom_kana_state = \
-                    self.__convert_rom_kana(key.letter.lower(),
+                    self.__convert_rom_kana(key.letter.lower(),\
                                             self.__current_state().okuri_rom_kana_state)
 
                 # Start okuri-ari conversion.
@@ -1778,7 +1785,7 @@ elements will be "[[DictEdit]] かんが*え ", "▽", "かんが", "*え" .'''
                 output += u'ン'
             elif self.__current_state().input_mode == INPUT_MODE_HANKAKU_KATAKANA:
                 output += u'ﾝ'
-            return (output, pending[:-1], tree)
+            return (output, pending[:-1], self.__rom_kana_rule_tree)
         return state
         
     def __convert_rom_kana(self, letter, state):
