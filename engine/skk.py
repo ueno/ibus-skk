@@ -1242,9 +1242,11 @@ class Context(object):
         return len(pending) > 0 and not pending.endswith(u'n')
 
     def __rom_kana_key_is_acceptable(self, key):
-        if not self.__rom_kana_has_pending():
+        if self.__current_state().rom_kana_state is None:
             return False
-        return key.letter.lower() in self.__current_state().rom_kana_state[2]
+        output, pending, tree = self.__current_state().rom_kana_state
+        return len(pending) > 0 and \
+            key.letter.lower() in self.__current_state().rom_kana_state[2]
 
     def press_key(self, keystr):
         '''Process a key press event KEYSTR.
@@ -1536,7 +1538,8 @@ class Context(object):
                      self.__rom_kana_rule_tree)
                 return (True, u'')
 
-            if key.letter.isupper():
+            if key.letter.isupper() and \
+                    not self.__rom_kana_key_is_acceptable(key):
                 rom_kana_state = self.__convert_nn(self.__current_state().rom_kana_state)
                 if len(rom_kana_state[1]) == 0 and \
                         not self.__current_state().okuri_rom_kana_state:
