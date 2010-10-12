@@ -235,7 +235,7 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(self.__skk.preedit, u'▼愛')
         self.__skk.press_key(u' ')
         self.assertEqual(self.__skk.preedit, u'▼哀')
-        # NA -> ▽な
+        # NA -> ▽な, NAN -> ▽な*n, NANA -> [DictEdit] な*んあ
         self.__skk.reset()
         self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.debug = True
@@ -243,6 +243,22 @@ class TestSKK(unittest.TestCase):
         self.__skk.press_key(u'A')
         self.__skk.debug = False
         self.assertEqual(self.__skk.preedit, u'▽な')
+        self.__skk.press_key(u'N')
+        self.assertEqual(self.__skk.preedit, u'▽な*n')
+        self.__skk.press_key(u'A')
+        self.assertEqual(self.__skk.preedit, u'[DictEdit] な*んあ')
+        # NA -> ▽な, NAN -> ▽な*n, NANa -> [DictEdit] な*な
+        self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
+        self.__skk.debug = True
+        self.__skk.press_key(u'N')
+        self.__skk.press_key(u'A')
+        self.__skk.debug = False
+        self.assertEqual(self.__skk.preedit, u'▽な')
+        self.__skk.press_key(u'N')
+        self.assertEqual(self.__skk.preedit, u'▽な*n')
+        self.__skk.press_key(u'a')
+        self.assertEqual(self.__skk.preedit, u'[DictEdit] な*な')
 
     def testegglikenewline(self):
         self.__skk.reset()
