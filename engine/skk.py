@@ -1235,12 +1235,6 @@ class Context(object):
             self.__current_state().conv_state = CONV_STATE_START
             self.__enter_dict_edit()
 
-    def __rom_kana_has_pending(self):
-        if self.__current_state().rom_kana_state is None:
-            return False
-        output, pending, tree = self.__current_state().rom_kana_state
-        return len(pending) > 0 and not pending.endswith(u'n')
-
     def __rom_kana_key_is_acceptable(self, key):
         if self.__current_state().rom_kana_state is None:
             return False
@@ -1290,8 +1284,7 @@ class Context(object):
                 input_mode = INPUT_MODE_TRANSITION_RULE.get(str(key), dict()).\
                     get(self.__current_state().input_mode)
                 if input_mode is not None:
-                    if not self.__rom_kana_has_pending() and \
-                            self.__current_state().rom_kana_state:
+                    if self.__current_state().rom_kana_state:
                         self.__current_state().rom_kana_state = \
                             self.__convert_nn(self.__current_state().rom_kana_state)
                         output = self.__current_state().rom_kana_state[0]
@@ -1339,7 +1332,7 @@ class Context(object):
                 return (True, u'')
 
             # Start rom-kan mode with abbrev enabled (/).
-            if not self.__rom_kana_has_pending() and key.letter == '/':
+            if not self.__rom_kana_key_is_acceptable(key) and key.letter == '/':
                 self.__current_state().conv_state = CONV_STATE_START
                 self.__current_state().abbrev = True
                 return (True, u'')
@@ -1371,61 +1364,63 @@ class Context(object):
             return (True, u'')
 
         elif self.__current_state().conv_state == CONV_STATE_START:
-            input_mode = INPUT_MODE_TRANSITION_RULE.get(str(key), dict()).\
-                get(self.__current_state().input_mode)
-            if self.__rom_kana_has_pending() or self.__current_state().abbrev:
-                input_mode = None
-            if self.__current_state().input_mode == INPUT_MODE_HIRAGANA and \
-                    input_mode == INPUT_MODE_KATAKANA:
-                self.__current_state().rom_kana_state = \
-                    self.__convert_nn(self.__current_state().rom_kana_state)
-                kana = hiragana_to_katakana(\
-                    self.__current_state().rom_kana_state[0])
-                self.kakutei()
-                if self.dict_edit_level() > 0:
-                    self.__current_state().dict_edit_output += kana
-                    return (True, u'')
-                return (True, kana)
-            elif self.__current_state().input_mode == INPUT_MODE_KATAKANA and \
-                    input_mode == INPUT_MODE_HIRAGANA:
-                self.__current_state().rom_kana_state = \
-                    self.__convert_nn(self.__current_state().rom_kana_state)
-                kana = katakana_to_hiragana(\
-                    self.__current_state().rom_kana_state[0])
-                self.kakutei()
-                if self.dict_edit_level() > 0:
-                    self.__current_state().dict_edit_output += kana
-                    return (True, u'')
-                return (True, kana)
-            elif self.__current_state().input_mode == INPUT_MODE_HANKAKU_KATAKANA and \
-                    input_mode == INPUT_MODE_KATAKANA:
-                self.__current_state().rom_kana_state = \
-                    self.__convert_nn(self.__current_state().rom_kana_state)
-                kana = zenkaku_katakana(\
-                    self.__current_state().rom_kana_state[0])
-                self.kakutei()
-                if self.dict_edit_level() > 0:
-                    self.__current_state().dict_edit_output += kana
-                    return (True, u'')
-                return (True, kana)
-            elif self.__current_state().input_mode == INPUT_MODE_KATAKANA and \
-                    input_mode == INPUT_MODE_HANKAKU_KATAKANA:
-                self.__current_state().rom_kana_state = \
-                    self.__convert_nn(self.__current_state().rom_kana_state)
-                kana = zenkaku_katakana(\
-                    self.__current_state().rom_kana_state[0])
-                self.kakutei()
-                if self.dict_edit_level() > 0:
-                    self.__current_state().dict_edit_output += kana
-                    return (True, u'')
-                return (True, kana)
-            elif input_mode is not None and not self.__current_state().abbrev:
-                output = self.kakutei()
-                if self.dict_edit_level() > 0:
-                    self.__current_state().dict_edit_output += output
-                    output = u''
-                self.activate_input_mode(input_mode)
-                return (True, output)
+            # If KEY will be consumed in the next rom-kana conversion,
+            # skip input mode transition.
+            if not self.__rom_kana_key_is_acceptable(key) and \
+                    not self.__current_state().abbrev:
+                input_mode = INPUT_MODE_TRANSITION_RULE.get(str(key), dict()).\
+                    get(self.__current_state().input_mode)
+                if self.__current_state().input_mode == INPUT_MODE_HIRAGANA and \
+                        input_mode == INPUT_MODE_KATAKANA:
+                    self.__current_state().rom_kana_state = \
+                        self.__convert_nn(self.__current_state().rom_kana_state)
+                    kana = hiragana_to_katakana(\
+                        self.__current_state().rom_kana_state[0])
+                    self.kakutei()
+                    if self.dict_edit_level() > 0:
+                        self.__current_state().dict_edit_output += kana
+                        return (True, u'')
+                    return (True, kana)
+                elif self.__current_state().input_mode == INPUT_MODE_KATAKANA and \
+                        input_mode == INPUT_MODE_HIRAGANA:
+                    self.__current_state().rom_kana_state = \
+                        self.__convert_nn(self.__current_state().rom_kana_state)
+                    kana = katakana_to_hiragana(\
+                        self.__current_state().rom_kana_state[0])
+                    self.kakutei()
+                    if self.dict_edit_level() > 0:
+                        self.__current_state().dict_edit_output += kana
+                        return (True, u'')
+                    return (True, kana)
+                elif self.__current_state().input_mode == INPUT_MODE_HANKAKU_KATAKANA and \
+                        input_mode == INPUT_MODE_KATAKANA:
+                    self.__current_state().rom_kana_state = \
+                        self.__convert_nn(self.__current_state().rom_kana_state)
+                    kana = zenkaku_katakana(\
+                        self.__current_state().rom_kana_state[0])
+                    self.kakutei()
+                    if self.dict_edit_level() > 0:
+                        self.__current_state().dict_edit_output += kana
+                        return (True, u'')
+                    return (True, kana)
+                elif self.__current_state().input_mode == INPUT_MODE_KATAKANA and \
+                        input_mode == INPUT_MODE_HANKAKU_KATAKANA:
+                    self.__current_state().rom_kana_state = \
+                        self.__convert_nn(self.__current_state().rom_kana_state)
+                    kana = zenkaku_katakana(\
+                        self.__current_state().rom_kana_state[0])
+                    self.kakutei()
+                    if self.dict_edit_level() > 0:
+                        self.__current_state().dict_edit_output += kana
+                        return (True, u'')
+                    return (True, kana)
+                elif input_mode is not None:
+                    output = self.kakutei()
+                    if self.dict_edit_level() > 0:
+                        self.__current_state().dict_edit_output += output
+                        output = u''
+                        self.activate_input_mode(input_mode)
+                        return (True, output)
 
             # Convert hankaku to zenkaku with ctrl+q in abbrev mode (Issue#17).
             if self.__current_state().abbrev and str(key) == 'ctrl+q':
