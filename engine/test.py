@@ -4,6 +4,8 @@ from __future__ import with_statement
 import unittest
 import os, os.path
 import skk
+import nicola
+from ibus import modifier
 
 class TestSKK(unittest.TestCase):
     def setUp(self):
@@ -766,6 +768,98 @@ class TestSKK(unittest.TestCase):
         handled, output = self.__skk.press_key(u'\\')
         self.assertTrue(handled)
         self.assertEqual(output, u'＼')
+
+    def testnicola(self):
+        class CountTime(object):
+            def __init__(self):
+                self.__counter =0
+
+            def time(self):
+                return self.__counter
+
+            def increment(self, amount):
+                self.__counter += amount
+
+            def reset(self):
+                self.__counter = 0
+
+        t = CountTime()
+        n = nicola.Nicola(time_func=t.time)
+        # single key - timeout
+        n.queue('a')
+        result = n.dispatch()
+        self.assertEqual(result.output, tuple())
+        t.increment(0.2)
+        result = n.dispatch()
+        self.assertEqual(result.output, ('a',))
+        # single key - release
+        n.queue('a')
+        n.queue('release+a')
+        result = n.dispatch()
+        self.assertEqual(result.output, ('a',))
+        # single key - overlap
+        n.queue('a')
+        t.increment(0.05)
+        n.queue('b')
+        result = n.dispatch()
+        self.assertEqual(result.output, ('a',))
+        t.increment(0.2)
+        result = n.dispatch()
+        self.assertEqual(result.output, ('b',))
+        # double key - shifted
+        n.queue('a')
+        t.increment(0.01)
+        n.queue('lshift')
+        t.increment(0.2)
+        result = n.dispatch()
+        self.assertEqual(result.output, ('lshift+a',))
+        # double key - shifted reverse
+        n.queue('lshift')
+        t.increment(0.01)
+        n.queue('a')
+        t.increment(0.2)
+        result = n.dispatch()
+        self.assertEqual(result.output, ('lshift+a',))
+        # double key - shifted expired
+        n.queue('a')
+        t.increment(0.06)
+        n.queue('lshift')
+        result = n.dispatch()
+        self.assertNotEqual(result.output, ('lshift+a',))
+        t.increment(0.2)
+        # double key - skk-nicola
+        n.queue('f')
+        t.increment(0.06)
+        n.queue('j')
+        result = n.dispatch()
+        self.assertNotEqual(result.output, ('[fj]',))
+        t.increment(0.2)
+        # double key - skk-nicola (reverse)
+        n.queue('j')
+        t.increment(0.06)
+        n.queue('f')
+        result = n.dispatch()
+        self.assertNotEqual(result.output, ('[fj]',))
+        t.increment(0.2)
+        result = n.dispatch()
+        # triple key t1 <= t2
+        n.queue('a')
+        t.increment(0.01)
+        n.queue('lshift')
+        t.increment(0.02)
+        n.queue('b')
+        result = n.dispatch()
+        self.assertEqual(result.output, ('lshift+a',))
+        t.increment(0.2)
+        n.dispatch()
+        # triple key t1 > t2
+        n.queue('a')
+        t.increment(0.02)
+        n.queue('lshift')
+        t.increment(0.01)
+        n.queue('b')
+        result = n.dispatch()
+        self.assertEqual(result.output, ('a', 'lshift+b'))
 
 if __name__ == '__main__':
     unittest.main()
