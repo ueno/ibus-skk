@@ -24,8 +24,9 @@ import gobject
 import ibus
 from ibus import keysyms
 from ibus import modifier
-import sys, os, os.path
+import sys, os, os.path, time
 import skk
+import nicola
 
 from gettext import dgettext
 _  = lambda a : dgettext("ibus-skk", a)
@@ -189,6 +190,9 @@ class Engine(ibus.EngineBase):
         self.__input_mode = skk.INPUT_MODE_NONE
         self.__update_input_mode()
         self.__suspended_mode = None
+        if self.config.get_value('use_nicola'):
+            self.__nicola = nicola.Nicola(time_func=time.time)
+            self.__nicola_handler = None
 
     def __init_props(self):
         skk_props = ibus.PropList()
@@ -289,6 +293,10 @@ class Engine(ibus.EngineBase):
             keychr = u'escape'
         elif keyval == keysyms.BackSpace:
             keychr = u'backspace'
+        elif self.__nicola and keyval == keysyms.Muhenkan:
+            keychr = u'lshift'
+        elif self.__nicola and keyval == keysyms.Henkan:
+            keychr = u'rshift'
         else:
             keychr = unichr(keyval)
             if 0x20 > ord(keychr) or ord(keychr) > 0x7E:
@@ -300,6 +308,26 @@ class Engine(ibus.EngineBase):
             # enabled and the user press CapsLock + 'j':
             # http://github.com/ueno/ibus-skk/issues/#issue/22
             keychr = u'ctrl+' + keychr.lower()
+        elif self.__nicola:
+            if keychr in (u'lshift', u'rshift') or len(keychr) == 1:
+                self.__nicola.queue(keychr)
+            else:
+                return self.__skk_press_key(keychr)
+            self.__nicola_dispatch()
+            return True
+        return self.__skk_press_key(keychr)
+
+    def __nicola_dispatch(self, is_timer=False):
+        if self.__nicola_handler:
+            gobject.source_remove(self.__nicola_handler)
+        result = self.__nicola.dispatch()
+        for keychr in result.output:
+            self.__skk_press_key(u'nicola+' + keychr)
+        self.__nicola_handler = gobject.timeout_add(int(result.wait * 1000),
+                                                    self.__nicola_dispatch,
+                                                    True)
+
+    def __skk_press_key(self, keychr):
         handled, output = self.__skk.press_key(keychr)
         if output:
             self.commit_text(ibus.Text(output))

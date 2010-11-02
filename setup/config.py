@@ -27,6 +27,7 @@ class Config:
         'rom_kana_rule': skk.ROM_KANA_NORMAL,
         'initial_input_mode': skk.INPUT_MODE_HIRAGANA,
         'egg_like_newline': True,
+        'use_nicola': False,
         }
 
     # Options which can only be specified in ~/.config/ibus-skk.json.

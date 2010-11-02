@@ -20,7 +20,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
-NICOLA_KANA_RULE = {
+NICOLA_RULE = {
     'q': [u'。', u'',   u'ぁ'],
     'w': [u'か', u'が', u'え'],
     'e': [u'た', u'だ', u'り'],
@@ -106,7 +106,7 @@ def format_double(a, b):
 
 class Nicola(object):
     def __init__(self, time_func, timeout=0.1, overlap=0.05, maxwait=10,
-                 special_doubles=(u'[fg]', u'[gh]', u'[dk]')):
+                 special_doubles=(u'[fj]', u'[gh]', u'[dk]')):
         self.__time_func = time_func
         assert timeout > overlap
         self.__timeout = timeout
@@ -131,14 +131,17 @@ class Nicola(object):
 
     def queue(self, key):
         time = self.__time_func()
+        # press/release a same key
         if key.startswith(u'release+'):
             letter = key[len(u'release+'):]
             if len(self.__pending) > 0 and self.__pending[0].key == letter:
                 self.__rsingle = self.__make_result((letter,))
                 del self.__pending[0:]
+        # ignore key repeat
+        elif len(self.__pending) > 0 and self.__pending[0].key == key:
+            self.__rsingle = self.__make_result((key,))
         else:
             self.__pending.insert(0, Event(key, time))
-        assert len(self.__pending) <= 3
 
     def __dispatch_single(self):
         time = self.__time_func()
@@ -154,6 +157,9 @@ class Nicola(object):
             self.__rsingle = None
             return result
 
+        # assert len(self.__pending) <= 3
+        # abandon events older than the first 3 events
+        del self.__pending[3:]
         if len(self.__pending) == 0:
             return self.__make_result(tuple())
 
@@ -202,17 +208,3 @@ class Nicola(object):
         elif len(self.__pending) == 1:
             return self.__dispatch_single()
         return self.__make_result(tuple())
-
-    def to_kana(self, key):
-        if key.startswith(u'lshift+'):
-            kana = NICOLA_KANA_RULE.get(key[7:])
-            if kana:
-                return kana[1]
-        elif key.startswith(u'rshift+'):
-            kana = NICOLA_KANA_RULE.get(key[7:])
-            if kana:
-                return kana[2]
-        elif len(key) == 1:
-            kana = NICOLA_KANA_RULE.get(key)
-            if kana:
-                return kana[0]
