@@ -416,7 +416,7 @@ INPUT_MODE_TRANSITION_RULE = {
         INPUT_MODE_HIRAGANA: INPUT_MODE_KATAKANA,
         INPUT_MODE_KATAKANA: INPUT_MODE_HIRAGANA
         },
-    u'[dk]': {
+    u'nicola+[dk]': {
         INPUT_MODE_HIRAGANA: INPUT_MODE_KATAKANA,
         INPUT_MODE_KATAKANA: INPUT_MODE_HIRAGANA
         },
@@ -1252,6 +1252,8 @@ class Context(object):
     def __rom_kana_key_is_acceptable(self, key):
         if self.__current_state().rom_kana_state is None:
             return False
+        if key.is_nicola():
+            return False
         output, pending, tree = self.__current_state().rom_kana_state
         return len(pending) > 0 and \
             key.letter.lower() in self.__current_state().rom_kana_state[2]
@@ -1835,13 +1837,7 @@ elements will be "[[DictEdit]] かんが*え ", "▽", "かんが", "*え" .'''
             output += next_output
         else:
             katakana, hiragana = next_output
-            if self.__current_state().input_mode == INPUT_MODE_HANKAKU_KATAKANA:
-                katakana = hankaku_katakana(katakana)
-            if self.__current_state().input_mode == INPUT_MODE_HIRAGANA:
-                output += hiragana
-            elif self.__current_state().input_mode in (INPUT_MODE_KATAKANA,
-                                                       INPUT_MODE_HANKAKU_KATAKANA):
-                output += katakana
+            output += self.__convert_kana_by_input_mode(katakana, hiragana)
         next_state = (output, u'', self.__rom_kana_rule_tree)
         if next_pending:
             for next_letter in next_pending:
@@ -1849,18 +1845,31 @@ elements will be "[[DictEdit]] かんが*え ", "▽", "かんが", "*え" .'''
         return next_state
 
     def __convert_nicola_kana(self, key, state):
-        output, pending, tree = state
         assert key.is_nicola()
+        hiragana = None
         if key.is_lshift():
-            kana = NICOLA_RULE.get(key.letter)
-            if kana:
-                output += kana[1]
+            entry = NICOLA_RULE.get(key.letter)
+            if entry:
+                hiragana = entry[1]
         elif key.is_rshift():
-            kana = NICOLA_RULE.get(key.letter)
-            if kana:
-                output += kana[2]
+            entry = NICOLA_RULE.get(key.letter)
+            if entry:
+                hiragana = entry[2]
         elif len(key.letter) == 1:
-            kana = NICOLA_RULE.get(key.letter)
-            if kana:
-                output += kana[0]
+            entry = NICOLA_RULE.get(key.letter)
+            if entry:
+                hiragana = entry[0]
+        output, pending, tree = state
+        if hiragana:
+            katakana = hiragana_to_katakana(hiragana)
+            output += self.__convert_kana_by_input_mode(katakana, hiragana)
         return (output, pending, tree)
+
+    def __convert_kana_by_input_mode(self, katakana, hiragana):
+        if self.__current_state().input_mode == INPUT_MODE_HANKAKU_KATAKANA:
+            katakana = hankaku_katakana(katakana)
+        if self.__current_state().input_mode == INPUT_MODE_HIRAGANA:
+            return hiragana
+        elif self.__current_state().input_mode in (INPUT_MODE_KATAKANA,
+                                                   INPUT_MODE_HANKAKU_KATAKANA):
+            return katakana
