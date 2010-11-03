@@ -770,26 +770,23 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(output, u'＼')
 
     def testnicola(self):
-        class CountTime(object):
+        class Counter(object):
             def __init__(self):
-                self.__counter =0
+                self.__counter = 0
 
             def time(self):
                 return self.__counter
 
-            def increment(self, amount):
+            def incr(self, amount):
                 self.__counter += amount
 
-            def reset(self):
-                self.__counter = 0
-
-        t = CountTime()
+        t = Counter()
         n = nicola.Nicola(time_func=t.time)
         # single key - timeout
         n.queue('a')
         result = n.dispatch()
         self.assertEqual(result.output, tuple())
-        t.increment(0.2)
+        t.incr(0.2)
         result = n.dispatch()
         self.assertEqual(result.output, ('a',))
         # single key - release
@@ -799,64 +796,67 @@ class TestSKK(unittest.TestCase):
         self.assertEqual(result.output, ('a',))
         # single key - overlap
         n.queue('a')
-        t.increment(0.05)
+        t.incr(0.05)
         n.queue('b')
         result = n.dispatch()
         self.assertEqual(result.output, ('a',))
-        t.increment(0.2)
+        t.incr(0.2)
         result = n.dispatch()
         self.assertEqual(result.output, ('b',))
         # double key - shifted
         n.queue('a')
-        t.increment(0.01)
+        t.incr(0.01)
         n.queue('lshift')
-        t.increment(0.2)
+        t.incr(0.2)
         result = n.dispatch()
         self.assertEqual(result.output, ('lshift+a',))
         # double key - shifted reverse
         n.queue('lshift')
-        t.increment(0.01)
+        t.incr(0.01)
         n.queue('a')
-        t.increment(0.2)
+        t.incr(0.2)
         result = n.dispatch()
         self.assertEqual(result.output, ('lshift+a',))
         # double key - shifted expired
         n.queue('a')
-        t.increment(0.06)
+        t.incr(0.06)
         n.queue('lshift')
         result = n.dispatch()
         self.assertNotEqual(result.output, ('lshift+a',))
-        t.increment(0.2)
+        t.incr(0.2)
         # double key - skk-nicola
         n.queue('f')
-        t.increment(0.06)
+        t.incr(0.06)
         n.queue('j')
         result = n.dispatch()
         self.assertNotEqual(result.output, ('[fj]',))
-        t.increment(0.2)
+        t.incr(0.2)
         # double key - skk-nicola (reverse)
         n.queue('j')
-        t.increment(0.06)
+        t.incr(0.06)
         n.queue('f')
         result = n.dispatch()
         self.assertNotEqual(result.output, ('[fj]',))
-        t.increment(0.2)
+        t.incr(0.2)
         result = n.dispatch()
         # triple key t1 <= t2
         n.queue('a')
-        t.increment(0.01)
+        t.incr(0.01)
         n.queue('lshift')
-        t.increment(0.02)
+        t.incr(0.02)
         n.queue('b')
         result = n.dispatch()
         self.assertEqual(result.output, ('lshift+a',))
-        t.increment(0.2)
-        n.dispatch()
+        result = n.dispatch()
+        self.assertEqual(result.output, tuple())
+        t.incr(0.2)
+        result = n.dispatch()
+        self.assertEqual(result.output, ('b',))
         # triple key t1 > t2
         n.queue('a')
-        t.increment(0.02)
+        t.incr(0.02)
         n.queue('lshift')
-        t.increment(0.01)
+        t.incr(0.01)
         n.queue('b')
         result = n.dispatch()
         self.assertEqual(result.output, ('a', 'lshift+b'))
