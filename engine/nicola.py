@@ -139,6 +139,7 @@ class Nicola(object):
                 del self.__pending[0:]
         # ignore key repeat
         elif len(self.__pending) > 0 and self.__pending[0].key == key:
+            self.__pending[0] = Event(key, time)
             self.__rsingle = self.__make_result((key,))
         else:
             self.__pending.insert(0, Event(key, time))
