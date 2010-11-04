@@ -193,6 +193,9 @@ class Engine(ibus.EngineBase):
         if self.config.get_value('use_nicola'):
             self.__nicola = nicola.Nicola(time_func=time.time)
             self.__nicola_handler = None
+        else:
+            self.__nicola = None
+
 
     def __init_props(self):
         skk_props = ibus.PropList()
