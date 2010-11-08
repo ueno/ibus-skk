@@ -8,10 +8,10 @@ sys.path.insert(0, os.path.join(os.getenv('IBUS_SKK_PKGDATADIR'), 'engine'))
 import skk
 
 class Config:
-    __sysdict_paths = ('/usr/share/skk/SKK-JISYO',
-                       '/usr/share/skk/SKK-JISYO.L',
-                       '/usr/local/share/skk/SKK-JISYO',
-                       '/usr/local/share/skk/SKK-JISYO.L')
+    __sysdict_path_candidates = ('/usr/share/skk/SKK-JISYO',
+                                 '/usr/share/skk/SKK-JISYO.L',
+                                 '/usr/local/share/skk/SKK-JISYO',
+                                 '/usr/local/share/skk/SKK-JISYO.L')
     __usrdict_path_unexpanded = '~/.skk-ibus-jisyo'
     __config_path_unexpanded = '~/.config/ibus-skk.json'
     __defaults = {
@@ -37,6 +37,7 @@ class Config:
         'custom_rom_kana_rule': dict()
         }
 
+    __modified = dict()
 
     def __init__(self, bus=ibus.Bus()):
         self.__bus = bus
@@ -48,40 +49,66 @@ class Config:
         except:
             # print "Can't read config file: %s" % self.__config_path_unexpanded
             self.__config_from_file = dict()
+        self.fetch_all()
+
+    def fetch_all(self):
+        for name in self.__defaults.keys():
+            print 'get_value engine/SKK/%s' % name
+            value = self.__config.get_value('engine/SKK', name, None)
+            if value is not None:
+                self.__modified[name] = value
+
+    def commit_all(self):
+        for name in self.__defaults.keys():
+            value = self.__modified[name]
+            if value is not None:
+                print 'set_value engine/SKK/%s' % name
+                self.__config.set_value('engine/SKK', name, value)
         
     def __sysdict_path(self):
-        for path in self.__sysdict_paths:
+        path = self.get_value('sysdict')
+        if path is not None:
+            return path
+        for path in self.__sysdict_path_candidates:
             if os.path.exists(path):
                 return path
-    sysdict_path = property(lambda self: self.__get_value(\
-            'sysdict', self.__sysdict_path()))
+        return None
 
-    def sysdict_paths(self):
-        return self.__get_value('sysdict_paths',
-                                [self.sysdict_path] if self.sysdict_path else dbus.Array(signature='s'))
+    def __sysdict_paths(self):
+        paths = self.get_value('sysdict_paths')
+        if paths is not None:
+            return paths
+        path = self.__sysdict_path()
+        if path:
+            return [path]
+        else:
+            return dbus.Array(signature='s')
+    sysdict_paths = property(lambda self: self.__sysdict_paths())
 
     def __usrdict_path(self):
-        usrdict_path = os.path.expanduser(self.__usrdict_path_unexpanded)
-        open(usrdict_path, 'a+').close()
-        return usrdict_path
-    usrdict_path = property(lambda self: self.__get_value('usrdict', self.__usrdict_path()))
+        path = self.get_value('usrdict')
+        if path is not None:
+            return path
+        return os.path.expanduser(self.__usrdict_path_unexpanded)
+    usrdict_path = property(lambda self: self.__usrdict_path())
 
     def get_value(self, name):
-        return self.__get_value(name, self.__defaults.get(name))
-
-    def __get_value(self, name, defval=None):
+        value = self.__modified.get(name)
+        if value is not None:
+            return value
+        value = self.__defaults.get(name)
+        if value is not None:
+            return value
         value = self.__config_from_file.get(name)
         if value is not None:
             return value
         value = self.__file_defaults.get(name)
         if value is not None:
             return value
-        value = self.__config.get_value('engine/SKK', name, None)
-        if value is not None:
-            return value
-        self.set_value(name, defval)
-        return defval
+        return None
 
     def set_value(self, name, value):
         if value is not None:
-            self.__config.set_value('engine/SKK', name, value)
+            self.__modified[name] = value
+        else:
+            del self.__modified[name]

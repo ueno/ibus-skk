@@ -63,7 +63,7 @@ class EngineFactory(ibus.EngineFactoryBase):
             if sysdict_type == 'file':
                 use_mmap = _config.get_value('use_mmap')
                 instances = list()
-                for path in _config.sysdict_paths():
+                for path in _config.sysdict_paths:
                     instances.append(skk.SysDict(path, use_mmap=use_mmap))
                 return skk.MultiSysDict(instances)
             else:

@@ -67,7 +67,7 @@ class PreferencesDialog:
         renderer = gtk.CellRendererText()
         column = gtk.TreeViewColumn("path", renderer, text=0)
         self.__sysdict.append_column(column)
-        for path in self.__config.sysdict_paths():
+        for path in self.__config.sysdict_paths:
             self.__sysdict_liststore.append((path,))
 
         self.__skkserv_host.set_text(\
@@ -262,7 +262,8 @@ class PreferencesDialog:
         self.__config.set_value('egg_like_newline', widget.get_active())
 
     def run(self):
-        return self.__dialog.run()
+        if self.__dialog.run() == gtk.RESPONSE_OK:
+            self.__config.commit_all()
 
 def main():
     PreferencesDialog().run()
