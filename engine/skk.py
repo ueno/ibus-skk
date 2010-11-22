@@ -1295,6 +1295,10 @@ class Context(object):
             if self.dict_edit_level() > 0 and str(key) in ('ctrl+j', 'ctrl+m', 'return'):
                 return (True, self.__leave_dict_edit())
 
+            # XXX: ctrl+j should be treated as handled? (a8ffece4 and caf9f944)
+            if str(key) == 'ctrl+j':
+                return (True, u'')
+                
             # Ignore ctrl+key and non-ASCII characters.
             if key.is_ctrl() or \
                     str(key) in ('return', 'escape', 'backspace') or \
