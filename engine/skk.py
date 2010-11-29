@@ -1850,11 +1850,11 @@ elements will be "[[DictEdit]] かんが*え ", "▽", "かんが", "*え" .'''
         if key.is_lshift():
             entry = NICOLA_RULE.get(key.letter)
             if entry:
-                hiragana = entry[1]
+                hiragana = entry[2]
         elif key.is_rshift():
             entry = NICOLA_RULE.get(key.letter)
             if entry:
-                hiragana = entry[2]
+                hiragana = entry[1]
         elif len(key.letter) == 1:
             entry = NICOLA_RULE.get(key.letter)
             if entry:
