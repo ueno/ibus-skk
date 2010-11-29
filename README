@@ -28,6 +28,15 @@ For complex settings, such as romaji-to-kana conversion table, you can
 use configuration file located at ~/.config/ibus-skk.json.  Use
 ibus-skk.json.example as a template.
 
+* Thumb shift keyboard support
+
+Since the version 1.3.4, ibus-skk experimentally supports thumb shift
+typing method (aka NICOLA).  To use this, turn on the GConf key
+"/desktop/ibus/engine/SKK/use_nicola" with gconf-editor.
+
+See the following blog entry for detail:
+http://blog.du-a.org/?p=74
+
 * How to report bugs
 
 Use the issue trackers on either GitHub, Red Hat Bugzilla, or Debian BTS:
