@@ -24,6 +24,7 @@ engine_skk_PYTHON = \
 	main.py \
 	skk.py \
 	kzik.py \
+	nicola.py \
 	$(NULL)
 engine_skkdir = $(pkgdatadir)/engine
 

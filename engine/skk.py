@@ -28,6 +28,8 @@ import socket
 import re
 import unicodedata
 from kzik import KZIK_RULE
+from nicola import NICOLA_RULE
+import nicola
 import struct
 import mmap
 
@@ -411,6 +413,10 @@ INPUT_MODE_HANKAKU_KATAKANA = range(6)
 
 INPUT_MODE_TRANSITION_RULE = {
     u'q': {
+        INPUT_MODE_HIRAGANA: INPUT_MODE_KATAKANA,
+        INPUT_MODE_KATAKANA: INPUT_MODE_HIRAGANA
+        },
+    u'nicola+[dk]': {
         INPUT_MODE_HIRAGANA: INPUT_MODE_KATAKANA,
         INPUT_MODE_KATAKANA: INPUT_MODE_HIRAGANA
         },
@@ -1044,9 +1050,8 @@ class Key(object):
 
     def __init__(self, keystr):
         self.__keystr = keystr
-        self.__is_ctrl = keystr.startswith(u'ctrl+')
-        if self.__is_ctrl:
-            keystr = keystr[5:]
+        self.__modifiers = re.findall('([^+]+)\+', keystr)
+        keystr = re.sub('(?:[^+]+\+)+', '', keystr)
         self.__keyval = keystr
 
         if Key.__letters.has_key(keystr.lower()):
@@ -1061,7 +1066,16 @@ class Key(object):
     keyval = property(lambda self: self.__keyval)
 
     def is_ctrl(self):
-        return self.__is_ctrl
+        return 'ctrl' in self.__modifiers
+
+    def is_nicola(self):
+        return 'nicola' in self.__modifiers
+
+    def is_lshift(self):
+        return 'lshift' in self.__modifiers
+
+    def is_rshift(self):
+        return 'rshift' in self.__modifiers
 
 class Context(object):
     def __init__(self, usrdict, sysdict, candidate_selector):
@@ -1236,14 +1250,21 @@ class Context(object):
     def __rom_kana_key_is_acceptable(self, key):
         if self.__current_state().rom_kana_state is None:
             return False
+        if key.is_nicola():
+            return False
         output, pending, tree = self.__current_state().rom_kana_state
         return len(pending) > 0 and \
             key.letter.lower() in self.__current_state().rom_kana_state[2]
 
+    def __get_next_input_mode(self, key):
+        input_mode = INPUT_MODE_TRANSITION_RULE.get(str(key), dict()).\
+            get(self.__current_state().input_mode)
+        return input_mode
+
     def press_key(self, keystr):
         '''Process a key press event KEYSTR.
 
-        KEYSTR is in the format of ["ctrl+"]<ASCII letter>.
+        KEYSTR is in the format of [<modifier> "+"]* <keyval>.
 
         The return value is a tuple (HANDLED, OUTPUT) where HANDLED is
         True if the event was handled internally (otherwise False),
@@ -1279,8 +1300,7 @@ class Context(object):
             # If KEY will be consumed in the next rom-kana conversion,
             # skip input mode transition.
             if not self.__rom_kana_key_is_acceptable(key):
-                input_mode = INPUT_MODE_TRANSITION_RULE.get(str(key), dict()).\
-                    get(self.__current_state().input_mode)
+                input_mode = self.__get_next_input_mode(key)
                 if input_mode is not None:
                     if self.__current_state().rom_kana_state:
                         self.__current_state().rom_kana_state = \
@@ -1302,7 +1322,8 @@ class Context(object):
             # Ignore ctrl+key and non-ASCII characters.
             if key.is_ctrl() or \
                     str(key) in ('return', 'escape', 'backspace') or \
-                    0x20 > ord(key.letter) or ord(key.letter) > 0x7E:
+                    (len(key.letter) == 1 and \
+                         (0x20 > ord(key.letter) or ord(key.letter) > 0x7E)):
                 return (False, u'')
 
             if self.__current_state().input_mode == INPUT_MODE_LATIN:
@@ -1334,13 +1355,16 @@ class Context(object):
                 return (True, u'')
 
             # Start rom-kan mode with abbrev enabled (/).
-            if not self.__rom_kana_key_is_acceptable(key) and key.letter == '/':
+            if not self.__rom_kana_key_is_acceptable(key) and \
+                    ((not key.is_nicola() and key.letter == '/') or \
+                         (key.is_nicola() and key.letter == '[gh]')):
                 self.__current_state().conv_state = CONV_STATE_START
                 self.__current_state().abbrev = True
                 return (True, u'')
 
             # Start rom-kan mode (Q).
-            if key.letter == 'Q':
+            if key.letter == 'Q' or \
+                    (key.is_nicola() and key.letter == '[fj]'):
                 self.__current_state().conv_state = CONV_STATE_START
                 return (True, u'')
 
@@ -1350,8 +1374,7 @@ class Context(object):
                 self.__current_state().conv_state = CONV_STATE_START
 
             self.__current_state().rom_kana_state = \
-                self.__convert_rom_kana(key.letter.lower(),
-                                        self.__current_state().rom_kana_state)
+                self.__convert_kana(key, self.__current_state().rom_kana_state)
             output = self.__current_state().rom_kana_state[0]
             if self.__current_state().conv_state == CONV_STATE_NONE and \
                     len(output) > 0:
@@ -1370,8 +1393,7 @@ class Context(object):
             # skip input mode transition.
             if not self.__rom_kana_key_is_acceptable(key) and \
                     not self.__current_state().abbrev:
-                input_mode = INPUT_MODE_TRANSITION_RULE.get(str(key), dict()).\
-                    get(self.__current_state().input_mode)
+                input_mode = self.__get_next_input_mode(key)
                 if self.__current_state().input_mode == INPUT_MODE_HIRAGANA and \
                         input_mode == INPUT_MODE_KATAKANA:
                     self.__current_state().rom_kana_state = \
@@ -1497,8 +1519,7 @@ class Context(object):
             auto_start_henkan_keyword = None
             if not self.__current_state().abbrev:
                 rom_kana_state = tuple(self.__current_state().rom_kana_state)
-                rom_kana_state = self.__convert_rom_kana(key.letter.lower(),
-                                                         rom_kana_state)
+                rom_kana_state = self.__convert_kana(key, rom_kana_state)
                 for keyword in AUTO_START_HENKAN_KEYWORDS:
                     if rom_kana_state[0].endswith(keyword):
                         self.__current_state().auto_start_henkan_keyword = keyword
@@ -1563,7 +1584,7 @@ class Context(object):
                     self.__current_state().okuri_rom_kana_state = \
                         self.__convert_nn(self.__current_state().okuri_rom_kana_state)
                 self.__current_state().okuri_rom_kana_state = \
-                    self.__convert_rom_kana(key.letter.lower(),\
+                    self.__convert_kana(key,\
                                             self.__current_state().okuri_rom_kana_state)
 
                 # Start okuri-ari conversion.
@@ -1576,13 +1597,14 @@ class Context(object):
                 return (True, u'')
 
             # Ignore ctrl+key and non-ASCII characters.
-            if key.is_ctrl() or str(key) in ('return', 'escape', 'backspace') or \
-                    0x20 > ord(key.letter) or ord(key.letter) > 0x7E:
+            if key.is_ctrl() or \
+                    str(key) in ('return', 'escape', 'backspace') or \
+                    (len(key.letter) == 1 and \
+                         (0x20 > ord(key.letter) or ord(key.letter) > 0x7E)):
                 return (False, u'')
 
             self.__current_state().rom_kana_state = \
-                self.__convert_rom_kana(key.letter.lower(),
-                                        self.__current_state().rom_kana_state)
+                self.__convert_kana(key, self.__current_state().rom_kana_state)
             return (True, u'')
 
         elif self.__current_state().conv_state == CONV_STATE_SELECT:
@@ -1592,7 +1614,8 @@ class Context(object):
                     self.__candidate_selector.set_index(index)
                     self.__enter_dict_edit()
                 return (True, u'')
-            elif key.letter == 'x':
+            elif (not key.is_nicola() and key.letter == 'x') or \
+                    (key.is_nicola() and str(key) == 'ctrl+p'):
                 if self.previous_candidate() is None:
                     self.__current_state().conv_state = CONV_STATE_START
                 return (True, u'')
@@ -1790,6 +1813,12 @@ elements will be "[[DictEdit]] かんが*え ", "▽", "かんが", "*え" .'''
             return (output, pending[:-1], self.__rom_kana_rule_tree)
         return state
         
+    def __convert_kana(self, key, state):
+        if key.is_nicola():
+            return self.__convert_nicola_kana(key, state)
+        else:
+            return self.__convert_rom_kana(key.letter.lower(), state)
+            
     def __convert_rom_kana(self, letter, state):
         output, pending, tree = state
         if letter not in tree:
@@ -1810,15 +1839,39 @@ elements will be "[[DictEdit]] かんが*え ", "▽", "かんが", "*え" .'''
             output += next_output
         else:
             katakana, hiragana = next_output
-            if self.__current_state().input_mode == INPUT_MODE_HANKAKU_KATAKANA:
-                katakana = hankaku_katakana(katakana)
-            if self.__current_state().input_mode == INPUT_MODE_HIRAGANA:
-                output += hiragana
-            elif self.__current_state().input_mode in (INPUT_MODE_KATAKANA,
-                                                       INPUT_MODE_HANKAKU_KATAKANA):
-                output += katakana
+            output += self.__convert_kana_by_input_mode(katakana, hiragana)
         next_state = (output, u'', self.__rom_kana_rule_tree)
         if next_pending:
             for next_letter in next_pending:
                 next_state = self.__convert_rom_kana(next_letter, next_state)
         return next_state
+
+    def __convert_nicola_kana(self, key, state):
+        assert key.is_nicola()
+        hiragana = None
+        if key.is_lshift():
+            entry = NICOLA_RULE.get(key.letter)
+            if entry:
+                hiragana = entry[2]
+        elif key.is_rshift():
+            entry = NICOLA_RULE.get(key.letter)
+            if entry:
+                hiragana = entry[1]
+        elif len(key.letter) == 1:
+            entry = NICOLA_RULE.get(key.letter)
+            if entry:
+                hiragana = entry[0]
+        output, pending, tree = state
+        if hiragana:
+            katakana = hiragana_to_katakana(hiragana)
+            output += self.__convert_kana_by_input_mode(katakana, hiragana)
+        return (output, pending, tree)
+
+    def __convert_kana_by_input_mode(self, katakana, hiragana):
+        if self.__current_state().input_mode == INPUT_MODE_HANKAKU_KATAKANA:
+            katakana = hankaku_katakana(katakana)
+        if self.__current_state().input_mode == INPUT_MODE_HIRAGANA:
+            return hiragana
+        elif self.__current_state().input_mode in (INPUT_MODE_KATAKANA,
+                                                   INPUT_MODE_HANKAKU_KATAKANA):
+            return katakana
