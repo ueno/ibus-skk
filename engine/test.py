@@ -861,5 +861,18 @@ class TestSKK(unittest.TestCase):
         result = n.dispatch()
         self.assertEqual(result.output, ('a', 'lshift+b'))
 
+    def testnicolaskk(self):
+        self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
+        self.__skk.press_key(u'nicola+[fj]')
+        self.assertEqual(self.__skk.conv_state, skk.CONV_STATE_START)
+        self.__skk.press_key(u'nicola+w')        # か
+        self.__skk.press_key(u'nicola+;')        # ん
+        self.__skk.press_key(u'nicola+rshift+w') # が
+        self.assertEqual(self.__skk.preedit, u'▽かんが')
+        self.__skk.press_key(u'nicola+[fj]')     # start okuri-ari conversion
+        self.__skk.press_key(u'nicola+lshift+w') # え
+        self.assertEqual(self.__skk.preedit, u'▼考え')
+
 if __name__ == '__main__':
     unittest.main()

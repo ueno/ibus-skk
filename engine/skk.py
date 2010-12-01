@@ -284,6 +284,13 @@ ROM_KANA_RULE = {
     # (skk-kakutei-key nil skk-kakutei)
     }
 
+OKURI_RULE = dict()
+for rom in ROM_KANA_RULE:
+    next_pending, next_output = ROM_KANA_RULE[rom]
+    if isinstance(next_output, tuple):
+        katakana, hiragana = next_output
+        OKURI_RULE[hiragana[0]] = rom[0]
+    
 # skk-jisx0208-latin-vector
 WIDE_LATIN_TABLE = (None, None, None, None, None, None, None, None, 
                     None, None, None, None, None, None, None, None, 
@@ -1556,8 +1563,9 @@ class Context(object):
                      self.__rom_kana_rule_tree)
                 return (True, u'')
 
-            if key.letter.isupper() and \
-                    not self.__rom_kana_key_is_acceptable(key):
+            if (key.letter.isupper() and \
+                    not self.__rom_kana_key_is_acceptable(key)) or \
+                    (key.is_nicola() and key.letter == '[fj]'):
                 rom_kana_state = self.__convert_nn(self.__current_state().rom_kana_state)
                 if len(rom_kana_state[1]) == 0 and \
                         not self.__current_state().okuri_rom_kana_state:
@@ -1565,7 +1573,8 @@ class Context(object):
                     self.__current_state().okuri_rom_kana_state = \
                         (u'', u'', self.__rom_kana_rule_tree)
 
-            if self.__current_state().okuri_rom_kana_state:
+            if self.__current_state().okuri_rom_kana_state and \
+                    not (key.is_nicola() and key.letter == '[fj]'):
                 okuri = None
                 # Issue#10: check OUTPUT was produced by 'n'
                 for nn in (u'ん', u'ン', u'ﾝ'):
@@ -1574,18 +1583,27 @@ class Context(object):
                         okuri = u'n'
                         break
                 if not okuri:
-                    okuri = (self.__current_state().okuri_rom_kana_state[1] or \
-                                 key.letter.lower())[0]
-                # Workaround for:
-                # NA -> ▽な, NAN -> ▽な*n, NANA -> [DictEdit] な*んあ
-                # NA -> ▽な, NAN -> ▽な*n, NANa -> [DictEdit] な*な
-                if key.letter.isupper() and \
-                        key.letter.lower() in (u'a', u'i', u'u', u'e', u'o'):
+                    if key.is_nicola():
+                        okuri_rom_kana_state = \
+                            self.__convert_kana(key, (u'', u'', dict()))
+                        okuri = OKURI_RULE[okuri_rom_kana_state[0]]
+                    else:
+                        okuri = (self.__current_state().okuri_rom_kana_state[1] or \
+                                     key.letter.lower())[0]
+                if key.is_nicola():
                     self.__current_state().okuri_rom_kana_state = \
-                        self.__convert_nn(self.__current_state().okuri_rom_kana_state)
-                self.__current_state().okuri_rom_kana_state = \
-                    self.__convert_kana(key,\
-                                            self.__current_state().okuri_rom_kana_state)
+                        (okuri_rom_kana_state[0], u'', dict())
+                else:
+                    # Workaround for:
+                    # NA -> ▽な, NAN -> ▽な*n, NANA -> [DictEdit] な*んあ
+                    # NA -> ▽な, NAN -> ▽な*n, NANa -> [DictEdit] な*な
+                    if key.letter.isupper() and \
+                            key.letter.lower() in (u'a', u'i', u'u', u'e', u'o'):
+                        self.__current_state().okuri_rom_kana_state = \
+                            self.__convert_nn(self.__current_state().okuri_rom_kana_state)
+                    self.__current_state().okuri_rom_kana_state = \
+                        self.__convert_kana(key,\
+                                                self.__current_state().okuri_rom_kana_state)
 
                 # Start okuri-ari conversion.
                 if len(self.__current_state().okuri_rom_kana_state[1]) == 0:
