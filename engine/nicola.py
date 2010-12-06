@@ -96,8 +96,9 @@ def get_shift(event):
     return ('lshift', 'rshift').index(event.key)
 
 def format_double(a, b):
-    assert (not is_shift(a) or not is_shift(b))
-    if is_shift(a):
+    if is_shift(a) and is_shift(b):
+        return u'[LR]'
+    elif is_shift(a):
         return a.key + u'+' + b.key
     elif is_shift(b):
         return b.key + u'+' + a.key
@@ -106,7 +107,7 @@ def format_double(a, b):
 
 class Nicola(object):
     def __init__(self, time_func, timeout=0.1, overlap=0.05, maxwait=10,
-                 special_doubles=(u'[fj]', u'[gh]', u'[dk]')):
+                 special_doubles=(u'[fj]', u'[gh]', u'[dk]', u'[LR]')):
         self.__time_func = time_func
         assert timeout > overlap
         self.__timeout = timeout
@@ -182,15 +183,15 @@ class Nicola(object):
         # double key combination
         elif len(self.__pending) == 2:
             b, a = self.__pending
-            if (is_shift(b) and is_shift(a)) or \
-                    b.time - a.time > self.__overlap:
+            if b.time - a.time > self.__overlap:
                 del self.__pending[1:]
                 # b may be expired
                 r = self.__dispatch_single()
                 return self.__make_result((a.key,) + r.output)
             # skk-nicola uses some combinations of 2 normal keys
             # ([fj], [gh], etc.)
-            if not is_shift(b) and not is_shift(a):
+            if (not is_shift(b) and not is_shift(a)) or \
+                    (is_shift(b) and is_shift(a)):
                 double = format_double(b, a)
                 if double in self.__special_doubles:
                     del self.__pending[0:]
