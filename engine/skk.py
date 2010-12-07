@@ -441,7 +441,8 @@ INPUT_MODE_TRANSITION_RULE = {
         },
     u'nicola+[LR]': {
         INPUT_MODE_HIRAGANA: INPUT_MODE_LATIN,
-        INPUT_MODE_KATAKANA: INPUT_MODE_LATIN
+        INPUT_MODE_KATAKANA: INPUT_MODE_LATIN,
+        INPUT_MODE_LATIN: INPUT_MODE_HIRAGANA
         },
     u'ctrl+j': {
         INPUT_MODE_WIDE_LATIN: INPUT_MODE_HIRAGANA,
@@ -899,6 +900,11 @@ def zenkaku_ascii(ascii):
         return HANKAKU_TO_ZENKAKU_ASCII_TABLE.get(letter, letter)
     return u''.join(map(to_zenkaku, ascii))
     
+def wide_latin(latin):
+    def to_wide(letter):
+        return WIDE_LATIN_TABLE[ord(letter)] or u''
+    return u''.join(map(to_wide, latin))
+    
 def num_to_latin(num):
     return num
 
@@ -1346,15 +1352,23 @@ class Context(object):
                 return (False, u'')
 
             if self.__current_state().input_mode == INPUT_MODE_LATIN:
+                if key.is_nicola():
+                    output = u''.join(nicola.decompose_double(key.letter))
+                else:
+                    output = key.letter
                 if self.dict_edit_level() > 0:
-                    self.__current_state().dict_edit_output += key.letter
+                    self.__current_state().dict_edit_output += output
                     return (True, u'')
                 if self.direct_input_on_latin:
                     return (False, u'')
                 else:
-                    return (True, key.letter)
+                    return (True, output)
             elif self.__current_state().input_mode == INPUT_MODE_WIDE_LATIN:
-                output = WIDE_LATIN_TABLE[ord(key.letter)]
+                if key.is_nicola():
+                    output = u''.join(nicola.decompose_double(key.letter))
+                else:
+                    output = key.letter
+                output = wide_latin(output)
                 if self.dict_edit_level() > 0:
                     self.__current_state().dict_edit_output += output
                     return (True, u'')

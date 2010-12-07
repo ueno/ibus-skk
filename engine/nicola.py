@@ -105,6 +105,11 @@ def format_double(a, b):
     keys = u''.join(sorted((a.key, b.key)))
     return u'[' + keys + u']'
 
+def decompose_double(double):
+    if not double.startswith(u'[') or not double.endswith(u']'):
+        return list(double)
+    return [c for c in double[1:-1] if c.islower()]
+
 class Nicola(object):
     def __init__(self, time_func, timeout=0.1, overlap=0.05, maxwait=10,
                  special_doubles=(u'[fj]', u'[gh]', u'[dk]', u'[LR]')):
