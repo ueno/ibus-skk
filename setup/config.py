@@ -54,7 +54,7 @@ class Config:
 
     def fetch_all(self):
         for name in self.__defaults.keys():
-            print 'get_value engine/SKK/%s' % name
+            # print 'get_value engine/SKK/%s' % name
             value = self.__config.get_value('engine/SKK', name, None)
             if value is not None:
                 self.__modified[name] = value
@@ -63,7 +63,7 @@ class Config:
         for name in self.__defaults.keys():
             value = self.__modified[name]
             if value is not None:
-                print 'set_value engine/SKK/%s' % name
+                # print 'set_value engine/SKK/%s' % name
                 self.__config.set_value('engine/SKK', name, value)
         
     def __sysdict_path(self):
