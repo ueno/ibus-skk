@@ -54,6 +54,7 @@ class PreferencesDialog:
         self.__initial_input_mode = \
             self.__builder.get_object('initial_input_mode')
         self.__egg_like_newline = self.__builder.get_object('egg_like_newline')
+        self.__use_nicola = self.__builder.get_object('use_nicola')
 
         self.__usrdict.set_filename(self.__config.usrdict_path)
         sysdict_type = self.__config.get_value('sysdict_type')
@@ -118,6 +119,9 @@ class PreferencesDialog:
         self.__egg_like_newline.set_active(\
             self.__config.get_value('egg_like_newline'))
 
+        self.__use_nicola.set_active(\
+            self.__config.get_value('use_nicola'))
+
         self.__usrdict.connect('file-set', self.__usrdict_file_set_cb)
         self.__use_skkserv.connect('toggled', self.__use_skkserv_toggle_cb)
         self.__skkserv_host.connect('changed', self.__skkserv_host_changed_cb)
@@ -138,6 +142,7 @@ class PreferencesDialog:
         self.__rom_kana_rule.connect('changed', self.__rom_kana_rule_changed_cb)
         self.__initial_input_mode.connect('changed', self.__initial_input_mode_changed_cb)
         self.__egg_like_newline.connect('toggled', self.__egg_like_newline_changed_cb)
+        self.__use_nicola.connect('toggled', self.__use_nicola_changed_cb)
 
     def __set_sysdict_widgets_sensitivity(self, sysdict_type):
         if sysdict_type == 'file':
@@ -260,6 +265,9 @@ class PreferencesDialog:
 
     def __egg_like_newline_changed_cb(self, widget):
         self.__config.set_value('egg_like_newline', widget.get_active())
+
+    def __use_nicola_changed_cb(self, widget):
+        self.__config.set_value('use_nicola', widget.get_active())
 
     def run(self):
         if self.__dialog.run() == gtk.RESPONSE_OK:

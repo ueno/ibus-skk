@@ -30,9 +30,10 @@ ibus-skk.json.example as a template.
 
 * Thumb shift keyboard support
 
-Since the version 1.3.4, ibus-skk experimentally supports thumb shift
-typing method (aka NICOLA).  To use this, turn on the GConf key
-"/desktop/ibus/engine/SKK/use_nicola" with gconf-editor.
+Since the version 1.3.4, ibus-skk supports thumb shift typing method
+(aka NICOLA).  Currently the keymap is fixed and cannot be changed:
+Left Shift is assigned to Muhenkan and Right Shift is assigned to
+Henkan.
 
 See the following blog entry for detail:
 http://blog.du-a.org/?p=74

@@ -2,75 +2,6 @@
 <interface>
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
-  <object class="GtkAction" id="action1"/>
-  <object class="GtkListStore" id="period_style_liststore">
-    <columns>
-      <!-- column-name column1 -->
-      <column type="gchararray"/>
-      <!-- column-name column2 -->
-      <column type="gint"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0">。、</col>
-        <col id="1">0</col>
-      </row>
-      <row>
-        <col id="0">．，</col>
-        <col id="1">1</col>
-      </row>
-      <row>
-        <col id="0">。，</col>
-        <col id="1">2</col>
-      </row>
-      <row>
-        <col id="0">．、</col>
-        <col id="1">3</col>
-      </row>
-    </data>
-  </object>
-  <object class="GtkListStore" id="rom_kana_rule_liststore">
-    <columns>
-      <!-- column-name column1 -->
-      <column type="gchararray"/>
-      <!-- column-name column2 -->
-      <column type="gint"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">Normal</col>
-        <col id="1">0</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">KZIK</col>
-        <col id="1">1</col>
-      </row>
-    </data>
-  </object>
-  <object class="GtkListStore" id="initial_input_mode_liststore">
-    <columns>
-      <!-- column-name column1 -->
-      <column type="gchararray"/>
-      <!-- column-name column2 -->
-      <column type="gint"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">Hiragana</col>
-        <col id="1">1</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Latin</col>
-        <col id="1">3</col>
-      </row>
-    </data>
-  </object>
-  <object class="GtkListStore" id="sysdict_liststore">
-    <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-    </columns>
-  </object>
   <object class="GtkDialog" id="dialog">
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Setup - IBus-SKK</property>
@@ -326,7 +257,7 @@
                 <child>
                   <object class="GtkTable" id="table2">
                     <property name="visible">True</property>
-                    <property name="n_rows">8</property>
+                    <property name="n_rows">9</property>
                     <property name="n_columns">2</property>
                     <property name="column_spacing">6</property>
                     <property name="row_spacing">6</property>
@@ -557,6 +488,26 @@
                         <property name="bottom_attach">2</property>
                       </packing>
                     </child>
+                    <child>
+                      <object class="GtkAlignment" id="alignment11">
+                        <property name="visible">True</property>
+                        <child>
+                          <object class="GtkCheckButton" id="use_nicola">
+                            <property name="label" translatable="yes">Use Thumb Shift Keyboard</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="use_action_appearance">False</property>
+                            <property name="draw_indicator">True</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="right_attach">2</property>
+                        <property name="top_attach">8</property>
+                        <property name="bottom_attach">9</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -708,4 +659,73 @@
       <action-widget response="-5">ok_button</action-widget>
     </action-widgets>
   </object>
+  <object class="GtkListStore" id="sysdict_liststore">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkListStore" id="initial_input_mode_liststore">
+    <columns>
+      <!-- column-name column1 -->
+      <column type="gchararray"/>
+      <!-- column-name column2 -->
+      <column type="gint"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Hiragana</col>
+        <col id="1">1</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Latin</col>
+        <col id="1">3</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="rom_kana_rule_liststore">
+    <columns>
+      <!-- column-name column1 -->
+      <column type="gchararray"/>
+      <!-- column-name column2 -->
+      <column type="gint"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Normal</col>
+        <col id="1">0</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">KZIK</col>
+        <col id="1">1</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="period_style_liststore">
+    <columns>
+      <!-- column-name column1 -->
+      <column type="gchararray"/>
+      <!-- column-name column2 -->
+      <column type="gint"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0">。、</col>
+        <col id="1">0</col>
+      </row>
+      <row>
+        <col id="0">．，</col>
+        <col id="1">1</col>
+      </row>
+      <row>
+        <col id="0">。，</col>
+        <col id="1">2</col>
+      </row>
+      <row>
+        <col id="0">．、</col>
+        <col id="1">3</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkAction" id="action1"/>
 </interface>
