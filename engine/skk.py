@@ -1737,6 +1737,41 @@ class Context(object):
             return (True, u'')
         return (False, u'')
 
+    def __append_text_to_rom_kana_state(self, state, text):
+        output, pending, tree = state
+        # Don't append text if rom-kana conversion is in progress.
+        if pending:
+            return None
+        return (output + text, pending, tree)
+
+    def append_text(self, text):
+        '''Append text at the end of the buffer.'''
+        if self.__current_state().conv_state == CONV_STATE_SELECT:
+            return (False, u'')
+        if self.__current_state().conv_state == CONV_STATE_NONE and \
+                self.dict_edit_level() == 0:
+            return (False, u'')
+        if self.__current_state().okuri_rom_kana_state:
+            state = self.__append_text_to_rom_kana_state(\
+                self.__current_state().okuri_rom_kana_state, text)
+            if state:
+                self.__current_state().okuri_rom_kana_state = state
+                return (True, u'')
+        if self.__current_state().rom_kana_state:
+            state = self.__append_text_to_rom_kana_state(\
+                self.__current_state().rom_kana_state, text)
+            if state:
+                self.__current_state().rom_kana_state = state
+                return (True, u'')
+        if self.__current_state().kuten is not None:
+            if len(self.__current_state().kuten) > 0:
+                self.__current_state().kuten += text
+                return (True, u'')
+        if self.dict_edit_level() > 0:
+            self.__current_state().dict_edit_output += text
+            return (True, u'')
+        return (False, u'')
+
     def next_candidate(self, move_over_pages=True):
         '''Select the next candidate.'''
         return self.__candidate_selector.next_candidate(move_over_pages)

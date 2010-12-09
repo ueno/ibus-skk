@@ -27,6 +27,10 @@ from ibus import modifier
 import sys, os, os.path, time
 import skk
 import nicola
+try:
+    from gtk import clipboard_get
+except ImportError:
+    clipboard_get = lambda a : None
 
 from gettext import dgettext
 _  = lambda a : dgettext("ibus-skk", a)
@@ -248,6 +252,13 @@ class Engine(ibus.EngineBase):
         self.update_property(prop)
         self.__invalidate()
 
+    def __get_clipboard(self, clipboard, text, data):
+        clipboard_text = clipboard.wait_for_text()
+        if clipboard_text:
+            handled, output = \
+                self.__skk.append_text(clipboard_text.decode('UTF-8'))
+            self.__check_handled(handled, output)
+
     def process_key_event(self, keyval, keycode, state):
         # ignore key release events
         if state & modifier.RELEASE_MASK:
@@ -287,7 +298,14 @@ class Engine(ibus.EngineBase):
                         return True
                 except IndexError:
                     pass
-
+        elif (self.__skk.dict_edit_level() > 0 or \
+                self.__skk.conv_state == skk.CONV_STATE_START) and \
+                (state & modifier.CONTROL_MASK) and \
+                unichr(keyval).lower() == u'y':
+            clipboard = clipboard_get ("PRIMARY")
+            if clipboard:
+                clipboard.request_text(self.__get_clipboard)
+            
         if keyval == keysyms.Tab:
             keychr = u'\t'
         elif keyval == keysyms.Return:
@@ -330,14 +348,19 @@ class Engine(ibus.EngineBase):
                                                     self.__nicola_dispatch,
                                                     True)
 
-    def __skk_press_key(self, keychr):
-        handled, output = self.__skk.press_key(keychr)
+    def __check_handled(self, handled, output):
         if output:
             self.commit_text(ibus.Text(output))
         if handled:
             gobject.idle_add(self.__skk.usrdict.save,
                              priority = gobject.PRIORITY_LOW)
             self.__update()
+            return True
+        return False
+        
+    def __skk_press_key(self, keychr):
+        handled, output = self.__skk.press_key(keychr)
+        if self.__check_handled(handled, output):
             return True
         # If the pre-edit buffer is visible, always handle key events:
         # http://github.com/ueno/ibus-skk/issues/#issue/5
