@@ -301,8 +301,11 @@ class Engine(ibus.EngineBase):
         elif (self.__skk.dict_edit_level() > 0 or \
                 self.__skk.conv_state == skk.CONV_STATE_START) and \
                 (state & modifier.CONTROL_MASK) and \
-                unichr(keyval).lower() == u'y':
-            clipboard = clipboard_get ("PRIMARY")
+                unichr(keyval).lower() in (u'y', u'v'):
+            if unichr(keyval).lower() == u'y':
+                clipboard = clipboard_get ("PRIMARY")
+            else:
+                clipboard = clipboard_get ("CLIPBOARD")
             if clipboard:
                 clipboard.request_text(self.__get_clipboard)
             
