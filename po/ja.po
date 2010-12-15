@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ibus-skk 1.2.0.20091108\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-06 17:28+0900\n"
-"PO-Revision-Date: 2010-10-06 17:29+0900\n"
+"POT-Creation-Date: 2010-12-15 11:18+0900\n"
+"PO-Revision-Date: 2010-12-15 11:19+0900\n"
 "Last-Translator: Daiki Ueno <ueno@unixuser.org>\n"
 "Language-Team: Japanese\n"
 "Language: \n"
@@ -18,39 +18,39 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ../engine/engine.py:188
+#: ../engine/engine.py:185
 msgid "DictEdit"
 msgstr "辞書登録"
 
-#: ../engine/engine.py:190
+#: ../engine/engine.py:187
 msgid "Kuten([MM]KKTT) "
 msgstr "区点([MM]KKTT) "
 
-#: ../engine/engine.py:205
+#: ../engine/engine.py:210
 msgid "Switch input mode"
 msgstr "入力モード切替"
 
-#: ../engine/engine.py:211 ../setup/ibus-skk-preferences.ui.in.h:8
+#: ../engine/engine.py:216 ../setup/ibus-skk-preferences.ui.in.h:8
 msgid "Hiragana"
 msgstr "ひらがな"
 
-#: ../engine/engine.py:214
+#: ../engine/engine.py:219
 msgid "Katakana"
 msgstr "カタカナ"
 
-#: ../engine/engine.py:217 ../setup/ibus-skk-preferences.ui.in.h:11
+#: ../engine/engine.py:222 ../setup/ibus-skk-preferences.ui.in.h:11
 msgid "Latin"
 msgstr "英数"
 
-#: ../engine/engine.py:220
+#: ../engine/engine.py:225
 msgid "Wide Latin"
 msgstr "全角英数"
 
-#: ../engine/engine.py:223
+#: ../engine/engine.py:228
 msgid "HankakuKatakana"
 msgstr "半角カタカナ"
 
-#: ../engine/engine.py:234
+#: ../engine/engine.py:239
 msgid "Configure SKK"
 msgstr "SKKの設定"
 
@@ -58,7 +58,7 @@ msgstr "SKKの設定"
 msgid "SKK"
 msgstr "SKK"
 
-#: ../setup/main.py:199
+#: ../setup/main.py:197
 msgid "Open Dictionary File"
 msgstr "辞書ファイルを開く"
 
@@ -139,17 +139,21 @@ msgid "Use SKK server"
 msgstr "SKK サーバを使う"
 
 #: ../setup/ibus-skk-preferences.ui.in.h:22
+msgid "Use Thumb Shift Keyboard"
+msgstr "親指シフトキーボードを使う"
+
+#: ../setup/ibus-skk-preferences.ui.in.h:23
 msgid "Use mmap"
 msgstr "mmap を使う"
 
-#: ../setup/ibus-skk-preferences.ui.in.h:23
+#: ../setup/ibus-skk-preferences.ui.in.h:24
 msgid "_Auto-start Conversion Characters:"
 msgstr "自動変換を開始する文字(_A):"
 
-#: ../setup/ibus-skk-preferences.ui.in.h:24
+#: ../setup/ibus-skk-preferences.ui.in.h:25
 msgid "_Period Style:"
 msgstr "句読点の形式(_P):"
 
-#: ../setup/ibus-skk-preferences.ui.in.h:25
+#: ../setup/ibus-skk-preferences.ui.in.h:26
 msgid "_User dictionary: "
 msgstr "ユーザ辞書ファイル(_U):"
