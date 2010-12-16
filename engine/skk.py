@@ -797,6 +797,7 @@ class SkkServ(DictBase):
     HOST='localhost'
     PORT=1178
     BUFSIZ = 4096
+    TIMEOUT = 5.0
 
     def __init__(self, host=HOST, port=PORT, encoding=ENCODING):
         self.__host = host
@@ -820,6 +821,7 @@ class SkkServ(DictBase):
         self.__close()
         try:
             self.__socket = socket.socket()
+            self.__socket.settimeout(self.TIMEOUT)
             self.__socket.connect((self.__host, self.__port))
             # Request server version.
             self.__socket.send('2')
@@ -832,14 +834,28 @@ class SkkServ(DictBase):
             return list()
         try:
             self.__socket.send('1' + midasi.encode(self.__encoding) + ' ')
-            candidates = self.__socket.recv(self.BUFSIZ)
-            if len(candidates) == 0 or candidates[0] != '1':
+            response = str()
+            while '\n' not in response:
+                response += self.__socket.recv(self.BUFSIZ)
+            if len(response) == 0 or response[0] != '1':
                 return list()
-            return self.split_candidates(candidates.decode(self.__encoding)[1:])
-        except socket.error:
+            return self.split_candidates(response.decode(self.__encoding)[1:])
+        except socket.error, socket.timeout:
             return list()
 
     def completer(self, midasi):
+        if self.__socket is None:
+            return iter(list())
+        try:
+            self.__socket.send('4' + midasi.encode(self.__encoding) + ' ')
+            response = str()
+            while '\n' not in response:
+                response += self.__socket.recv(self.BUFSIZ)
+            if len(response) < 2 or response[0] != '1':
+                return iter(list())
+            return iter(response[2:-1].decode(self.__encoding).split(response[1]))
+        except socket.error, socket.timeout:
+            return iter(list())
         return iter(list())
 
 def compile_rom_kana_rule(rule):
