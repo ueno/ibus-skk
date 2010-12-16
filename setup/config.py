@@ -61,7 +61,7 @@ class Config:
 
     def commit_all(self):
         for name in self.__defaults.keys():
-            value = self.__modified[name]
+            value = self.__modified.get(name)
             if value is not None:
                 # print 'set_value engine/SKK/%s' % name
                 self.__config.set_value('engine/SKK', name, value)
