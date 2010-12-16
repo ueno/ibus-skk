@@ -840,7 +840,7 @@ class SkkServ(DictBase):
             if len(response) == 0 or response[0] != '1':
                 return list()
             return self.split_candidates(response.decode(self.__encoding)[1:])
-        except socket.error, socket.timeout:
+        except socket.error:
             return list()
 
     def completer(self, midasi):
@@ -854,7 +854,7 @@ class SkkServ(DictBase):
             if len(response) < 2 or response[0] != '1':
                 return iter(list())
             return iter(response[2:-1].decode(self.__encoding).split(response[1]))
-        except socket.error, socket.timeout:
+        except socket.error:
             return iter(list())
         return iter(list())
 
