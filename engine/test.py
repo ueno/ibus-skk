@@ -361,6 +361,15 @@ class TestSKK(unittest.TestCase):
         self.__skk.press_key(u'>')
         self.assertEqual(self.__skk.preedit, u'▼超')
 
+        # Issue#28
+        self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
+        self.__skk.press_key(u'S')
+        self.__skk.press_key(u'a')
+        self.__skk.press_key(u's')
+        self.__skk.press_key(u'S')
+        self.assertEqual(self.__skk.preedit, u'▽さっ*s')
+
     def testcompletion(self):
         self.__skk.reset()
         self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
