@@ -469,6 +469,119 @@ TRANSLATED_STRINGS = {
     u'kuten-prompt': u'Kuten([MM]KKTT) '
 }
 
+# a port of 101kana.sty from scim-anthy, via ibus-anthy
+KANA_TYPING_RULE = {
+    # no modifiers keys
+    u"1" : u"ぬ",
+    u"2" : u"ふ",
+    u"3" : u"あ",
+    u"4" : u"う",
+    u"5" : u"え",
+    u"6" : u"お",
+    u"7" : u"や",
+    u"8" : u"ゆ",
+    u"9" : u"よ",
+    u"0" : u"わ",
+    u"-" : u"ほ",
+    u"^" : u"へ",
+
+    u"q" : u"た",
+    u"w" : u"て",
+    u"e" : u"い",
+    u"r" : u"す",
+    u"t" : u"か",
+    u"y" : u"ん",
+    u"u" : u"な",
+    u"i" : u"に",
+    u"o" : u"ら",
+    u"p" : u"せ",
+    u"@" : u"゛",
+    u"[" : u"゜",
+
+    u"a" : u"ち",
+    u"s" : u"と",
+    u"d" : u"し",
+    u"f" : u"は",
+    u"g" : u"き",
+    u"h" : u"く",
+    u"j" : u"ま",
+    u"k" : u"の",
+    u"l" : u"り",
+    u";" : u"れ",
+    u":" : u"け",
+    u"]" : u"む",
+
+    u"z" : u"つ",
+    u"x" : u"さ",
+    u"c" : u"そ",
+    u"v" : u"ひ",
+    u"b" : u"こ",
+    u"n" : u"み",
+    u"m" : u"も",
+    u"," : u"ね",
+    u"." : u"る",
+    u"/" : u"め",
+    # u"\\" : u"ー",
+    u"\\" : u"ろ",
+
+    # shift modifiered keys
+    u"!" : u"ぬ",
+    u"\"" : u"ふ",
+    u"#" : u"ぁ",
+    u"$" : u"ぅ",
+    u"%" : u"ぇ",
+    u"&" : u"ぉ",
+    u"'" : u"ゃ",
+    u"(" : u"ゅ",
+    u")" : u"ょ",
+    u"~" : u"を",
+    u"=" : u"ほ",
+    u"|" : u"ー",
+
+    u"Q" : u"た",
+    u"W" : u"て",
+    u"E" : u"ぃ",
+    u"R" : u"す",
+    u"T" : u"ヵ",
+    u"Y" : u"ん",
+    u"U" : u"な",
+    u"I" : u"に",
+    u"O" : u"ら",
+    u"P" : u"せ",
+    u"`" : u"゛",
+
+    u"{" : u"「",
+
+    u"A" : u"ち",
+    u"S" : u"と",
+    u"D" : u"し",
+    u"F" : u"ゎ",
+    u"G" : u"き",
+    u"H" : u"く",
+    u"J" : u"ま",
+    u"K" : u"の",
+    u"L" : u"り",
+    u"+" : u"れ",
+    u"*" : u"ヶ",
+
+    u"}" : u"」",
+
+    u"Z" : u"っ",
+    u"X" : u"さ",
+    u"C" : u"そ",
+    u"V" : u"ゐ",
+    u"B" : u"こ",
+    u"M" : u"も",
+    u"N" : u"み",
+    u"<" : u"、",
+    u">" : u"。",
+
+    u"?" : u"・",
+    u"_" : u"ろ",
+
+    u"¥" : u"ー",
+}
+
 class DictBase(object):
     ENCODING = 'EUC-JIS-2004'
 
@@ -1058,8 +1171,8 @@ class State(object):
         self.dict_edit_output = u''
 
     def reset(self):
-        self.conv_state = CONV_STATE_NONE
-        self.input_mode = INPUT_MODE_NONE
+        self.conv_state = None
+        self.input_mode = None
 
         # Current midasi in conversion.
         self.midasi = None
@@ -1115,11 +1228,17 @@ class Key(object):
     letter = property(lambda self: self.__letter)
     keyval = property(lambda self: self.__keyval)
 
+    def is_letter(self):
+        return len(self.__modifiers) == 0
+
     def is_ctrl(self):
         return 'ctrl' in self.__modifiers
 
     def is_nicola(self):
         return 'nicola' in self.__modifiers
+
+    def is_kana(self):
+        return 'kana' in self.__modifiers
 
     def is_lshift(self):
         return 'lshift' in self.__modifiers
@@ -1304,7 +1423,7 @@ class Context(object):
         return len(pending) > 0
 
     def __rom_kana_key_is_acceptable(self, key):
-        if key.is_nicola():
+        if key.is_nicola() or key.is_kana():
             return False
         if not self.__rom_kana_has_pending():
             return False
@@ -1333,9 +1452,9 @@ class Context(object):
         if str(key) == 'ctrl+g':
             handled = True
             if self.dict_edit_level() > 0 and \
-                    self.__current_state().conv_state == CONV_STATE_NONE:
+                    self.__current_state().conv_state == None:
                 self.__abort_dict_edit()
-            elif self.__current_state().conv_state in (CONV_STATE_NONE,
+            elif self.__current_state().conv_state in (None,
                                                        CONV_STATE_START):
                 # Don't handle ctrl+g here if no rom-kana conversion
                 # is in progress.  This allows Firefox search shortcut
@@ -1363,7 +1482,7 @@ class Context(object):
         if str(key) in ('ctrl+h', 'backspace'):
             return self.delete_char()
 
-        if self.__current_state().conv_state == CONV_STATE_NONE:
+        if self.__current_state().conv_state == None:
             # If KEY will be consumed in the next rom-kana conversion,
             # skip input mode transition.
             if not self.__rom_kana_key_is_acceptable(key):
@@ -1386,9 +1505,11 @@ class Context(object):
             if str(key) == 'ctrl+j':
                 return (True, u'')
                 
-            # Ignore ctrl+key and non-ASCII characters.
-            if key.is_ctrl() or \
-                    str(key) in ('return', 'escape', 'backspace') or \
+            # Ignore ctrl+key except under kana mode
+            if key.is_ctrl() and not key.is_kana():
+                return (False, u'')
+            # Ignore non-ASCII characters.
+            if str(key) in ('return', 'escape', 'backspace') or \
                     (len(key.letter) == 1 and \
                          (0x20 > ord(key.letter) or ord(key.letter) > 0x7E)):
                 return (False, u'')
@@ -1431,27 +1552,34 @@ class Context(object):
 
             # Start rom-kan mode with abbrev enabled (/).
             if not self.__rom_kana_key_is_acceptable(key) and \
-                    ((not key.is_nicola() and key.letter == '/') or \
+                    ((not key.is_nicola() and not key.is_kana() and \
+                          key.letter == '/') or \
                          (key.is_nicola() and key.letter == '[gh]')):
                 self.__current_state().conv_state = CONV_STATE_START
                 self.__current_state().abbrev = True
                 return (True, u'')
 
             # Start rom-kan mode (Q).
-            if key.letter == 'Q' or \
+            if (key.is_letter() and key.letter == 'Q') or \
                     (key.is_nicola() and key.letter == '[fj]'):
                 self.__current_state().conv_state = CONV_STATE_START
                 return (True, u'')
 
             # Start rom-kan mode and insert a character which
             # triggered the transition.
-            if key.letter.isupper():
+
+            # upper letter triggers conversion
+            if key.is_letter() and key.letter.isupper() :
+                self.__current_state().conv_state = CONV_STATE_START
+
+            # ctrl+kana+x triggers conversion
+            if key.is_kana() and key.is_ctrl():
                 self.__current_state().conv_state = CONV_STATE_START
 
             self.__current_state().rom_kana_state = \
                 self.__convert_kana(key, self.__current_state().rom_kana_state)
             output = self.__current_state().rom_kana_state[0]
-            if self.__current_state().conv_state == CONV_STATE_NONE and \
+            if self.__current_state().conv_state == None and \
                     len(output) > 0:
                 self.__current_state().rom_kana_state = \
                     (u'',
@@ -1601,11 +1729,11 @@ class Context(object):
                         self.__current_state().auto_start_henkan_keyword = keyword
                         break
 
-            # If midasi is empty, switch back to CONV_STATE_NONE
+            # If midasi is empty, switch back to None
             # instead of CONV_STATE_SELECT.
             if key.letter == u' ' and \
                     len(self.__current_state().rom_kana_state[0]) == 0:
-                self.__current_state().conv_state = CONV_STATE_NONE
+                self.__current_state().conv_state = None
                 return (True, u'')
 
             # Start okuri-nasi conversion.
@@ -1634,7 +1762,8 @@ class Context(object):
 
             if (key.letter.isupper() and \
                     not self.__rom_kana_key_is_acceptable(key)) or \
-                    (key.is_nicola() and key.letter == '[fj]'):
+                    (key.is_nicola() and key.letter == '[fj]') or \
+                    (key.is_kana() and key.letter == 'kanji'):
                 rom_kana_state = self.__convert_nn(self.__current_state().rom_kana_state)
                 rom_kana_state = self.__finish_next_pending(key.letter.lower(),
                                                             rom_kana_state)
@@ -1645,7 +1774,8 @@ class Context(object):
                         (u'', u'', self.__rom_kana_rule_tree)
 
             if self.__current_state().okuri_rom_kana_state and \
-                    not (key.is_nicola() and key.letter == '[fj]'):
+                    not (key.is_nicola() and key.letter == '[fj]') and \
+                    not (key.is_kana() and key.letter == 'kanji'):
                 okuri = None
                 # Issue#10: check OUTPUT was produced by 'n'
                 for nn in (u'ん', u'ン', u'ﾝ'):
@@ -1654,7 +1784,7 @@ class Context(object):
                         okuri = u'n'
                         break
                 if not okuri:
-                    if key.is_nicola():
+                    if key.is_nicola() or key.is_kana():
                         okuri_rom_kana_state = \
                             self.__convert_kana(key, (u'', u'', dict()))
                         okuri = OKURI_RULE[okuri_rom_kana_state[0]]
@@ -1714,7 +1844,7 @@ class Context(object):
                 input_mode = self.__current_state().input_mode
                 self.reset()
                 self.activate_input_mode(input_mode)
-                self.__current_state().conv_state = CONV_STATE_NONE
+                self.__current_state().conv_state = None
                 return (True, u'')
             else:
                 output = self.kakutei()
@@ -1748,7 +1878,7 @@ class Context(object):
     def delete_char(self):
         '''Delete a character at the end of the buffer.'''
         if self.__current_state().conv_state == CONV_STATE_SELECT:
-            self.__current_state().conv_state = CONV_STATE_NONE
+            self.__current_state().conv_state = None
             output = self.kakutei()
             if self.dict_edit_level() > 0:
                 self.__current_state().dict_edit_output += output[:-1]
@@ -1864,7 +1994,7 @@ elements will be "[[DictEdit]] かんが*え ", "▽", "かんが", "*え" .'''
         else:
             prompt = u''
             prefix = u''
-        if self.__current_state().conv_state == CONV_STATE_NONE:
+        if self.__current_state().conv_state == None:
             if self.__current_state().rom_kana_state:
                 return (prompt,
                         prefix,
@@ -1959,6 +2089,8 @@ elements will be "[[DictEdit]] かんが*え ", "▽", "かんが", "*え" .'''
     def __convert_kana(self, key, state):
         if key.is_nicola():
             return self.__convert_nicola_kana(key, state)
+        elif key.is_kana():
+            return self.__convert_kana_kana(key, state)
         else:
             return self.__convert_rom_kana(key.letter.lower(), state)
 
@@ -2002,6 +2134,16 @@ elements will be "[[DictEdit]] かんが*え ", "▽", "かんが", "*え" .'''
         if hiragana:
             katakana = hiragana_to_katakana(hiragana)
             output += self.__convert_kana_by_input_mode(katakana, hiragana)
+        return (output, pending, tree)
+
+    def __convert_kana_kana(self, key, state):
+        assert key.is_kana()
+        hiragana = KANA_TYPING_RULE.get(key.letter)
+        if not hiragana:
+            return state
+        output, pending, tree = state
+        katakana = hiragana_to_katakana(hiragana)
+        output += self.__convert_kana_by_input_mode(katakana, hiragana)
         return (output, pending, tree)
 
     def __convert_kana_by_input_mode(self, katakana, hiragana):

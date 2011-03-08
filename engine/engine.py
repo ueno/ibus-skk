@@ -27,6 +27,7 @@ from ibus import modifier
 import sys, os, os.path, time
 import skk
 import nicola
+import virtkbd
 try:
     from gtk import clipboard_get
 except ImportError:
@@ -187,11 +188,14 @@ class Engine(ibus.EngineBase):
             _(u'Kuten([MM]KKTT) ').decode('UTF-8')
         self.__skk.custom_rom_kana_rule = \
             self.config.get_value('custom_rom_kana_rule')
+
+        self.__virtkbd = virtkbd.create_virtual_keyboard(self)
+
         self.__skk.reset()
         self.__skk.activate_input_mode(self.__initial_input_mode)
         self.__prop_dict = dict()
         self.__prop_list = self.__init_props()
-        self.__input_mode = skk.INPUT_MODE_NONE
+        self.__input_mode = None
         self.__update_input_mode()
         self.__suspended_mode = None
         if self.config.get_value('use_nicola'):
@@ -200,6 +204,7 @@ class Engine(ibus.EngineBase):
         else:
             self.__nicola = None
 
+    input_mode = property(lambda self: self.__input_mode)
 
     def __init_props(self):
         skk_props = ibus.PropList()
@@ -235,6 +240,12 @@ class Engine(ibus.EngineBase):
         input_mode_prop.set_sub_props(props)
         skk_props.append(input_mode_prop)
 
+        if self.config.get_value('enable_virtual_keyboard'):
+            keyboard_prop = ibus.Property(key=u"Keyboard",
+                                          icon=u"input-keyboard",
+                                          tooltip=_(u"Launch on-screen keyboard"))
+            skk_props.append(keyboard_prop)
+
         skk_props.append(ibus.Property(key=u"setup",
                                        tooltip=_(u"Configure SKK")))
 
@@ -252,6 +263,7 @@ class Engine(ibus.EngineBase):
         if hasattr(self, 'set_icon_symbol'):
             self.set_icon_symbol(prop.label)
         self.update_property(prop)
+        self.__virtkbd.set_input_mode(self.__input_mode)
         self.__invalidate()
 
     def __get_clipboard(self, clipboard, text, data):
@@ -301,9 +313,9 @@ class Engine(ibus.EngineBase):
                 except IndexError:
                     pass
         elif (self.__skk.dict_edit_level() > 0 or \
-                self.__skk.conv_state == skk.CONV_STATE_START) and \
-                (state & modifier.CONTROL_MASK) and \
-                unichr(keyval).lower() in (u'y', u'v'):
+                  self.__skk.conv_state == skk.CONV_STATE_START) and \
+                  (state & modifier.CONTROL_MASK) and \
+                  unichr(keyval).lower() in (u'y', u'v'):
             if unichr(keyval).lower() == u'y':
                 clipboard = clipboard_get ("PRIMARY")
             else:
@@ -325,7 +337,9 @@ class Engine(ibus.EngineBase):
             keychr = u'rshift'
         else:
             keychr = unichr(keyval)
-            if 0x20 > ord(keychr) or ord(keychr) > 0x7E:
+            if self.__virtkbd.keyboard_type == virtkbd.KEYBOARD_TYPE_JP:
+                keychr = u'kana+' + keychr
+            elif 0x20 > ord(keychr) or ord(keychr) > 0x7E:
                 # If the pre-edit buffer is visible, always handle key events:
                 # http://github.com/ueno/ibus-skk/issues/#issue/5
                 return len(self.__skk.preedit) > 0
@@ -528,6 +542,7 @@ class Engine(ibus.EngineBase):
             self.__skk.activate_input_mode(self.__suspended_mode)
             self.__suspended_mode = None
         self.__update_input_mode()
+        self.__virtkbd.enable()
 
     def focus_out(self):
         self.__suspended_mode = self.__skk.input_mode
@@ -536,6 +551,7 @@ class Engine(ibus.EngineBase):
         self.__lookup_table.clean()
         self.__update()
         self.__skk.reset()
+        self.__virtkbd.disable()
 
     def reset(self):
         self.__skk.reset()
@@ -543,10 +559,13 @@ class Engine(ibus.EngineBase):
 
     def property_activate(self, prop_name, state):
         # print "PropertyActivate(%s, %d)" % (prop_name, state)
-        if state == ibus.PROP_STATE_CHECKED:
-            input_mode = self.__prop_name_input_modes[prop_name]
-            self.__skk.activate_input_mode(input_mode)
-            self.__update_input_mode()
+        if prop_name.startswith('InputMode'):
+            if state == ibus.PROP_STATE_CHECKED:
+                input_mode = self.__prop_name_input_modes[prop_name]
+                self.__skk.activate_input_mode(input_mode)
+                self.__update_input_mode()
+        elif prop_name == 'Keyboard':
+            self.__virtkbd.toggle_visible()
         else:
             if prop_name == 'setup':
                 self.__start_setup()

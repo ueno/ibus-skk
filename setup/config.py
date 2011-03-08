@@ -28,6 +28,7 @@ class Config:
         'initial_input_mode': skk.INPUT_MODE_HIRAGANA,
         'egg_like_newline': True,
         'use_nicola': False,
+        'enable_virtual_keyboard': False,
         }
     # sysdict_paths needs special treatment since IBusConfig does not
     # allow empty arrays (Issue#31).
