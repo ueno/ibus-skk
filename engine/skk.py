@@ -1294,8 +1294,14 @@ class Context(object):
         if key.is_nicola():
             return False
         output, pending, tree = self.__current_state().rom_kana_state
-        return len(pending) > 0 and \
-            key.letter.lower() in self.__current_state().rom_kana_state[2]
+        if len(pending) == 0:
+            return False
+        if key.letter.lower() not in tree:
+            return False
+        arg = tree[key.letter.lower()]
+        if isinstance(arg, tuple) and arg[0]: # arg[0] == next_pending
+            return False
+        return True
 
     def __get_next_input_mode(self, key):
         input_mode = INPUT_MODE_TRANSITION_RULE.get(str(key), dict()).\
@@ -1609,6 +1615,8 @@ class Context(object):
                     not self.__rom_kana_key_is_acceptable(key)) or \
                     (key.is_nicola() and key.letter == '[fj]'):
                 rom_kana_state = self.__convert_nn(self.__current_state().rom_kana_state)
+                rom_kana_state = self.__finish_next_pending(key.letter.lower(),
+                                                            rom_kana_state)
                 if len(rom_kana_state[1]) == 0 and \
                         not self.__current_state().okuri_rom_kana_state:
                     self.__current_state().rom_kana_state = rom_kana_state
@@ -1905,13 +1913,34 @@ elements will be "[[DictEdit]] かんが*え ", "▽", "かんが", "*え" .'''
                 output += u'ﾝ'
             return (output, pending[:-1], self.__rom_kana_rule_tree)
         return state
-        
+
+    def __convert_next_output(self, next_output, state):
+        output, pending, tree = state
+        if isinstance(next_output, unicode):
+            output += next_output
+        else:
+            output += self.__convert_kana_by_input_mode(*next_output)
+        return (output, u'', self.__rom_kana_rule_tree)
+
+    def __convert_next_pending(self, next_pending, state):
+        for next_letter in next_pending:
+            state = self.__convert_rom_kana(next_letter, state)
+        return state
+
+    def __finish_next_pending(self, letter, state):
+        output, pending, tree = state
+        if letter in tree and isinstance(tree[letter], tuple) and \
+                tree[letter][0] is not None:
+            output, pending, tree = self.__convert_rom_kana(letter, state)
+            return (output, u'', self.__rom_kana_rule_tree)
+        return state
+
     def __convert_kana(self, key, state):
         if key.is_nicola():
             return self.__convert_nicola_kana(key, state)
         else:
             return self.__convert_rom_kana(key.letter.lower(), state)
-            
+
     def __convert_rom_kana(self, letter, state):
         output, pending, tree = state
         if letter not in tree:
@@ -1928,16 +1957,10 @@ elements will be "[[DictEdit]] かんが*え ", "▽", "かんが", "*え" .'''
         if isinstance(tree[letter], dict):
             return (output, pending + letter, tree[letter])
         next_pending, next_output = tree[letter]
-        if isinstance(next_output, unicode):
-            output += next_output
-        else:
-            katakana, hiragana = next_output
-            output += self.__convert_kana_by_input_mode(katakana, hiragana)
-        next_state = (output, u'', self.__rom_kana_rule_tree)
+        state = self.__convert_next_output(next_output, state)
         if next_pending:
-            for next_letter in next_pending:
-                next_state = self.__convert_rom_kana(next_letter, next_state)
-        return next_state
+            state = self.__convert_next_pending(next_pending, state)
+        return state
 
     def __convert_nicola_kana(self, key, state):
         assert key.is_nicola()
