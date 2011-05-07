@@ -837,6 +837,10 @@ class SkkServ(DictBase):
             response = str()
             while '\n' not in response:
                 response += self.__socket.recv(self.BUFSIZ)
+                # skksearch does not terminate the line with LF on
+                # error (Issue#30)
+                if len(response) > 0 and response[0] != '1':
+                    break
             if len(response) == 0 or response[0] != '1':
                 return list()
             return self.split_candidates(response.decode(self.__encoding)[1:])
@@ -851,6 +855,10 @@ class SkkServ(DictBase):
             response = str()
             while '\n' not in response:
                 response += self.__socket.recv(self.BUFSIZ)
+                # skksearch does not terminate the line with LF on
+                # error (Issue#30)
+                if len(response) > 0 and response[0] != '1':
+                    break
             if len(response) < 2 or response[0] != '1':
                 return iter(list())
             return iter(response[2:-1].decode(self.__encoding).split(response[1]))
