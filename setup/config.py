@@ -56,7 +56,7 @@ class Config:
         self.fetch_all()
 
     def fetch_all(self):
-        for name in self.__defaults.keys():
+        for name in self.__keys:
             # print 'get_value engine/SKK/%s' % name
             value = self.__config.get_value('engine/SKK', name, None)
             if value is not None:
