@@ -45,7 +45,6 @@ class PreferencesDialog:
         self.__remove_sysdict = self.__builder.get_object('remove_sysdict')
         self.__up_sysdict = self.__builder.get_object('up_sysdict')
         self.__down_sysdict = self.__builder.get_object('down_sysdict')
-        self.__use_mmap = self.__builder.get_object('use_mmap')
         self.__period_style = self.__builder.get_object('period_style')
         self.__page_size = self.__builder.get_object('page_size')
         self.__pagination_start = self.__builder.get_object('pagination_start')
@@ -63,8 +62,6 @@ class PreferencesDialog:
         if sysdict_type == 'skkserv':
             self.__use_skkserv.set_active(True)
         self.__set_sysdict_widgets_sensitivity(sysdict_type)
-        use_mmap = self.__config.get_value('use_mmap')
-        self.__use_mmap.set_active(use_mmap)
 
         # sysdict treeview
         renderer = gtk.CellRendererText()
@@ -134,7 +131,6 @@ class PreferencesDialog:
         self.__remove_sysdict.connect('clicked', self.__remove_sysdict_clicked_cb)
         self.__up_sysdict.connect('clicked', self.__up_sysdict_clicked_cb)
         self.__down_sysdict.connect('clicked', self.__down_sysdict_clicked_cb)
-        self.__use_mmap.connect('toggled', self.__use_mmap_changed_cb)
         self.__period_style.connect('changed', self.__period_style_changed_cb)
         self.__auto_start_henkan_keywords.connect(\
             'changed', self.__auto_start_henkan_keywords_changed_cb)
@@ -236,9 +232,6 @@ class PreferencesDialog:
             if path[0] < len(model) - 1:
                 model.move_after(_iter, model.get_iter((path[0] + 1,)))
                 self.__set_sysdict_from_model(model)
-
-    def __use_mmap_changed_cb(self, widget):
-        self.__config.set_value('use_mmap', widget.get_active())
 
     def __period_style_changed_cb(self, widget):
         self.__config.set_value('period_style', widget.get_active())

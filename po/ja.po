@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ibus-skk 1.2.0.20091108\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-15 11:18+0900\n"
-"PO-Revision-Date: 2010-12-15 11:19+0900\n"
+"POT-Creation-Date: 2011-05-10 10:45+0900\n"
+"PO-Revision-Date: 2011-05-10 10:46+0900\n"
 "Last-Translator: Daiki Ueno <ueno@unixuser.org>\n"
 "Language-Team: Japanese\n"
 "Language: \n"
@@ -58,7 +58,7 @@ msgstr "SKKの設定"
 msgid "SKK"
 msgstr "SKK"
 
-#: ../setup/main.py:197
+#: ../setup/main.py:195
 msgid "Open Dictionary File"
 msgstr "辞書ファイルを開く"
 
@@ -143,17 +143,13 @@ msgid "Use Thumb Shift Keyboard"
 msgstr "親指シフトキーボードを使う"
 
 #: ../setup/ibus-skk-preferences.ui.in.h:23
-msgid "Use mmap"
-msgstr "mmap を使う"
-
-#: ../setup/ibus-skk-preferences.ui.in.h:24
 msgid "_Auto-start Conversion Characters:"
 msgstr "自動変換を開始する文字(_A):"
 
-#: ../setup/ibus-skk-preferences.ui.in.h:25
+#: ../setup/ibus-skk-preferences.ui.in.h:24
 msgid "_Period Style:"
 msgstr "句読点の形式(_P):"
 
-#: ../setup/ibus-skk-preferences.ui.in.h:26
+#: ../setup/ibus-skk-preferences.ui.in.h:25
 msgid "_User dictionary: "
 msgstr "ユーザ辞書ファイル(_U):"
