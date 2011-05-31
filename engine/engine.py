@@ -533,11 +533,11 @@ class Engine(ibus.EngineBase):
         # self.commit_text(ibus.Text(u''))
         self.__lookup_table.clean()
         self.__update()
-        self.reset()
+        self.__skk.reset()
 
     def reset(self):
         self.__skk.reset()
-        self.__skk.activate_input_mode(self.__initial_input_mode)
+        self.__skk.activate_input_mode(self.__input_mode)
 
     def property_activate(self, prop_name, state):
         # print "PropertyActivate(%s, %d)" % (prop_name, state)
