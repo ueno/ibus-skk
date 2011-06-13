@@ -46,5 +46,9 @@ http://github.com/ueno/ibus-skk/issues
 https://bugzilla.redhat.com/buglist.cgi?component=ibus-skk&product=Fedora
 http://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=ibus-skk;dist=unstable
 
+Even though some developers read Japanese, please write in plain
+English so that we can forward it to other components when your
+problem is not specific to ibus-skk.
+
 If you can write Python, it would be helpful to add some failure test
 cases in engine/test.py and to attach the diff to the bug reports.
