@@ -100,7 +100,7 @@ ROM_KANA_RULE = {
     # u'h': (u'', (u'オ', u'お')),
     u'ha': (None, (u'ハ', u'は')),
     u'he': (None, (u'ヘ', u'へ')),
-    u'hh': (u'h', (u'ッ', u'っ')),
+    u'hh': (u'h', (u'ッ', u'っ')), # skk-rom-kana-list
     u'hi': (None, (u'ヒ', u'ひ')),
     u'ho': (None, (u'ホ', u'ほ')),
     u'hu': (None, (u'フ', u'ふ')),
@@ -135,6 +135,7 @@ ROM_KANA_RULE = {
     u'ma': (None, (u'マ', u'ま')),
     u'me': (None, (u'メ', u'め')),
     u'mi': (None, (u'ミ', u'み')),
+    u'mm': (u'm', (u'ッ', u'っ')), # skk-rom-kana-list
     u'mo': (None, (u'モ', u'も')),
     u'mu': (None, (u'ム', u'む')),
     u'mya': (None, (u'ミャ', u'みゃ')),
