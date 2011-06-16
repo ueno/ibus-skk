@@ -24,8 +24,13 @@ class PreferencesDialog:
     def __init__(self):
         locale.setlocale(locale.LC_ALL, '')
         localedir = os.getenv('IBUS_LOCALEDIR')
-        # for non-standard localedir (Issue#27)
-        locale.bindtextdomain('ibus-skk', localedir)
+        # Python's locale module doesn't provide all methods on some
+        # operating systems like FreeBSD (Issue#34)
+        try:
+            # for non-standard localedir (Issue#27)
+            locale.bindtextdomain('ibus-skk', localedir)
+        except AttributeError:
+            pass
         gettext.bindtextdomain('ibus-skk', localedir)
         gettext.bind_textdomain_codeset('ibus-skk', 'UTF-8')
 
