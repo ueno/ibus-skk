@@ -1297,14 +1297,18 @@ class Context(object):
             self.__current_state().conv_state = CONV_STATE_START
             self.__enter_dict_edit()
 
-    def __rom_kana_key_is_acceptable(self, key):
+    def __rom_kana_has_pending(self):
         if self.__current_state().rom_kana_state is None:
             return False
+        output, pending, tree = self.__current_state().rom_kana_state
+        return len(pending) > 0
+
+    def __rom_kana_key_is_acceptable(self, key):
         if key.is_nicola():
             return False
-        output, pending, tree = self.__current_state().rom_kana_state
-        if len(pending) == 0:
+        if not self.__rom_kana_has_pending():
             return False
+        output, pending, tree = self.__current_state().rom_kana_state
         if key.letter.lower() not in tree:
             return False
         arg = tree[key.letter.lower()]
@@ -1327,11 +1331,18 @@ class Context(object):
         and OUTPUT is a committable string (if any).'''
         key = Key(keystr)
         if str(key) == 'ctrl+g':
+            handled = True
             if self.dict_edit_level() > 0 and \
                     self.__current_state().conv_state == CONV_STATE_NONE:
                 self.__abort_dict_edit()
             elif self.__current_state().conv_state in (CONV_STATE_NONE,
                                                        CONV_STATE_START):
+                # Don't handle ctrl+g here if no rom-kana conversion
+                # is in progress.  This allows Firefox search shortcut
+                # ctrl+g (Issue#35).
+                if self.__current_state().conv_state == CONV_STATE_NONE and \
+                    not self.__rom_kana_has_pending():
+                    handled = False
                 input_mode = self.__current_state().input_mode
                 self.reset()
                 self.activate_input_mode(input_mode)
@@ -1347,7 +1358,7 @@ class Context(object):
                 self.__current_state().midasi = None
                 self.__candidate_selector.set_candidates(list())
                 self.__current_state().conv_state = CONV_STATE_START
-            return (True, u'')
+            return (handled, u'')
 
         if str(key) in ('ctrl+h', 'backspace'):
             return self.delete_char()

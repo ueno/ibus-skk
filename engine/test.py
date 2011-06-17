@@ -183,6 +183,16 @@ class TestSKK(unittest.TestCase):
         self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         self.__skk.press_key(u'z')
         self.assertEqual(self.__skk.press_key(u'l'), (True, u'→'))
+        # cancel rom-kana conversion
+        self.__skk.reset()
+        self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
+        self.__skk.press_key(u'm')
+        self.__skk.press_key(u'y')
+        self.assertEqual(self.__skk.press_key(u'ctrl+g'), (True, u''))
+        self.__skk.press_key(u'm')
+        self.__skk.press_key(u'y')
+        self.__skk.press_key(u'a')
+        self.assertEqual(self.__skk.press_key(u'ctrl+g'), (False, u''))
 
     def testhiraganakatakana(self):
         self.__skk.reset()
