@@ -1596,7 +1596,8 @@ class Context(object):
                 rom_kana_state = tuple(self.__current_state().rom_kana_state)
                 rom_kana_state = self.__convert_kana(key, rom_kana_state)
                 for keyword in AUTO_START_HENKAN_KEYWORDS:
-                    if rom_kana_state[0].find(keyword) >= 1:
+                    if len(rom_kana_state[0]) > len(keyword) and \
+                            rom_kana_state[0].endswith(keyword):
                         self.__current_state().auto_start_henkan_keyword = keyword
                         break
 
