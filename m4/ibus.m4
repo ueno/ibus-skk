@@ -26,7 +26,7 @@ AC_DEFUN([IBUS_ICON_SYMBOL], [
   $PYTHON <<_ICON_SYMBOL_TEST
 import ibus
 engine = ibus.EngineDesc('test')
-exit(0 if hasattr(engine, 'icon_symbol') else 1)
+exit(hasattr(engine, 'icon_symbol'))
 _ICON_SYMBOL_TEST
   if test $? -ne 0; then
     ICON_SYMBOL="<icon_symbol>$1</icon_symbol>"
