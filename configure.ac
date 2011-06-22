@@ -80,6 +80,9 @@ AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Define to the read-only architecture-independent data directory.])
 AM_GLIB_GNU_GETTEXT
 
+IBUS_WITH_HOTKEYS
+IBUS_ICON_SYMBOL([&x3042;])
+
 # OUTPUT files
 AC_CONFIG_FILES([ po/Makefile.in
 Makefile

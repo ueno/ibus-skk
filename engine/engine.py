@@ -249,6 +249,8 @@ class Engine(ibus.EngineBase):
         self.update_property(self.__prop_dict[prop_name])
         prop = self.__prop_dict[u"InputMode"]
         prop.label = self.__input_mode_labels[self.__input_mode]
+        if hasattr(self, 'set_icon_symbol'):
+            self.set_icon_symbol(prop.label)
         self.update_property(prop)
         self.__invalidate()
 
