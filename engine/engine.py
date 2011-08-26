@@ -195,7 +195,7 @@ class Engine(ibus.EngineBase):
         self.__skk.activate_input_mode(self.__initial_input_mode)
         self.__prop_dict = dict()
         self.__prop_list = self.__init_props()
-        self.__input_mode = None
+        self.__input_mode = skk.INPUT_MODE_NONE
         self.__update_input_mode()
         self.__suspended_mode = None
         if self.config.get_value('use_nicola'):

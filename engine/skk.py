@@ -1171,8 +1171,8 @@ class State(object):
         self.dict_edit_output = u''
 
     def reset(self):
-        self.conv_state = None
-        self.input_mode = None
+        self.conv_state = CONV_STATE_NONE
+        self.input_mode = INPUT_MODE_NONE
 
         # Current midasi in conversion.
         self.midasi = None
@@ -1452,9 +1452,9 @@ class Context(object):
         if str(key) == 'ctrl+g':
             handled = True
             if self.dict_edit_level() > 0 and \
-                    self.__current_state().conv_state == None:
+                    self.__current_state().conv_state == CONV_STATE_NONE:
                 self.__abort_dict_edit()
-            elif self.__current_state().conv_state in (None,
+            elif self.__current_state().conv_state in (CONV_STATE_NONE,
                                                        CONV_STATE_START):
                 # Don't handle ctrl+g here if no rom-kana conversion
                 # is in progress.  This allows Firefox search shortcut
@@ -1482,7 +1482,7 @@ class Context(object):
         if str(key) in ('ctrl+h', 'backspace'):
             return self.delete_char()
 
-        if self.__current_state().conv_state == None:
+        if self.__current_state().conv_state == CONV_STATE_NONE:
             # If KEY will be consumed in the next rom-kana conversion,
             # skip input mode transition.
             if not self.__rom_kana_key_is_acceptable(key):
@@ -1579,7 +1579,7 @@ class Context(object):
             self.__current_state().rom_kana_state = \
                 self.__convert_kana(key, self.__current_state().rom_kana_state)
             output = self.__current_state().rom_kana_state[0]
-            if self.__current_state().conv_state == None and \
+            if self.__current_state().conv_state == CONV_STATE_NONE and \
                     len(output) > 0:
                 self.__current_state().rom_kana_state = \
                     (u'',
@@ -1729,11 +1729,11 @@ class Context(object):
                         self.__current_state().auto_start_henkan_keyword = keyword
                         break
 
-            # If midasi is empty, switch back to None
+            # If midasi is empty, switch back to CONV_STATE_NONE
             # instead of CONV_STATE_SELECT.
             if key.letter == u' ' and \
                     len(self.__current_state().rom_kana_state[0]) == 0:
-                self.__current_state().conv_state = None
+                self.__current_state().conv_state = CONV_STATE_NONE
                 return (True, u'')
 
             # Start okuri-nasi conversion.
@@ -1844,7 +1844,7 @@ class Context(object):
                 input_mode = self.__current_state().input_mode
                 self.reset()
                 self.activate_input_mode(input_mode)
-                self.__current_state().conv_state = None
+                self.__current_state().conv_state = CONV_STATE_NONE
                 return (True, u'')
             else:
                 output = self.kakutei()
@@ -1878,7 +1878,7 @@ class Context(object):
     def delete_char(self):
         '''Delete a character at the end of the buffer.'''
         if self.__current_state().conv_state == CONV_STATE_SELECT:
-            self.__current_state().conv_state = None
+            self.__current_state().conv_state = CONV_STATE_NONE
             output = self.kakutei()
             if self.dict_edit_level() > 0:
                 self.__current_state().dict_edit_output += output[:-1]
@@ -1994,7 +1994,7 @@ elements will be "[[DictEdit]] かんが*え ", "▽", "かんが", "*え" .'''
         else:
             prompt = u''
             prefix = u''
-        if self.__current_state().conv_state == None:
+        if self.__current_state().conv_state == CONV_STATE_NONE:
             if self.__current_state().rom_kana_state:
                 return (prompt,
                         prefix,
