@@ -23,12 +23,6 @@
 from ibus import keysyms
 from ibus import modifier
 
-try:
-    import eekboard, virtkey
-    factory_class_name = 'VirtualKeyboardEekboard'
-except ImportError:
-    factory_class_name = 'VirtualKeyboard'
-
 KEYBOARD_TYPE_US, KEYBOARD_TYPE_JP = range(2)
 
 INPUT_MODE_HIRAGANA, \
@@ -37,7 +31,7 @@ INPUT_MODE_HALF_WIDTH_KATAKANA, \
 INPUT_MODE_LATIN, \
 INPUT_MODE_WIDE_LATIN = range(5)
 
-class VirtualKeyboard(object):
+class VirtualKeyboardFallback(object):
     keyboard_type = property(lambda self: KEYBOARD_TYPE_US)
 
     def __init__(self, engine):
@@ -61,8 +55,10 @@ class VirtualKeyboard(object):
     def toggle_visible(self):
         pass
 
-class VirtualKeyboardEekboard(VirtualKeyboard):
+class VirtualKeyboardEekboard(object):
     def __init__(self, engine):
+        import eekboard, virtkey
+
         self.__engine = engine
         self.__input_mode = None
 
@@ -116,13 +112,7 @@ class VirtualKeyboardEekboard(VirtualKeyboard):
             self.__context.show_keyboard()
 
     def __process_key_event(self, symbol, modifiers):
-        if type(symbol) == eekboard.Symbol:
-            if symbol.name == 'cycle-keyboard' and \
-                    (modifiers & modifier.RELEASE_MASK) == 0:
-                self.toggle_keyboard_type()
-            return True
-
-        if isinstance(symbol, eekboard.Keysym):
+        if hasattr(symbol, 'xkeysym'):
             if self.__engine.process_key_event(symbol.xkeysym, 0, modifiers):
                 return True
 
@@ -132,6 +122,11 @@ class VirtualKeyboardEekboard(VirtualKeyboard):
             else:
                 self.__virtkey.press_keysym(symbol.xkeysym)
             return True
+        else:
+            if symbol.name == 'cycle-keyboard' and \
+                    (modifiers & modifier.RELEASE_MASK) == 0:
+                self.toggle_keyboard_type()
+            return True
         return False
 
     def __key_pressed_cb(self, context, keyname, symbol, modifiers):
@@ -139,8 +134,3 @@ class VirtualKeyboardEekboard(VirtualKeyboard):
             return
         self.__process_key_event(symbol, modifiers)
         self.__process_key_event(symbol, modifiers | modifier.RELEASE_MASK)
-
-def create_virtual_keyboard(engine):
-    factory_class = globals().get(factory_class_name, VirtualKeyboard)
-    return factory_class(engine)
-

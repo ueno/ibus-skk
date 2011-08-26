@@ -58,7 +58,7 @@ class TestSKK(unittest.TestCase):
     def testinputmodechange(self):
         self.__skk.reset()
         self.assertEqual(self.__skk.conv_state, skk.CONV_STATE_NONE)
-        self.assertEqual(self.__skk.input_mode, skk.INPUT_MODE_NONE)
+        self.assertEqual(self.__skk.input_mode, skk.INPUT_MODE_DEFAULT)
         self.__skk.activate_input_mode(skk.INPUT_MODE_HIRAGANA)
         # catch ctrl-j in HIRAGANA
         handled, output = self.__skk.press_key(u'ctrl+j')

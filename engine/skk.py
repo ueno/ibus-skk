@@ -412,12 +412,12 @@ CONV_STATE_NONE, \
 CONV_STATE_START, \
 CONV_STATE_SELECT = range(3)
 
-INPUT_MODE_NONE, \
 INPUT_MODE_HIRAGANA, \
 INPUT_MODE_KATAKANA, \
 INPUT_MODE_LATIN, \
 INPUT_MODE_WIDE_LATIN, \
-INPUT_MODE_HANKAKU_KATAKANA = range(6)
+INPUT_MODE_HANKAKU_KATAKANA = range(5)
+INPUT_MODE_DEFAULT = INPUT_MODE_HIRAGANA
 
 INPUT_MODE_TRANSITION_RULE = {
     u'q': {
@@ -1172,7 +1172,7 @@ class State(object):
 
     def reset(self):
         self.conv_state = CONV_STATE_NONE
-        self.input_mode = INPUT_MODE_NONE
+        self.input_mode = INPUT_MODE_DEFAULT
 
         # Current midasi in conversion.
         self.midasi = None
