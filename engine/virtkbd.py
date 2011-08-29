@@ -31,6 +31,10 @@ INPUT_MODE_HALF_WIDTH_KATAKANA, \
 INPUT_MODE_LATIN, \
 INPUT_MODE_WIDE_LATIN = range(5)
 
+TYPING_MODE_ROMAJI, \
+TYPING_MODE_KANA, \
+TYPING_MODE_THUMB_SHIFT = range(3)
+
 class VirtualKeyboardFallback(object):
     keyboard_type = property(lambda self: KEYBOARD_TYPE_US)
 
@@ -43,10 +47,7 @@ class VirtualKeyboardFallback(object):
     def disable(self):
         pass
 
-    def set_input_mode(self, input_mode):
-        pass
-
-    def set_keyboard_type(self, keyboard_type):
+    def set_mode(self, input_mode=None, typing_mode=None):
         pass
 
     def toggle_keyboard_type(self):
@@ -61,16 +62,26 @@ class VirtualKeyboardEekboard(object):
 
         self.__engine = engine
         self.__input_mode = None
+        self.__typing_mode = None
 
         self.__client = eekboard.Client()
         self.__context = self.__client.create_context("ibus-skk")
 
-        self.__keyboards = {
+        self.__keyboard_type_to_id = {
             KEYBOARD_TYPE_US: self.__context.add_keyboard("us"),
             KEYBOARD_TYPE_JP: self.__context.add_keyboard("jp-kana")
             }
-        self.set_keyboard_type(KEYBOARD_TYPE_US)
+        self.__keyboard_id_to_type = dict()
+        for k, v in self.__keyboard_type_to_id.iteritems():
+            self.__keyboard_id_to_type[v] = k
+
+        self.__keyboard_type = None
+        self.__group = 0
+        self.__set_keyboard_type(KEYBOARD_TYPE_US)
+        self.__set_group(0)
         self.__context.connect('key-pressed', self.__key_pressed_cb)
+        self.__context.connect('notify::keyboard', self.__notify_keyboard_cb)
+        self.__context.connect('notify::group', self.__notify_group_cb)
         self.__virtkey = virtkey.virtkey()
 
     keyboard_type = property(lambda self: self.__keyboard_type)
@@ -81,29 +92,55 @@ class VirtualKeyboardEekboard(object):
     def disable(self):
         self.__client.pop_context()
 
-    def __set_group(self):
-        if self.__keyboard_type == KEYBOARD_TYPE_US:
-            self.__context.set_group(0)
+    def __set_keyboard_type(self, keyboard_type):
+        if self.__keyboard_type != keyboard_type:
+            keyboard_id = self.__keyboard_type_to_id[keyboard_type]
+            self.__context.set_keyboard(keyboard_id)
+            self.__keyboard_type = keyboard_type
+
+    def __set_group(self, group):
+        self.__context.set_group(group)
+
+    def __get_keyboard_type_and_group(self, input_mode, typing_mode):
+        if typing_mode == TYPING_MODE_KANA:
+            if input_mode == INPUT_MODE_HIRAGANA:
+                keyboard_type = KEYBOARD_TYPE_JP
+                group = 0
+            elif input_mode in (INPUT_MODE_KATAKANA,
+                                INPUT_MODE_HALF_WIDTH_KATAKANA):
+                keyboard_type = KEYBOARD_TYPE_JP
+                group = 1
+            else:
+                keyboard_type = KEYBOARD_TYPE_US
+                group = 0
         else:
-            if self.__input_mode == INPUT_MODE_HIRAGANA:
-                self.__context.set_group(0)
-            elif self.__input_mode == INPUT_MODE_KATAKANA:
-                self.__context.set_group(1)
+            keyboard_type = KEYBOARD_TYPE_US
+            group = 0
+        return (keyboard_type, group)
 
-    def set_input_mode(self, input_mode):
+    def set_mode(self, input_mode=None, typing_mode=None):
+        if input_mode == None:
+            input_mode = self.__input_mode
+        if typing_mode == None:
+            typing_mode = self.__typing_mode
+        keyboard_type, group = \
+            self.__get_keyboard_type_and_group(input_mode, typing_mode)
+        self.__set_keyboard_type(keyboard_type)
+        self.__set_group(group)
         self.__input_mode = input_mode
-        self.__set_group()
-
-    def set_keyboard_type(self, keyboard_type):
-        self.__keyboard_type = keyboard_type
-        self.__context.set_keyboard(self.__keyboards[keyboard_type])
-        self.__set_group()
+        self.__typing_mode = typing_mode
 
     def toggle_keyboard_type(self):
         if self.__keyboard_type == KEYBOARD_TYPE_US:
-            self.set_keyboard_type(KEYBOARD_TYPE_JP)
+            self.__set_keyboard_type(KEYBOARD_TYPE_JP)
+            self.__typing_mode = TYPING_MODE_KANA
         else:
-            self.set_keyboard_type(KEYBOARD_TYPE_US)
+            self.__set_keyboard_type(KEYBOARD_TYPE_US)
+            self.__typing_mode = TYPING_MODE_ROMAJI
+        keyboard_type, group = \
+            self.__get_keyboard_type_and_group(self.__input_mode,
+                                               self.__typing_mode)
+        self.__set_group(group)
 
     def toggle_visible(self):
         if self.__context.props.visible:
@@ -134,3 +171,9 @@ class VirtualKeyboardEekboard(object):
             return
         self.__process_key_event(symbol, modifiers)
         self.__process_key_event(symbol, modifiers | modifier.RELEASE_MASK)
+
+    def __notify_keyboard_cb(self, context, pspec):
+        self.__keyboard_type = self.__keyboard_id_to_type(context.props.keyboard)
+
+    def __notify_group_cb(self, context, pspec):
+        self.__group = context.props.group

@@ -134,9 +134,9 @@ class Engine(ibus.EngineBase):
     __input_mode_prop_names = {
         skk.INPUT_MODE_HIRAGANA : u"InputMode.Hiragana",
         skk.INPUT_MODE_KATAKANA : u"InputMode.Katakana",
+        skk.INPUT_MODE_HANKAKU_KATAKANA : u"InputMode.HankakuKatakana",
         skk.INPUT_MODE_LATIN : u"InputMode.Latin",
-        skk.INPUT_MODE_WIDE_LATIN : u"InputMode.WideLatin",
-        skk.INPUT_MODE_HANKAKU_KATAKANA : u"InputMode.HankakuKatakana"
+        skk.INPUT_MODE_WIDE_LATIN : u"InputMode.WideLatin"
         }
 
     __prop_name_input_modes = dict()
@@ -146,9 +146,9 @@ class Engine(ibus.EngineBase):
     __input_mode_labels = {
         skk.INPUT_MODE_HIRAGANA : u"あ",
         skk.INPUT_MODE_KATAKANA : u"ア",
+        skk.INPUT_MODE_HANKAKU_KATAKANA : u"_ｱ",
         skk.INPUT_MODE_LATIN : u"_A",
-        skk.INPUT_MODE_WIDE_LATIN : u"Ａ",
-        skk.INPUT_MODE_HANKAKU_KATAKANA : u"_ｱ"
+        skk.INPUT_MODE_WIDE_LATIN : u"Ａ"
         }
 
     def __init__(self, bus, object_path):
@@ -228,15 +228,15 @@ class Engine(ibus.EngineBase):
         props.append(ibus.Property(key=u"InputMode.Katakana",
                                    type=ibus.PROP_TYPE_RADIO,
                                    label=_(u"Katakana")))
+        props.append(ibus.Property(key=u"InputMode.HankakuKatakana",
+                                   type=ibus.PROP_TYPE_RADIO,
+                                   label=_(u"HankakuKatakana")))
         props.append(ibus.Property(key=u"InputMode.Latin",
                                    type=ibus.PROP_TYPE_RADIO,
                                    label=_(u"Latin")))
         props.append(ibus.Property(key=u"InputMode.WideLatin",
                                    type=ibus.PROP_TYPE_RADIO,
                                    label=_(u"Wide Latin")))
-        props.append(ibus.Property(key=u"InputMode.HankakuKatakana",
-                                   type=ibus.PROP_TYPE_RADIO,
-                                   label=_(u"HankakuKatakana")))
 
         props[self.__skk.input_mode].set_state(ibus.PROP_STATE_CHECKED)
 
@@ -271,7 +271,8 @@ class Engine(ibus.EngineBase):
         if hasattr(self, 'set_icon_symbol'):
             self.set_icon_symbol(prop.label)
         self.update_property(prop)
-        self.__virtual_keyboard.set_input_mode(self.__input_mode)
+        self.__virtual_keyboard.set_mode(input_mode=self.__input_mode,
+                                         typing_mode=None)
         self.__invalidate()
 
     def __get_clipboard(self, clipboard, text, data):
@@ -459,9 +460,9 @@ class Engine(ibus.EngineBase):
     # INPUT_MODE_CURSOR_COLORS = {
     #     skk.INPUT_MODE_HIRAGANA: (139, 62, 47),
     #     skk.INPUT_MODE_KATAKANA: (34, 139, 34),
+    #     skk.INPUT_MODE_HANKAKU_KATAKANA: (138, 43, 226),
     #     skk.INPUT_MODE_LATIN: (139, 139, 131),
-    #     skk.INPUT_MODE_WIDE_LATIN: (255, 215, 0),
-    #     skk.INPUT_MODE_HANKAKU_KATAKANA: (138, 43, 226)
+    #     skk.INPUT_MODE_WIDE_LATIN: (255, 215, 0)
     #     }
 
     def __update(self):
