@@ -22,8 +22,8 @@
 			<longname>SKK</longname>
 			<description>SKK Input Method</description>
 			<rank>70</rank>
-			@HOTKEYS@
-			@ICON_SYMBOL@
+			@IBUS_HOTKEYS_XML@
+			@IBUS_SYMBOL_XML@
 		</engine>
 	</engines>
 </component>
