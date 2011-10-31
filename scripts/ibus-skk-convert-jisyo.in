@@ -85,7 +85,7 @@ ok = raw_input("Convert from %s (%s) to %s (%s) (y/N) " % (src_path,
                                                            dst_encoding))
 if ok != 'y':
     exit(1)
-    
+
 with open(src_path, 'r') as sp:
     line = sp.readline()
     if not (line and re.match(coding_cookie_pattern, line)):
@@ -96,6 +96,6 @@ with open(src_path, 'r') as sp:
         for line in sp:
             line = line.decode(src_encoding)
             tp.write(line.encode(dst_encoding))
-    
+
 if src_path == dst_path:
     os.rename(tmp_path, dst_path)
