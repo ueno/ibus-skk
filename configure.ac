@@ -21,10 +21,10 @@
 
 # if not 1, append datestamp to the version number.
 m4_define([package_name], [ibus-skk])
-m4_define([ibus_released], [1])
+m4_define([ibus_released], [0])
 m4_define([ibus_major_version], [1])
 m4_define([ibus_minor_version], [3])
-m4_define([ibus_micro_version], [9])
+m4_define([ibus_micro_version], [99])
 m4_define(ibus_maybe_datestamp,
     m4_esyscmd([if test x]ibus_released[ != x1; then date +.%Y%m%d | tr -d '\n\r'; fi]))
 
@@ -57,22 +57,20 @@ m4_define([ibus_datedisplay], ibus_maybe_datedisplay)
 DATE_DISPLAY="ibus_datedisplay"
 AC_SUBST(DATE_DISPLAY)
 
-# check python
-AM_PATH_PYTHON([2.5])
+# check libskk 
+PKG_CHECK_MODULES(IBUS_SKK, [ibus-1.0 >= 1.4.0 libskk], ,
+  AC_MSG_ERROR([can't find libskk]))
 
-AC_PATH_PROG(PYTHON_CONFIG, python$PYTHON_VERSION-config)
-if test x"$PYTHON_CONFIG" = x""; then
-    AC_PATH_PROG(PYTHON_CONFIG, python-config)
-fi
-if test x"$PYTHON_CONFIG" != x""; then
-    PYTHON_CFLAGS=`$PYTHON_CONFIG --includes`
-    PYTHON_LIBS=`$PYTHON_CONFIG --libs`
-else
-    PYTHON_CFLAGS=`$PYTHON $srcdir/python-config.py --includes`
-    PYTHON_LIBS=`$PYTHON $srcdir/python-config.py --libs`
-fi
-AC_SUBST(PYTHON_CFLAGS)
-AC_SUBST(PYTHON_LIBS)
+# check gtk+
+PKG_CHECK_MODULES(GTK, [gtk+-3.0], ,
+  AC_MSG_ERROR([can't find gtk+-3.0]))
+
+# check vala
+AM_PROG_VALAC([0.10.0])
+
+AC_PATH_PROG(VALAC, valac, valac)
+AC_SUBST(VALAC)
+AC_SUBST(VALAFLAGS)
 
 # define GETTEXT_* variables
 GETTEXT_PACKAGE=ibus-skk
@@ -87,12 +85,9 @@ IBUS_SET_SYMBOL([&#x3042;])
 AC_CONFIG_FILES([ po/Makefile.in
 Makefile
 ibus-skk.spec
-engine/Makefile
-engine/ibus-engine-skk
-engine/skk.xml.in
-setup/Makefile
-setup/ibus-setup-skk
-setup/ibus-skk-preferences.ui
+skk.xml.in
+src/Makefile
+src/ibus-skk-preferences.ui
 icons/Makefile
 scripts/Makefile
 scripts/ibus-skk-convert-jisyo

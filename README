@@ -1,42 +1,34 @@
 ibus-skk -- a Japanese SKK input engine for IBus
 
-* What's it?
+* What's this?
 
 ibus-skk is an implementation of the SKK (Simple Kana-Kanji) input
-method on the IBus input method framework.  Since SKK is quite
-different from other Japanese input methods, if you haven't heard of
-it, please consult the following Web pages before complaining about
-the differences:
+method on the IBus input method framework.  To learn about SKK, see:
 
 http://openlab.jp/skk/
 https://secure.wikimedia.org/wikipedia/ja/wiki/SKK
 
 * How to install
 
+You will need libskk, a library which implements SKK algorithm, from:
+
+http://github.com/ueno/libskk.git
+
+Since libskk and ibus-skk are written in Vala, you will need valac.
+
+$ sudo apt-get install valac
+$ git clone git://github.com/ueno/libskk.git
+$ cd libskk && ./autogen.sh --prefix=/usr && make && sudo make install
+
 $ sudo apt-get install libibus-dev skkdic
-$ ./configure --prefix=/usr # --libdir=/usr/lib64
-$ make
-$ sudo make install
+$ git clone git://github.com/ueno/ibus-skk.git
+$ cd ibus-skk && ./autogen.sh --prefix=/usr && make && sudo make install
 
 * Configuration
 
 There is a GUI setup tool to customize ibus-skk.  It can be started
-from the command line by "ibus-setup-m17n", or from the language
+from the command line by "ibus-setup-skk", or from the IBus language
 panel.
-
-For complex settings, such as romaji-to-kana conversion table, you can
-use configuration file located at ~/.config/ibus-skk.json.  Use
-ibus-skk.json.example as a template.
-
-* Thumb shift keyboard support
-
-Since the version 1.3.4, ibus-skk supports thumb shift typing method
-(aka NICOLA).  Currently the keymap is fixed and cannot be changed:
-Left Shift is assigned to Muhenkan and Right Shift is assigned to
-Henkan.
-
-See the following blog entry for detail:
-http://blog.du-a.org/?p=74
 
 * How to report bugs
 
@@ -46,9 +38,5 @@ http://github.com/ueno/ibus-skk/issues
 https://bugzilla.redhat.com/buglist.cgi?component=ibus-skk&product=Fedora
 http://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=ibus-skk;dist=unstable
 
-Even though some developers read Japanese, please write in plain
-English so that we can forward it to other components when your
-problem is not specific to ibus-skk.
-
-If you can write Python, it would be helpful to add some failure test
-cases in engine/test.py and to attach the diff to the bug reports.
+Please write in plain English so that we can forward some bugs to
+other components.
