@@ -8,13 +8,15 @@ License:	GPLv2+
 URL:		http://github.com/ueno/ibus-skk
 Source0:	http://cloud.github.com/downloads/ueno/ibus-skk/%{name}-%{version}.tar.gz
 
-BuildArch:	noarch
-
-BuildRequires:	gettext-devel, python-devel, pkgconfig, intltool
+BuildRequires:	intltool
+BuildRequires:	libskk-devel
+BuildRequires:	ibus-devel
+BuildRequires:	gtk3-devel
 Requires:	ibus, skkdic
 
 %description
 A Japanese Simple Kana Kanji Input Method Engine for ibus.
+
 
 %prep
 %setup -q
@@ -31,10 +33,6 @@ make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
 %find_lang %{name}
 
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
-
 %files -f %{name}.lang
 %defattr(-,root,root,-)
 %doc AUTHORS COPYING README TODO
@@ -43,9 +41,70 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/ibus/component/skk.xml
 
 
-
 %changelog
-* @DATE_DISPLAY@ Daiki Ueno <ueno@unixuser.org> - @PACKAGE_VERSION@-1
+* @DATE_DISPLAY@ Daiki Ueno <dueno@redhat.com> - @PACKAGE_VERSION@-1
+- experimental release using libskk
+
+* Fri Sep  2 2011 Daiki Ueno <dueno@redhat.com> - 1.3.9-1
+- new upstream release (fixes a typo of the symbol XML entity ref)
+
+* Mon Aug 29 2011 Daiki Ueno <dueno@redhat.com> - 1.3.8-1
+- new upstream release
+
+* Thu Aug  4 2011 Daiki Ueno <dueno@redhat.com> - 1.3.7-2
+- add ibus-skk-xx-icon-symbol.patch (closes #727020)
+
+* Wed Jun 15 2011 Daiki Ueno <dueno@redhat.com> - 1.3.7-1
+- new upstream release
+
+* Thu May 12 2011 Daiki Ueno <dueno@redhat.com> - 1.3.6-1
+- new upstream release
+- disable ibus-skk-vkbd.patch, since it is experimental
+- drop preparing/cleaning buildroot
+
+* Tue Mar  8 2011 Daiki Ueno <dueno@redhat.com> - 1.3.5-4
+- regenerate configure script
+
+* Tue Mar  8 2011 Daiki Ueno <dueno@redhat.com> - 1.3.5-3
+- add ibus-skk-vkbd.patch
+
+* Wed Feb 09 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.3.5-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
+* Mon Dec 20 2010 Daiki Ueno <dueno@redhat.com> - 1.3.5-1
+- new upstream release
+
+* Tue Nov  9 2010 Daiki Ueno <dueno@redhat.com> - 1.3.3-1
+- new upstream release
+
+* Wed Oct 13 2010 Daiki Ueno <dueno@redhat.com> - 1.3.2-1
+- new upstream release
+
+* Tue Sep 14 2010 Daiki Ueno <dueno@redhat.com> - 1.3.0-1
+- new upstream release
+
+* Mon Aug 30 2010 Daiki Ueno <dueno@redhat.com> - 1.0.0-1
+- new upstream release
+
+* Tue Aug  3 2010 Daiki Ueno <dueno@redhat.com> - 0.0.10-1
+- new upstream release
+
+* Wed Jun 30 2010 Daiki Ueno <dueno@redhat.com> - 0.0.9-1
+- new upstream release
+
+* Tue May 25 2010 Daiki Ueno <dueno@redhat.com> - 0.0.8-1
+- new upstream release
+
+* Mon Apr 26 2010 Daiki Ueno <dueno@redhat.com> - 0.0.5-1
+- new upstream release
+- add BuildRoot tag and clean buildroot in the install target
+
+* Sun Jan 17 2010 Daiki Ueno <ueno@unixuser.org> - 0.0.4-2
+- set BuildArch to noarch
+- add pkgconfig to BR
+- reformat changelog
+
+* Mon Jan 11 2010 Daiki Ueno <ueno@unixuser.org> - 0.0.4-1
 - current version
 
 * Thu Dec 24 2009 Daiki Ueno <ueno@unixuser.org> - 0.0.2-1

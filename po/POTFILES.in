@@ -1,6 +1,3 @@
-python-config.py
-engine/main.py
-engine/engine.py
-engine/factory.py
-setup/main.py
-[type: gettext/glade]setup/ibus-skk-preferences.ui.in
+src/engine.vala
+src/setup.vala
+[type: gettext/glade]src/ibus-skk-preferences.ui.in

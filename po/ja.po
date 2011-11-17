@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ibus-skk 1.2.0.20091108\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-10 10:45+0900\n"
-"PO-Revision-Date: 2011-05-10 10:46+0900\n"
+"POT-Creation-Date: 2011-12-18 18:00+0900\n"
+"PO-Revision-Date: 2011-12-18 18:01+0900\n"
 "Last-Translator: Daiki Ueno <ueno@unixuser.org>\n"
 "Language-Team: Japanese\n"
 "Language: \n"
@@ -18,138 +18,134 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ../engine/engine.py:185
-msgid "DictEdit"
-msgstr "辞書登録"
-
-#: ../engine/engine.py:187
-msgid "Kuten([MM]KKTT) "
-msgstr "区点([MM]KKTT) "
-
-#: ../engine/engine.py:210
-msgid "Switch input mode"
-msgstr "入力モード切替"
-
-#: ../engine/engine.py:216 ../setup/ibus-skk-preferences.ui.in.h:8
+#: ../src/engine.vala:62 ../src/ibus-skk-preferences.ui.in.h:10
 msgid "Hiragana"
 msgstr "ひらがな"
 
-#: ../engine/engine.py:219
+#: ../src/engine.vala:68
 msgid "Katakana"
 msgstr "カタカナ"
 
-#: ../engine/engine.py:222 ../setup/ibus-skk-preferences.ui.in.h:11
-msgid "Latin"
-msgstr "英数"
-
-#: ../engine/engine.py:225
-msgid "Wide Latin"
-msgstr "全角英数"
-
-#: ../engine/engine.py:228
+#: ../src/engine.vala:74
 msgid "HankakuKatakana"
 msgstr "半角カタカナ"
 
-#: ../engine/engine.py:239
-msgid "Configure SKK"
-msgstr "SKKの設定"
+#: ../src/engine.vala:80 ../src/ibus-skk-preferences.ui.in.h:11
+msgid "Latin"
+msgstr "英数"
 
-#: ../engine/factory.py:37
+#: ../src/engine.vala:86
+msgid "WideLatin"
+msgstr "全角英数"
+
+#: ../src/engine.vala:95
+msgid "Switch input mode"
+msgstr "入力モードを変更"
+
+#: ../src/engine.vala:106
+msgid "Setup"
+msgstr "設定"
+
+#: ../src/engine.vala:108
+msgid "Configure SKK"
+msgstr "SKK を設定"
+
+#: ../src/engine.vala:444
+msgid "Component is executed by IBus"
+msgstr "IBus からコンポーネントを起動"
+
+#: ../src/engine.vala:491
 msgid "SKK"
 msgstr "SKK"
 
-#: ../setup/main.py:195
-msgid "Open Dictionary File"
-msgstr "辞書ファイルを開く"
+#: ../src/setup.vala:474
+msgid "system"
+msgstr "システム"
 
-#: ../setup/ibus-skk-preferences.ui.in.h:1
+#: ../src/setup.vala:476
+msgid "user"
+msgstr "ユーザ"
+
+#: ../src/setup.vala:478
+msgid "server"
+msgstr "サーバ"
+
+#: ../src/ibus-skk-preferences.ui.in.h:1
+msgid "<b>Candidate window</b>"
+msgstr "<b>候補ウィンドウ</b>"
+
+#: ../src/ibus-skk-preferences.ui.in.h:2
+msgid "<b>Typing</b>"
+msgstr "<b>タイピング</b>"
+
+#: ../src/ibus-skk-preferences.ui.in.h:3
 msgid "About"
 msgstr "情報"
 
-#: ../setup/ibus-skk-preferences.ui.in.h:2
+#: ../src/ibus-skk-preferences.ui.in.h:4
 msgid "Add.."
 msgstr "追加"
 
-#: ../setup/ibus-skk-preferences.ui.in.h:3
+#: ../src/ibus-skk-preferences.ui.in.h:5
 msgid "Behavior"
 msgstr "動作"
 
-#: ../setup/ibus-skk-preferences.ui.in.h:4
-msgid "Candidate Window Pa_gination Start:"
-msgstr "候補ウィンドウの表示開始位置(_G):"
-
-#: ../setup/ibus-skk-preferences.ui.in.h:5
-msgid "Candidate _Window Page Size:"
+#: ../src/ibus-skk-preferences.ui.in.h:6
+msgid "Candidate _window page size:"
 msgstr "候補ウィンドウの項目数(_W):"
 
-#: ../setup/ibus-skk-preferences.ui.in.h:6
-msgid "Dictionary"
+#: ../src/ibus-skk-preferences.ui.in.h:7
+msgid "Candidate window pa_gination start:"
+msgstr "候補ウィンドウの表示開始位置(_G):"
+
+#: ../src/ibus-skk-preferences.ui.in.h:8
+msgid "Dictionaries"
 msgstr "辞書"
 
-#: ../setup/ibus-skk-preferences.ui.in.h:7
+#: ../src/ibus-skk-preferences.ui.in.h:9
 msgid "Down"
 msgstr "下へ"
 
-#: ../setup/ibus-skk-preferences.ui.in.h:9
-msgid "Initial Input Mode:"
-msgstr "初期入力モード"
-
-#: ../setup/ibus-skk-preferences.ui.in.h:10
-msgid "KZIK"
-msgstr "KZIK"
-
-#: ../setup/ibus-skk-preferences.ui.in.h:12
-msgid "Normal"
-msgstr "標準"
-
-#: ../setup/ibus-skk-preferences.ui.in.h:13
-msgid "Port:"
-msgstr "ポート:"
-
-#: ../setup/ibus-skk-preferences.ui.in.h:14
+#: ../src/ibus-skk-preferences.ui.in.h:12
 msgid "Remove"
 msgstr "削除"
 
-#: ../setup/ibus-skk-preferences.ui.in.h:15
+#: ../src/ibus-skk-preferences.ui.in.h:13
 msgid "Return-key doesn't insert new line on commit"
 msgstr "確定時にリターンキーを押しても改行を挿入しない"
 
-#: ../setup/ibus-skk-preferences.ui.in.h:16
-msgid "Rom/Kana Conversion _Table:"
-msgstr "ローマ字かな変換テーブル(_T):"
-
-#: ../setup/ibus-skk-preferences.ui.in.h:17
+#: ../src/ibus-skk-preferences.ui.in.h:14
 msgid "SKK input method for IBus"
 msgstr "IBus入力プラットフォーム用SKKエンジン"
 
-#: ../setup/ibus-skk-preferences.ui.in.h:18
+#: ../src/ibus-skk-preferences.ui.in.h:15
 msgid "Setup - IBus-SKK"
 msgstr "IBus-SKKの設定"
 
-#: ../setup/ibus-skk-preferences.ui.in.h:19
-msgid "Show Annotation"
+#: ../src/ibus-skk-preferences.ui.in.h:16
+msgid "Show annotation"
 msgstr "候補の注釈を表示する"
 
-#: ../setup/ibus-skk-preferences.ui.in.h:20
+#: ../src/ibus-skk-preferences.ui.in.h:17
+msgid "Type:"
+msgstr "形式:"
+
+#: ../src/ibus-skk-preferences.ui.in.h:18
+msgid "Typing _rule:"
+msgstr "タイピング方式(_R):"
+
+#: ../src/ibus-skk-preferences.ui.in.h:19
 msgid "Up"
 msgstr "上へ"
 
-#: ../setup/ibus-skk-preferences.ui.in.h:21
-msgid "Use SKK server"
-msgstr "SKK サーバを使う"
-
-#: ../setup/ibus-skk-preferences.ui.in.h:22
-msgid "Use Thumb Shift Keyboard"
-msgstr "親指シフトキーボードを使う"
-
-#: ../setup/ibus-skk-preferences.ui.in.h:23
-msgid "_Auto-start Conversion Characters:"
+#: ../src/ibus-skk-preferences.ui.in.h:20
+msgid "_Auto-start conversion characters:"
 msgstr "自動変換を開始する文字(_A):"
 
-#: ../setup/ibus-skk-preferences.ui.in.h:24
-msgid "_Period Style:"
-msgstr "句読点の形式(_P):"
+#: ../src/ibus-skk-preferences.ui.in.h:21
+msgid "_Initial input mode:"
+msgstr "初期入力モード(_I):"
 
-#: ../setup/ibus-skk-preferences.ui.in.h:25
-msgid "_User dictionary: "
-msgstr "ユーザ辞書ファイル(_U):"
+#: ../src/ibus-skk-preferences.ui.in.h:22
+msgid "_Period style:"
+msgstr "句読点の形式(_P):"
