@@ -58,7 +58,6 @@ setupdir = $(pkgdatadir)/setup
 setup_DATA = ibus-skk-preferences.ui
 
 CLEANFILES =					\
-	*.[ch]					\
 	ibus-skk.vapi				\
 	$(NULL)
 
