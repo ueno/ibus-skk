@@ -40,3 +40,7 @@ http://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=ibus-skk;dist=unstable
 
 Please write in plain English so that we can forward some bugs to
 other components.
+
+* License
+
+GPLv2+
