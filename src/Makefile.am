@@ -1,20 +1,36 @@
 libexec_PROGRAMS = ibus-engine-skk ibus-setup-skk
-noinst_LTLIBRARIES = libibusskk.la
+noinst_LTLIBRARIES = libutil.la
 
-libibusskk_la_VALAFLAGS =					\
-	-H libibusskk.h --vapi ibus-skk.vapi			\
-	--vapidir=.						\
-	--pkg config --pkg gee-1.0 --pkg skk-1.0 --pkg ibus-1.0	\
-	--library ibus-skk					\
+libutil_la_VALAFLAGS =				\
+	-H libutil.h --vapi ibus-skk.vapi	\
+	--vapidir=.				\
+	--pkg config				\
+	--pkg gee-1.0				\
+	--pkg skk-1.0				\
+	--pkg ibus-1.0				\
+	--library ibus-skk			\
 	$(VALAFLAGS)
-libibusskk_la_SOURCES =				\
+libutil_la_SOURCES =				\
 	preferences.vala			\
 	plist.vala
-libibusskk_la_CFLAGS =				\
-	$(IBUS_SKK_CFLAGS)
+libutil_la_CFLAGS =				\
+	$(COMMON_CFLAGS)
 
 # force include config.h before gi18n.h.
 AM_CPPFLAGS = -include $(CONFIG_HEADER)
+
+COMMON_CFLAGS =					\
+	$(IBUS_CFLAGS)				\
+	$(LIBSKK_CFLAGS)			\
+	-DPACKAGE_DATADIR=\"$(pkgdatadir)\"	\
+	-DLOCALEDIR=\"$(datadir)/locale\"	\
+	-DSETUPDIR=\"$(setupdir)\"		\
+	-DLIBEXECDIR=\"$(libexecdir)\"		\
+	-DDATADIR=\"$(datadir)\"
+
+COMMON_LIBS =					\
+	$(IBUS_LIBS)				\
+	$(LIBSKK_LIBS)
 
 ibus_engine_skk_VALAFLAGS =			\
 	--vapidir=.				\
@@ -22,34 +38,30 @@ ibus_engine_skk_VALAFLAGS =			\
 	$(VALAFLAGS)
 
 ibus_engine_skk_CFLAGS =			\
-	$(IBUS_SKK_CFLAGS)			\
-	-DPACKAGE_DATADIR=\"$(pkgdatadir)\"	\
-	-DLOCALEDIR=\"$(datadir)/locale\"	\
-	-DLIBEXECDIR=\"$(libexecdir)\"
+	$(COMMON_CFLAGS)
 
 ibus_engine_skk_LDADD =				\
-	$(IBUS_SKK_LIBS)			\
-	libibusskk.la
+	$(COMMON_LIBS)				\
+	libutil.la
 
 ibus_engine_skk_SOURCES =			\
 	engine.vala
 
-ibus_setup_skk_VALAFLAGS =				\
-	--vapidir=.					\
-	--pkg config --pkg ibus-skk --pkg gtk+-3.0	\
+ibus_setup_skk_VALAFLAGS =			\
+	--vapidir=.				\
+	--pkg config				\
+	--pkg ibus-skk				\
+	--pkg gtk+-3.0				\
 	$(VALAFLAGS)
 
 ibus_setup_skk_CFLAGS =				\
-	$(IBUS_SKK_CFLAGS) $(GTK_CFLAGS)	\
-	-DPACKAGE_DATADIR=\"$(pkgdatadir)\"	\
-	-DLOCALEDIR=\"$(datadir)/locale\"	\
-	-DSETUPDIR=\"$(setupdir)\"		\
-	-DDATADIR=\"$(datadir)\"
+	$(COMMON_CFLAGS)			\
+	$(GTK_CFLAGS)
 
 ibus_setup_skk_LDADD =				\
-	$(IBUS_SKK_LIBS)			\
+	$(COMMON_LIBS)				\
 	$(GTK_LIBS)				\
-	libibusskk.la
+	libutil.la
 
 ibus_setup_skk_SOURCES =			\
 	setup.vala

@@ -57,8 +57,12 @@ m4_define([ibus_datedisplay], ibus_maybe_datedisplay)
 DATE_DISPLAY="ibus_datedisplay"
 AC_SUBST(DATE_DISPLAY)
 
-# check libskk 
-PKG_CHECK_MODULES(IBUS_SKK, [ibus-1.0 >= 1.4.0 libskk], ,
+# check ibus
+PKG_CHECK_MODULES(IBUS, [ibus-1.0 >= 1.4.0], ,
+  AC_MSG_ERROR([can't find ibus]))
+
+# check libskk
+PKG_CHECK_MODULES(LIBSKK, [libskk], ,
   AC_MSG_ERROR([can't find libskk]))
 
 # check gtk+
@@ -78,8 +82,17 @@ AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Define to the read-only architecture-independent data directory.])
 AM_GLIB_GNU_GETTEXT
 
+save_CFLAGS="$CFLAGS"
+CFLAGS="$CFLAGS $IBUS_CFLAGS"
+
+save_LIBS="$LIBS"
+LIBS="$LIBS $IBUS_LIBS"
+
 IBUS_WITH_HOTKEYS
 IBUS_SET_SYMBOL([&#x3042;])
+
+CFLAGS="$save_CFLAGS"
+LIBS="$save_LIBS"
 
 # OUTPUT files
 AC_CONFIG_FILES([ po/Makefile.in
@@ -89,8 +102,6 @@ skk.xml.in
 src/Makefile
 src/ibus-skk-preferences.ui
 icons/Makefile
-scripts/Makefile
-scripts/ibus-skk-convert-jisyo
 m4/Makefile
 ])
 

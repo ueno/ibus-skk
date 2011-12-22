@@ -26,22 +26,13 @@ AC_DEFUN([IBUS_WITH_HOTKEYS], [
 # IBUS_SET_SYMBOL(SYMBOL)
 AC_DEFUN([IBUS_SET_SYMBOL], [
   IBUS_SYMBOL="$1"
-  if test x$PYTHON = x; then
-    AM_PATH_PYTHON([2.5])
-  fi
-  AC_MSG_CHECKING([if ibus supports icon symbol])
-  $PYTHON <<_IBUS_SYMBOL_TEST
-import ibus
-engine = ibus.EngineDesc('test')
-exit(not hasattr(engine, 'symbol'))
-_IBUS_SYMBOL_TEST
-  if test $? -eq 0; then
+  embed_symbol=no
+  AC_CHECK_FUNC(ibus_engine_desc_get_symbol, embed_symbol=yes)
+  if test x$embed_symbol = xyes; then
     IBUS_SYMBOL_XML="<symbol>${IBUS_SYMBOL}</symbol>"
-    AC_MSG_RESULT([yes])
   else
     IBUS_SYMBOL_XML="<!-- <symbol>${IBUS_SYMBOL}</symbol> -->"
     IBUS_SYMBOL=
-    AC_MSG_RESULT([no])
   fi
   if test x$IBUS_SYMBOL != x; then
     AC_DEFINE_UNQUOTED([IBUS_SYMBOL], ["$IBUS_SYMBOL"],

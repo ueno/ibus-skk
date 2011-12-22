@@ -24,7 +24,6 @@ SUBDIRS = \
 	icons \
 	m4 \
 	po \
-	scripts \
 	$(NULL)
 
 ACLOCAL_AMFLAGS = -I m4
