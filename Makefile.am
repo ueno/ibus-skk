@@ -46,6 +46,20 @@ EXTRA_DIST = \
 	ibus-skk.spec.in \
 	$(NULL)
 
+GITIGNOREFILES =				\
+	INSTALL					\
+	aclocal.m4				\
+	compile					\
+	config.guess				\
+	config.h.in				\
+	config.sub				\
+	depcomp					\
+	install-sh				\
+	ltmain.sh				\
+	missing					\
+	mkinstalldirs				\
+	$(NULL)
+
 CLEANFILES = \
 	skk.xml \
 	$(NULL)
@@ -59,3 +73,5 @@ dist-hook:
 	if test -d .git ; then \
 		git log --name-status --date=iso > $(distdir)/ChangeLog ; \
 	fi
+
+-include $(top_srcdir)/git.mk

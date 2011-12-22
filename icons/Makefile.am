@@ -29,3 +29,5 @@ iconsdir = $(pkgdatadir)/icons
 EXTRA_DIST = \
 	ibus-skk.svg \
 	$(NULL)
+
+-include $(top_srcdir)/git.mk

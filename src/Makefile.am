@@ -69,6 +69,16 @@ ibus_setup_skk_SOURCES =			\
 setupdir = $(pkgdatadir)/setup
 setup_DATA = ibus-skk-preferences.ui
 
+GITIGNOREFILES =				\
+        $(libutil_la_SOURCES:.vala=.c)		\
+        $(ibus_engine_skk_SOURCES:.vala=.c)	\
+        $(ibus_setup_skk_SOURCES:.vala=.c)	\
+	libutil_la_vala.stamp			\
+	ibus_engine_skk_vala.stamp		\
+	ibus_setup_skk_vala.stamp		\
+	libutil.h				\
+        $(NULL)
+
 CLEANFILES =					\
 	ibus-skk.vapi				\
 	$(NULL)
@@ -84,3 +94,5 @@ EXTRA_DIST =					\
 DISTCLEANFILES =				\
 	ibus-skk-preferences.ui			\
 	$(NULL)
+
+-include $(top_srcdir)/git.mk
