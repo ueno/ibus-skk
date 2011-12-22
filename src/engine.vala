@@ -125,7 +125,6 @@ class SkkEngine : IBus.Engine {
                 }
             });
 
-        var empty_text = new IBus.Text.from_static_string ("");
         context.notify["preedit"].connect (() => {
                 var text = new IBus.Text.from_string (context.preedit);
                 text.append_attribute (IBus.AttrType.UNDERLINE,
@@ -136,38 +135,57 @@ class SkkEngine : IBus.Engine {
                                      text.get_length (),
                                      text.get_length () > 0);
             });
-        context.candidates.notify["cursor-pos"].connect (() => {
-                if (context.candidates.cursor_pos >= pagination_start) {
-                    lookup_table.set_cursor_pos (
-                        context.candidates.cursor_pos - pagination_start);
-                    update_lookup_table (lookup_table, true);
-                    var candidate = context.candidates.get ();
-                    if (show_annotation && candidate.annotation != null) {
-                        var text = new IBus.Text.from_string (
-                            candidate.annotation);
-                        update_auxiliary_text (text, true);
-                    } else {
-                        update_auxiliary_text (empty_text, false);
-                    }
-                } else {
-                    update_lookup_table (lookup_table, false);
-                    update_auxiliary_text (empty_text, false);
-                }
-            });
-        context.candidates.populated.connect (() => {
-                lookup_table.clear ();
-                for (var i = pagination_start;
-                     i < context.candidates.size;
-                     i++) {
-                    var text = new IBus.Text.from_string (
-                        context.candidates[i].output);
-                    lookup_table.append_candidate (text);
-                }
+        context.notify["candidates"].connect ((s, p) => {
+                update_candidates ();
             });
         context.notify["input-mode"].connect ((s, p) => {
                 update_input_mode ();
             });
+        update_candidates ();
         update_input_mode ();
+    }
+
+    void populate_lookup_table () {
+        lookup_table.clear ();
+        for (var i = pagination_start;
+             i < context.candidates.size;
+             i++) {
+            var text = new IBus.Text.from_string (
+                context.candidates[i].output);
+            lookup_table.append_candidate (text);
+        }
+    }
+
+    void set_lookup_table_cursor_pos () {
+        var empty_text = new IBus.Text.from_static_string ("");
+        var cursor_pos = context.candidates.cursor_pos - pagination_start;
+        if (cursor_pos >= 0 &&
+            cursor_pos < lookup_table.get_number_of_candidates ()) {
+            lookup_table.set_cursor_pos (cursor_pos);
+            update_lookup_table (lookup_table, true);
+            var candidate = context.candidates.get ();
+            if (show_annotation && candidate.annotation != null) {
+                var text = new IBus.Text.from_string (
+                    candidate.annotation);
+                update_auxiliary_text (text, true);
+            } else {
+                update_auxiliary_text (empty_text, false);
+            }
+        } else {
+            update_lookup_table (lookup_table, false);
+            update_auxiliary_text (empty_text, false);
+        }
+    }
+
+    void update_candidates () {
+        context.candidates.populated.connect (() => {
+                populate_lookup_table ();
+            });
+        context.candidates.notify["cursor-pos"].connect (() => {
+                set_lookup_table_cursor_pos ();
+            });
+        populate_lookup_table ();
+        set_lookup_table_cursor_pos ();
     }
 
     void update_input_mode () {
