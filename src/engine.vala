@@ -127,10 +127,15 @@ class SkkEngine : IBus.Engine {
 
         context.notify["preedit"].connect (() => {
                 var text = new IBus.Text.from_string (context.preedit);
-                text.append_attribute (IBus.AttrType.UNDERLINE,
-                                       IBus.AttrUnderline.SINGLE,
-                                       0,
-                                       (int) text.get_length ());
+                uint underline_offset, underline_nchars;
+                context.get_preedit_underline (out underline_offset,
+                                               out underline_nchars);
+                if (0 < underline_nchars) {
+                    text.append_attribute (IBus.AttrType.UNDERLINE,
+                                           IBus.AttrUnderline.SINGLE,
+                                           (int) underline_offset,
+                                           (int) (underline_offset + underline_nchars));
+                }
                 update_preedit_text (text,
                                      text.get_length (),
                                      text.get_length () > 0);
@@ -143,15 +148,21 @@ class SkkEngine : IBus.Engine {
             });
         update_candidates ();
         update_input_mode ();
-        context.retrieve_surrounding_text.connect (retrieve_surrounding_text);
+        context.retrieve_surrounding_text.connect (_retrieve_surrounding_text);
+        context.delete_surrounding_text.connect (_delete_surrounding_text);
     }
 
-    bool retrieve_surrounding_text (out string text, out uint cursor_pos) {
+    bool _retrieve_surrounding_text (out string text, out uint cursor_pos) {
         weak IBus.Text _text;
         uint _cursor_pos, anchor_pos;
         get_surrounding_text (out _text, out _cursor_pos, out anchor_pos);
         text = _text.text.dup ();
         cursor_pos = _cursor_pos;
+        return true;
+    }
+
+    bool _delete_surrounding_text (int offset, uint nchars) {
+        delete_surrounding_text (offset, nchars);
         return true;
     }
 
