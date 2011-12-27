@@ -18,12 +18,11 @@
 			<license>GPL</license>
 			<author>Daiki Ueno &lt;ueno@unixuser.org&gt;</author>
 			<icon>${pkgdatadir}/icons/ibus-skk.svg</icon>
-			<layout>jp</layout>
+			<layout>us</layout>
 			<longname>SKK</longname>
 			<description>SKK Input Method</description>
 			<rank>70</rank>
-			@IBUS_HOTKEYS_XML@
-			@IBUS_SYMBOL_XML@
+			<symbol>&#x3042;</symbol>
 		</engine>
 	</engines>
 </component>

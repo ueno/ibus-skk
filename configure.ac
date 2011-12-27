@@ -82,18 +82,6 @@ AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Define to the read-only architecture-independent data directory.])
 AM_GLIB_GNU_GETTEXT
 
-save_CFLAGS="$CFLAGS"
-CFLAGS="$CFLAGS $IBUS_CFLAGS"
-
-save_LIBS="$LIBS"
-LIBS="$LIBS $IBUS_LIBS"
-
-IBUS_WITH_HOTKEYS
-IBUS_SET_SYMBOL([&#x3042;])
-
-CFLAGS="$save_CFLAGS"
-LIBS="$save_LIBS"
-
 # OUTPUT files
 AC_CONFIG_FILES([ po/Makefile.in
 Makefile
