@@ -433,8 +433,6 @@ class SkkEngine : IBus.Engine {
         context.reset ();
 
         // request to use surrounding text feature
-        weak IBus.Text text;
-        uint cursor_pos, anchor_pos;
         get_surrounding_text (null, null, null);
     }
 
