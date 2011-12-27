@@ -169,7 +169,7 @@ namespace IBus {
 		public void delete_surrounding_text (int offset, uint nchars);
 		public void forward_key_event (uint keyval, uint keycode, uint state);
 		public unowned string get_name ();
-		public void get_surrounding_text (out unowned IBus.Text text, uint cursor_pos, uint anchor_pos);
+		public void get_surrounding_text (out unowned IBus.Text text, out uint cursor_pos, out uint anchor_pos);
 		public void hide_auxiliary_text ();
 		public void hide_lookup_table ();
 		public void hide_preedit_text ();

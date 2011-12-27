@@ -143,6 +143,16 @@ class SkkEngine : IBus.Engine {
             });
         update_candidates ();
         update_input_mode ();
+        context.retrieve_surrounding_text.connect (retrieve_surrounding_text);
+    }
+
+    bool retrieve_surrounding_text (out string text, out uint cursor_pos) {
+        weak IBus.Text _text;
+        uint _cursor_pos, anchor_pos;
+        get_surrounding_text (out _text, out _cursor_pos, out anchor_pos);
+        text = _text.text.dup ();
+        cursor_pos = _cursor_pos;
+        return true;
     }
 
     void populate_lookup_table () {
@@ -421,6 +431,11 @@ class SkkEngine : IBus.Engine {
 
     public override void enable () {
         context.reset ();
+
+        // request to use surrounding text feature
+        weak IBus.Text text;
+        uint cursor_pos, anchor_pos;
+        get_surrounding_text (null, null, null);
     }
 
     public override void disable () {
