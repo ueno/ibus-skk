@@ -373,7 +373,7 @@ class SkkEngine : IBus.Engine {
                     update_lookup_table (lookup_table, true);
                     context.candidates.cursor_pos = (int) cursor_pos + pagination_start;
                     context.candidates.select ();
-                    var output = context.get_output ();
+                    var output = context.poll_output ();
                     if (output.length > 0) {
                         var text = new IBus.Text.from_string (output);
                         commit_text (text);
@@ -421,7 +421,7 @@ class SkkEngine : IBus.Engine {
 
         var key = new Skk.KeyEvent (name, code, modifiers);
         var retval = context.process_key_event (key);
-        var output = context.get_output ();
+        var output = context.poll_output ();
         if (output.length > 0) {
             var text = new IBus.Text.from_string (output);
             commit_text (text);
