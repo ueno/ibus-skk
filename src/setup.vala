@@ -165,7 +165,7 @@ class Setup : Object {
         model = new Gtk.ListStore (2, typeof (string), typeof (string));
         model.set_sort_column_id (1, Gtk.SortType.ASCENDING);
         typing_rule_combobox.set_model (model);
-        var rules = Skk.list_typing_rules ();
+        var rules = Skk.Rule.list ();
         foreach (var rule in rules) {
             Gtk.TreeIter iter;
             model.append (out iter);

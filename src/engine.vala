@@ -130,7 +130,7 @@ class SkkEngine : IBus.Engine {
                 text.append_attribute (IBus.AttrType.UNDERLINE,
                                        IBus.AttrUnderline.SINGLE,
                                        0,
-                                       context.preedit.length - 1);
+                                       (int) text.get_length ());
                 update_preedit_text (text,
                                      text.get_length (),
                                      text.get_length () > 0);
