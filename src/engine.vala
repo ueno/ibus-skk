@@ -231,9 +231,12 @@ class SkkEngine : IBus.Engine {
                 return null;
             }
             string mode = plist.get ("mode") ?? "readonly";
-            if (mode == "readonly")
-                return new Skk.FileDict (file, encoding);
-            else if (mode == "readwrite")
+            if (mode == "readonly") {
+                if (file.has_suffix (".cdb"))
+                    return new Skk.CdbDict (file, encoding);
+                else
+                    return new Skk.FileDict (file, encoding);
+            } else if (mode == "readwrite")
                 return new Skk.UserDict (file, encoding);
         } else if (type == "server") {
             var host = plist.get ("host") ?? "localhost";
