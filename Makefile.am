@@ -19,11 +19,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-SUBDIRS = \
-	src \
-	icons \
-	m4 \
-	po \
+SUBDIRS =					\
+	src					\
+	icons					\
+	m4					\
+	po					\
 	$(NULL)
 
 ACLOCAL_AMFLAGS = -I m4
@@ -40,10 +40,10 @@ skk.xml: skk.xml.in
 		eval "echo \"$${s}\""; \
 	) > $@
 
-EXTRA_DIST = \
-	autogen.sh \
-	skk.xml.in.in \
-	ibus-skk.spec.in \
+EXTRA_DIST =					\
+	autogen.sh				\
+	skk.xml.in.in				\
+	ibus-skk.spec.in			\
 	$(NULL)
 
 GITIGNOREFILES =				\
@@ -60,13 +60,13 @@ GITIGNOREFILES =				\
 	mkinstalldirs				\
 	$(NULL)
 
-CLEANFILES = \
-	skk.xml \
+CLEANFILES =					\
+	skk.xml					\
 	$(NULL)
 
-DISTCLEANFILES = \
-	skk.xml.in \
-	po/stamp-it \
+DISTCLEANFILES =				\
+	skk.xml.in				\
+	po/stamp-it				\
 	$(NULL)
 
 dist-hook:

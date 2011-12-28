@@ -20,14 +20,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301 USA
 
-icons_DATA = \
-	ibus-skk.svg \
-	$(NULL)
-
+dist_icons_DATA = ibus-skk.svg
 iconsdir = $(pkgdatadir)/icons
-
-EXTRA_DIST = \
-	ibus-skk.svg \
-	$(NULL)
 
 -include $(top_srcdir)/git.mk
