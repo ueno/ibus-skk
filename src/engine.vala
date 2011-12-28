@@ -375,9 +375,27 @@ class SkkEngine : IBus.Engine {
             }
             return true;
         }
+        else if (state == 0 && ((unichar) keyval) == 'x') {
+            if (lookup_table.page_up ()) {
+                update_lookup_table (lookup_table, true);
+                var page_size = lookup_table.get_page_size ();
+                if (context.candidates.cursor_pos > page_size)
+                    context.candidates.cursor_pos -= (int) page_size;
+            }
+            return true;
+        }
+        else if (state == 0 && keyval == IBus.space) {
+            if (lookup_table.page_down ()) {
+                update_lookup_table (lookup_table, true);
+                var page_size = lookup_table.get_page_size ();
+                if (context.candidates.cursor_pos < context.candidates.size - page_size)
+                    context.candidates.cursor_pos += (int) page_size;
+            }
+            return true;
+        }
         else if (state == 0) {
             var page_size = lookup_table.get_page_size ();
-            string label = ((unichar)keyval).tolower ().to_string ();
+            string label = ((unichar) keyval).tolower ().to_string ();
             for (var index = 0;
                  index < int.min ((int)page_size, LOOKUP_TABLE_LABELS.length);
                  index++) {
@@ -425,6 +443,12 @@ class SkkEngine : IBus.Engine {
         }
         else if (keyval == IBus.Henkan) {
             name = "rshift";
+        }
+        else if (keyval == IBus.Left) {
+            name = "Left";
+        }
+        else if (keyval == IBus.Right) {
+            name = "Right";
         }
         else if (0x20 <= keyval && keyval < 0x7F) {
             code = (unichar) keyval;
