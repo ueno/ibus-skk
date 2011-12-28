@@ -126,19 +126,7 @@ class SkkEngine : IBus.Engine {
             });
 
         context.notify["preedit"].connect (() => {
-                var text = new IBus.Text.from_string (context.preedit);
-                uint underline_offset, underline_nchars;
-                context.get_preedit_underline (out underline_offset,
-                                               out underline_nchars);
-                if (0 < underline_nchars) {
-                    text.append_attribute (IBus.AttrType.UNDERLINE,
-                                           IBus.AttrUnderline.SINGLE,
-                                           (int) underline_offset,
-                                           (int) (underline_offset + underline_nchars));
-                }
-                update_preedit_text (text,
-                                     text.get_length (),
-                                     text.get_length () > 0);
+                update_preedit ();
             });
         context.notify["candidates"].connect ((s, p) => {
                 update_candidates ();
@@ -196,6 +184,22 @@ class SkkEngine : IBus.Engine {
             update_lookup_table (lookup_table, false);
             update_auxiliary_text (empty_text, false);
         }
+    }
+
+    void update_preedit () {
+        var text = new IBus.Text.from_string (context.preedit);
+        uint underline_offset, underline_nchars;
+        context.get_preedit_underline (out underline_offset,
+                                       out underline_nchars);
+        if (0 < underline_nchars) {
+            text.append_attribute (IBus.AttrType.UNDERLINE,
+                                   IBus.AttrUnderline.SINGLE,
+                                   (int) underline_offset,
+                                   (int) (underline_offset + underline_nchars));
+        }
+        update_preedit_text (text,
+                             text.get_length (),
+                             text.get_length () > 0);
     }
 
     void update_candidates () {
@@ -469,24 +473,44 @@ class SkkEngine : IBus.Engine {
 
     public override void enable () {
         context.reset ();
+        context.clear_output ();
 
         // request to use surrounding text feature
         get_surrounding_text (null, null, null);
+        base.enable ();
     }
 
     public override void disable () {
+        focus_out ();
+        base.disable ();
     }
 
     public override void reset () {
         context.reset ();
+        var output = context.poll_output ();
+        if (output.length > 0) {
+            var text = new IBus.Text.from_string (output);
+            commit_text (text);
+        }
+        update_preedit ();
+        update_candidates ();
+        update_input_mode ();
+        base.reset ();
     }
 
     public override void focus_in () {
         register_properties (prop_list);
-        context.reset ();
+        update_preedit ();
+        update_candidates ();
+        update_input_mode ();
+        base.focus_in ();
     }
 
     public override void focus_out () {
+        context.reset ();
+        hide_preedit_text ();
+        hide_lookup_table ();
+        base.focus_out ();
     }
 
     public override void property_activate (string prop_name,
