@@ -18,10 +18,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-EXTRA_DIST =					\
-	ibus.m4					\
-	$(NULL)
-
 GITIGNOREFILES =				\
 	intltool.m4				\
 	libtool.m4				\
