@@ -134,6 +134,12 @@ class SkkEngine : IBus.Engine {
         context.notify["input-mode"].connect ((s, p) => {
                 update_input_mode ();
             });
+        context.candidates.populated.connect (() => {
+                populate_lookup_table ();
+            });
+        context.candidates.notify["cursor-pos"].connect (() => {
+                set_lookup_table_cursor_pos ();
+            });
         update_candidates ();
         update_input_mode ();
         context.retrieve_surrounding_text.connect (_retrieve_surrounding_text);
@@ -181,8 +187,8 @@ class SkkEngine : IBus.Engine {
                 update_auxiliary_text (empty_text, false);
             }
         } else {
-            update_lookup_table (lookup_table, false);
-            update_auxiliary_text (empty_text, false);
+            hide_lookup_table ();
+            hide_auxiliary_text ();
         }
     }
 
@@ -203,12 +209,6 @@ class SkkEngine : IBus.Engine {
     }
 
     void update_candidates () {
-        context.candidates.populated.connect (() => {
-                populate_lookup_table ();
-            });
-        context.candidates.notify["cursor-pos"].connect (() => {
-                set_lookup_table_cursor_pos ();
-            });
         populate_lookup_table ();
         set_lookup_table_cursor_pos ();
     }
