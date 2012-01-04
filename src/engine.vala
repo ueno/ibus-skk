@@ -319,6 +319,8 @@ class SkkEngine : IBus.Engine {
         try {
             context.typing_rule = new Skk.Rule (variant.get_string ());
         } catch (Skk.RuleParseError e) {
+            warning ("can't load typing rule %s: %s",
+                     variant.get_string (), e.message);
         }
     }
 
