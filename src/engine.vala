@@ -29,7 +29,7 @@ class SkkEngine : IBus.Engine {
 
     Skk.Context context;
     IBus.LookupTable lookup_table;
-    int pagination_start;
+    uint page_start;
 
     bool show_annotation;
 
@@ -140,6 +140,16 @@ class SkkEngine : IBus.Engine {
         context.candidates.notify["cursor-pos"].connect (() => {
                 set_lookup_table_cursor_pos ();
             });
+        context.candidates.selected.connect (() => {
+                var output = context.poll_output ();
+                if (output.length > 0) {
+                    var text = new IBus.Text.from_string (output);
+                    commit_text (text);
+                }
+                hide_lookup_table ();
+                hide_auxiliary_text ();
+            });
+
         update_candidates ();
         update_input_mode ();
         context.retrieve_surrounding_text.connect (_retrieve_surrounding_text);
@@ -162,7 +172,7 @@ class SkkEngine : IBus.Engine {
 
     void populate_lookup_table () {
         lookup_table.clear ();
-        for (var i = pagination_start;
+        for (int i = (int) page_start;
              i < context.candidates.size;
              i++) {
             var text = new IBus.Text.from_string (
@@ -173,10 +183,10 @@ class SkkEngine : IBus.Engine {
 
     void set_lookup_table_cursor_pos () {
         var empty_text = new IBus.Text.from_static_string ("");
-        var cursor_pos = context.candidates.cursor_pos - pagination_start;
-        if (cursor_pos >= 0 &&
-            cursor_pos < lookup_table.get_number_of_candidates ()) {
-            lookup_table.set_cursor_pos (cursor_pos);
+        var cursor_pos = context.candidates.cursor_pos;
+        if (context.candidates.page_visible) {
+            lookup_table.set_cursor_pos (cursor_pos -
+                                         context.candidates.page_start);
             update_lookup_table (lookup_table, true);
             var candidate = context.candidates.get ();
             if (show_annotation && candidate.annotation != null) {
@@ -209,6 +219,8 @@ class SkkEngine : IBus.Engine {
     }
 
     void update_candidates () {
+        context.candidates.page_start = page_start;
+        context.candidates.page_size = lookup_table.get_page_size ();
         populate_lookup_table ();
         set_lookup_table_cursor_pos ();
     }
@@ -288,7 +300,7 @@ class SkkEngine : IBus.Engine {
 
         variant = preferences.get ("pagination_start");
         assert (variant != null);
-        pagination_start = variant.get_int32 ();
+        page_start = (uint) variant.get_int32 ();
 
         variant = preferences.get ("initial_input_mode");
         assert (variant != null);
@@ -331,93 +343,59 @@ class SkkEngine : IBus.Engine {
     }
 
     string[] LOOKUP_TABLE_LABELS = {"a", "s", "d", "f", "j", "k", "l",
-                                    "q", "w", "e", "r", "u", "i", "o",
-                                    "z", "x"};
-
-    uint get_page_start_cursor_pos () {
-        var page_size = lookup_table.get_page_size ();
-        return (lookup_table.get_cursor_pos () / page_size) * page_size;
-    }
+                                    "q", "w", "e", "r", "u", "i", "o"};
 
     bool process_lookup_table_key_event (uint keyval,
                                          uint keycode,
                                          uint state)
     {
-        if (state == 0 && (keyval == IBus.Page_Up ||
-                           keyval == IBus.KP_Page_Up)) {
-            var cursor_pos = get_page_start_cursor_pos () - lookup_table.get_page_size ();
-            if (lookup_table.page_up ()) {
-                context.candidates.cursor_pos = (int) cursor_pos + pagination_start;
-                update_lookup_table (lookup_table, true);
-            }
-            return true;
-        }
-        else if (state == 0 && (keyval == IBus.Page_Down ||
-                                keyval == IBus.KP_Page_Down)) {
-            var cursor_pos = get_page_start_cursor_pos () + lookup_table.get_page_size ();
-            if (lookup_table.page_down ()) {
-                context.candidates.cursor_pos = (int) cursor_pos + pagination_start;
-                update_lookup_table (lookup_table, true);
-            }
-            return true;
-        }
-        else if (state == 0 && (keyval == IBus.Up ||
-                                keyval == IBus.Left)) {
-            if (lookup_table.cursor_up ()) {
-                update_lookup_table (lookup_table, true);
-                if (context.candidates.cursor_pos > 0)
-                    context.candidates.cursor_pos--;
-            }
-            return true;
-        }
-        else if (state == 0 && (keyval == IBus.Down ||
-                                keyval == IBus.Right)) {
-            if (lookup_table.cursor_down ()) {
-                update_lookup_table (lookup_table, true);
-                if (context.candidates.cursor_pos < context.candidates.size - 1)
-                    context.candidates.cursor_pos++;
-            }
-            return true;
-        }
-        else if (state == 0 && ((unichar) keyval) == 'x') {
-            if (lookup_table.page_up ()) {
-                update_lookup_table (lookup_table, true);
-                var page_size = lookup_table.get_page_size ();
-                if (context.candidates.cursor_pos > page_size)
-                    context.candidates.cursor_pos -= (int) page_size;
-            }
-            return true;
-        }
-        else if (state == 0 && keyval == IBus.space) {
-            if (lookup_table.page_down ()) {
-                update_lookup_table (lookup_table, true);
-                var page_size = lookup_table.get_page_size ();
-                if (context.candidates.cursor_pos < context.candidates.size - page_size)
-                    context.candidates.cursor_pos += (int) page_size;
-            }
-            return true;
-        }
-        else if (state == 0) {
-            var page_size = lookup_table.get_page_size ();
+        var page_size = lookup_table.get_page_size ();
+        if (state == 0 &&
+            ((unichar) keyval).to_string () in LOOKUP_TABLE_LABELS) {
+            var cursor_pos = context.candidates.get_page_start_cursor_pos ();
             string label = ((unichar) keyval).tolower ().to_string ();
             for (var index = 0;
                  index < int.min ((int)page_size, LOOKUP_TABLE_LABELS.length);
                  index++) {
                 if (LOOKUP_TABLE_LABELS[index] == label) {
-                    var cursor_pos = get_page_start_cursor_pos () + index;
-                    lookup_table.set_cursor_pos (cursor_pos);
-                    update_lookup_table (lookup_table, true);
-                    context.candidates.cursor_pos = (int) cursor_pos + pagination_start;
+                    context.candidates.cursor_pos = (int) cursor_pos + index;
                     context.candidates.select ();
-                    var output = context.poll_output ();
-                    if (output.length > 0) {
-                        var text = new IBus.Text.from_string (output);
-                        commit_text (text);
-                    }
                     return true;
                 }
             }
+            return false;
         }
+
+        if (state == 0) {
+            bool retval = false;
+            switch (keyval) {
+            case IBus.Page_Up:
+            case IBus.KP_Page_Up:
+                retval = context.candidates.page_up ();
+                break;
+            case IBus.Page_Down:
+            case IBus.KP_Page_Down:
+                retval = context.candidates.page_down ();
+                break;
+            case IBus.Up:
+            case IBus.Left:
+                retval = context.candidates.cursor_up ();
+                break;
+            case IBus.Down:
+            case IBus.Right:
+                retval = context.candidates.cursor_down ();
+                break;
+            default:
+                break;
+            }
+
+            if (retval) {
+                set_lookup_table_cursor_pos ();
+                update_preedit ();
+                return true;
+            }
+        }
+
         return false;
     }
 
@@ -425,7 +403,7 @@ class SkkEngine : IBus.Engine {
                                             uint keycode,
                                             uint state)
     {
-        if (context.candidates.cursor_pos >= pagination_start &&
+        if (context.candidates.page_visible &&
             process_lookup_table_key_event (keyval, keycode, state)) {
             return true;
         }
