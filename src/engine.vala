@@ -187,7 +187,7 @@ class SkkEngine : IBus.Engine {
         if (context.candidates.page_visible) {
             lookup_table.set_cursor_pos (cursor_pos -
                                          context.candidates.page_start);
-            update_lookup_table (lookup_table, true);
+            update_lookup_table_fast (lookup_table, true);
             var candidate = context.candidates.get ();
             if (show_annotation && candidate.annotation != null) {
                 var text = new IBus.Text.from_string (
