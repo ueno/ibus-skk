@@ -184,7 +184,7 @@ class SkkEngine : IBus.Engine {
         if (context.candidates.page_visible) {
             lookup_table.set_cursor_pos (cursor_pos -
                                          context.candidates.page_start);
-            update_lookup_table (lookup_table, true);
+            update_lookup_table_fast (lookup_table, true);
             var candidate = context.candidates.get ();
             if (show_annotation && candidate.annotation != null) {
                 var text = new IBus.Text.from_string (
@@ -271,11 +271,11 @@ class SkkEngine : IBus.Engine {
                 if (dict != null)
                     dictionaries.add (dict);
             } catch (PListParseError e) {
-                stderr.printf ("can't parse plist \"%s\": %s\n",
-                               str, e.message);
+                warning ("can't parse plist \"%s\": %s",
+                         str, e.message);
             } catch (GLib.Error e) {
-                stderr.printf ("can't open dictionary \"%s\": %s\n",
-                               str, e.message);
+                warning ("can't open dictionary \"%s\": %s",
+                         str, e.message);
             }
         }
     }
@@ -491,12 +491,12 @@ class SkkEngine : IBus.Engine {
                                             uint prop_state)
     {
         if (prop_name == "setup") {
+            var filename = Path.build_filename (Config.LIBEXECDIR,
+                                                "ibus-setup-skk");
             try {
-                Process.spawn_command_line_async (
-                    Path.build_filename (Config.LIBEXECDIR,
-                                         "ibus-setup-skk"));
+                Process.spawn_command_line_async (filename);
             } catch (GLib.SpawnError e) {
-                stderr.printf ("can't spawn ibus-setup-skk: %s\n", e.message);
+                warning ("can't spawn %s: %s", filename, e.message);
             }
         }
         else if (prop_name.has_prefix ("InputMode.") &&
