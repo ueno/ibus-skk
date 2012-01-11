@@ -30,6 +30,7 @@ class SkkEngine : IBus.Engine {
     Skk.Context context;
     IBus.LookupTable lookup_table;
     uint page_start;
+    bool lookup_table_visible;
 
     bool show_annotation;
 
@@ -143,8 +144,11 @@ class SkkEngine : IBus.Engine {
                     var text = new IBus.Text.from_string (output);
                     commit_text (text);
                 }
-                hide_lookup_table ();
-                hide_auxiliary_text ();
+                if (lookup_table_visible) {
+                    hide_lookup_table ();
+                    hide_auxiliary_text ();
+                    lookup_table_visible = false;
+                }
             });
 
         update_candidates ();
@@ -193,9 +197,11 @@ class SkkEngine : IBus.Engine {
             } else {
                 update_auxiliary_text (empty_text, false);
             }
-        } else {
+            lookup_table_visible = true;
+        } else if (lookup_table_visible) {
             hide_lookup_table ();
             hide_auxiliary_text ();
+            lookup_table_visible = false;
         }
     }
 
@@ -395,6 +401,30 @@ class SkkEngine : IBus.Engine {
         return false;
     }
 
+    struct Entry<K,V> {
+        K key;
+        V value;
+    }
+
+    static const Entry<uint,unichar>[] CODE_KEYVALS = {
+        { IBus.Tab, '\t' },
+        { IBus.Return, '\n' },
+        { IBus.BackSpace, '\b' }
+    };
+
+    static const Entry<uint,string>[] NAME_KEYVALS = {
+        { IBus.Up, "Up" },
+        { IBus.Down, "Down" },
+        { IBus.Left, "Left" },
+        { IBus.Right, "Right" },
+        { IBus.Page_Up, "Page_Up" },
+        { IBus.KP_Page_Up, "Page_Up" },
+        { IBus.Page_Down, "Page_Down" },
+        { IBus.KP_Page_Down, "Page_Down" },
+        { IBus.Muhenkan, "lshift" },
+        { IBus.Henkan, "rshift" }
+    };
+
     public override bool process_key_event (uint keyval,
                                             uint keycode,
                                             uint state)
@@ -407,32 +437,25 @@ class SkkEngine : IBus.Engine {
         Skk.ModifierType modifiers = (Skk.ModifierType) state;
         string? name = null;
         unichar code = '\0';
-        if (keyval == IBus.Tab) {
-            code = '\t';
+        foreach (var entry in NAME_KEYVALS) {
+            if (entry.key == keyval) {
+                name = entry.value;
+                break;
+            }
         }
-        else if (keyval == IBus.Return) {
-            code = '\n';
+        foreach (var entry in CODE_KEYVALS) {
+            if (entry.key == keyval) {
+                code = entry.value;
+                break;
+            }
         }
-        else if (keyval == IBus.BackSpace) {
-            code = '\b';
-        }
-        else if (keyval == IBus.Muhenkan) {
-            name = "lshift";
-        }
-        else if (keyval == IBus.Henkan) {
-            name = "rshift";
-        }
-        else if (keyval == IBus.Left) {
-            name = "Left";
-        }
-        else if (keyval == IBus.Right) {
-            name = "Right";
-        }
-        else if (0x20 <= keyval && keyval < 0x7F) {
-            code = (unichar) keyval;
-        }
-        else {
-            return false;
+        if (name == null && code == '\0') {
+            if (0x20 <= keyval && keyval < 0x7F) {
+                code = (unichar) keyval;
+            }
+            else {
+                return false;
+            }
         }
 
         var key = new Skk.KeyEvent (name, code, modifiers);
