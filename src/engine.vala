@@ -128,9 +128,6 @@ class SkkEngine : IBus.Engine {
         context.notify["preedit"].connect (() => {
                 update_preedit ();
             });
-        context.notify["candidates"].connect ((s, p) => {
-                update_candidates ();
-            });
         context.notify["input-mode"].connect ((s, p) => {
                 update_input_mode ();
             });
@@ -354,15 +351,12 @@ class SkkEngine : IBus.Engine {
         var page_size = lookup_table.get_page_size ();
         if (state == 0 &&
             ((unichar) keyval).to_string () in LOOKUP_TABLE_LABELS) {
-            var cursor_pos = context.candidates.get_page_start_cursor_pos ();
             string label = ((unichar) keyval).tolower ().to_string ();
             for (var index = 0;
                  index < int.min ((int)page_size, LOOKUP_TABLE_LABELS.length);
                  index++) {
                 if (LOOKUP_TABLE_LABELS[index] == label) {
-                    context.candidates.cursor_pos = (int) cursor_pos + index;
-                    context.candidates.select ();
-                    return true;
+                    return context.candidates.select_at (index);
                 }
             }
             return false;
