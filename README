@@ -10,25 +10,12 @@ https://secure.wikimedia.org/wikipedia/ja/wiki/SKK
 
 * How to install
 
-You will need libskk, a library which implements SKK algorithm, from:
+$ sudo yum install ibus-skk # on Fedora
+$ sudo apt-get install ibus-skk # on Debian or Ubuntu
 
-http://github.com/ueno/libskk.git
-
-Since libskk and ibus-skk are written in Vala, you will need valac.
-
-$ sudo apt-get install valac
-$ git clone git://github.com/ueno/libskk.git
-$ cd libskk && ./autogen.sh --prefix=/usr && make && sudo make install
-
-$ sudo apt-get install libibus-dev skkdic
-$ git clone git://github.com/ueno/ibus-skk.git
-$ cd ibus-skk && ./autogen.sh --prefix=/usr && make && sudo make install
-
-* Configuration
-
-There is a GUI setup tool to customize ibus-skk.  It can be started
-from the command line by "ibus-setup-skk", or from the IBus language
-panel.
+If you build from the source, you will need to separately install
+libskk, a library which implements SKK algorithm:
+http://github.com/ueno/libskk/downloads/
 
 * How to report bugs
 
@@ -44,3 +31,14 @@ other components.
 * License
 
 GPLv2+
+
+Copyright (C) 2011-2012 Daiki Ueno <ueno@unixuser.org>
+Copyright (C) 2011-2012 Red Hat, Inc.
+
+This file is free software; as a special exception the author gives
+unlimited permission to copy and/or distribute it, with or without
+modifications, as long as this notice is preserved.
+
+This file is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
