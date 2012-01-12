@@ -86,8 +86,9 @@ public class PList : Object {
 
     public string to_string () {
         var props = new ArrayList<string?> ();
-        var keys = new TreeSet<string> ();
+        var keys = new ArrayList<string> ();
         keys.add_all (map.keys);
+        keys.sort ();
         foreach (var key in keys) {
             var value = map.get (key);
             props.add ("%s=%s".printf (PList.escape (key),
