@@ -425,6 +425,11 @@ class SkkEngine : IBus.Engine {
         { IBus.Henkan, "rshift" }
     };
 
+    // keys should always be reported as handled (a8ffece4 and caf9f944)
+    static const Entry<uint,uint>[] IGNORE_KEYVALS = {
+        { IBus.j, IBus.ModifierType.CONTROL_MASK }
+    };
+
     public override bool process_key_event (uint keyval,
                                             uint keycode,
                                             uint state)
@@ -464,6 +469,11 @@ class SkkEngine : IBus.Engine {
         if (output.length > 0) {
             var text = new IBus.Text.from_string (output);
             commit_text (text);
+        }
+        foreach (var entry in IGNORE_KEYVALS) {
+            if (entry.key == keyval && entry.value == modifiers) {
+                return true;
+            }
         }
         return retval;
     }
