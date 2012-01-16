@@ -1,5 +1,0 @@
-- add more tests
-- rewrite in C
-- error message using libnotify
-- NICOLA (thumb shift keyboard)
-- use lookup table to display completion candidates

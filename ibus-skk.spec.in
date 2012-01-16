@@ -34,8 +34,7 @@ make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
 
 
 %files -f %{name}.lang
-%defattr(-,root,root,-)
-%doc AUTHORS COPYING README TODO
+%doc AUTHORS COPYING README
 %{_datadir}/ibus-skk
 %{_libexecdir}/ibus-*-skk
 %{_datadir}/ibus/component/skk.xml
