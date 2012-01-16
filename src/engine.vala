@@ -434,12 +434,18 @@ class SkkEngine : IBus.Engine {
                                             uint keycode,
                                             uint state)
     {
+        // filter out unnecessary modifier bits
+        // FIXME: should resolve virtual modifiers
+        uint _state = state & (IBus.ModifierType.CONTROL_MASK |
+                               IBus.ModifierType.MOD1_MASK |
+                               IBus.ModifierType.MOD5_MASK |
+                               IBus.ModifierType.RELEASE_MASK);
         if (context.candidates.page_visible &&
-            process_lookup_table_key_event (keyval, keycode, state)) {
+            process_lookup_table_key_event (keyval, keycode, _state)) {
             return true;
         }
 
-        Skk.ModifierType modifiers = (Skk.ModifierType) state;
+        Skk.ModifierType modifiers = (Skk.ModifierType) _state;
         string? name = null;
         unichar code = '\0';
         foreach (var entry in NAME_KEYVALS) {
