@@ -406,25 +406,6 @@ class SkkEngine : IBus.Engine {
         V value;
     }
 
-    static const Entry<uint,unichar>[] CODE_KEYVALS = {
-        { IBus.Tab, '\t' },
-        { IBus.Return, '\n' },
-        { IBus.BackSpace, '\b' }
-    };
-
-    static const Entry<uint,string>[] NAME_KEYVALS = {
-        { IBus.Up, "Up" },
-        { IBus.Down, "Down" },
-        { IBus.Left, "Left" },
-        { IBus.Right, "Right" },
-        { IBus.Page_Up, "Page_Up" },
-        { IBus.KP_Page_Up, "Page_Up" },
-        { IBus.Page_Down, "Page_Down" },
-        { IBus.KP_Page_Down, "Page_Down" },
-        { IBus.Muhenkan, "lshift" },
-        { IBus.Henkan, "rshift" }
-    };
-
     // keys should always be reported as handled (a8ffece4 and caf9f944)
     static const Entry<uint,uint>[] IGNORE_KEYVALS = {
         { IBus.j, IBus.ModifierType.CONTROL_MASK }
@@ -446,30 +427,13 @@ class SkkEngine : IBus.Engine {
         }
 
         Skk.ModifierType modifiers = (Skk.ModifierType) _state;
-        string? name = null;
-        unichar code = '\0';
-        foreach (var entry in NAME_KEYVALS) {
-            if (entry.key == keyval) {
-                name = entry.value;
-                break;
-            }
-        }
-        foreach (var entry in CODE_KEYVALS) {
-            if (entry.key == keyval) {
-                code = entry.value;
-                break;
-            }
-        }
-        if (name == null && code == '\0') {
-            if (0x20 <= keyval && keyval < 0x7F) {
-                code = (unichar) keyval;
-            }
-            else {
-                return false;
-            }
+        Skk.KeyEvent key;
+        try {
+            key = new Skk.KeyEvent.from_x_keysym (keyval, modifiers);
+        } catch (Skk.KeyEventFormatError e) {
+            return false;
         }
 
-        var key = new Skk.KeyEvent (name, code, modifiers);
         var retval = context.process_key_event (key);
         var output = context.poll_output ();
         if (output.length > 0) {
