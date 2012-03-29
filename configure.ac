@@ -24,7 +24,7 @@ m4_define([package_name], [ibus-skk])
 m4_define([ibus_released], [1])
 m4_define([ibus_major_version], [1])
 m4_define([ibus_minor_version], [4])
-m4_define([ibus_micro_version], [0])
+m4_define([ibus_micro_version], [1])
 m4_define(ibus_maybe_datestamp,
     m4_esyscmd([if test x]ibus_released[ != x1; then date +.%Y%m%d | tr -d '\n\r'; fi]))
 
@@ -62,7 +62,7 @@ PKG_CHECK_MODULES(IBUS, [ibus-1.0 >= 1.4.0], ,
   AC_MSG_ERROR([can't find ibus]))
 
 # check libskk
-PKG_CHECK_MODULES(LIBSKK, [libskk], ,
+PKG_CHECK_MODULES(LIBSKK, [libskk >= 0.0.11], ,
   AC_MSG_ERROR([can't find libskk]))
 
 # check gtk+

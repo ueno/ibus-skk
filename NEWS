@@ -1,47 +1,9 @@
--*- outline -*-
+Noteworthy changes in version 1.4.1 (2012-03-29)
+------------------------------------------------
 
-* Version 0.0.4 (released 2010-01-11)
+ * Use libskk's X keysym handling.
 
-** New icon in the SVG format.
+Noteworthy changes in version 1.4.0 (2012-01-25)
+------------------------------------------------
 
-** Fix mouse operation on the tool-bar.
-
-** Compatility fix for older IBus versions.
-Run-time check for new IBus features are added, such as candidate
-panel orientation handling.
-Thanks Kazuhiro NISHIYAMA for providing a test case.
-
-* Version 0.0.3 (released 2009-12-31)
-
-** Shortcut key to move over pages of the candidate window.
-Up/Down (if the orientation is landscape) are assigned to move over
-pages rather than candidates.  x/space behave similarly after the
-first 4 candidates are seen.
-
-** Show annotations on the auxilary text area.
-
-** Start conversion automatically when some punctuation characters are typed.
-Thanks iws <iws1011@gmail.com> for the initial implementation.
-
-** RPM spec file is included in the distribution.
-Contributed by Jens Petersen <petersen@redhat.com>.
-
-** Support for encodings other than EUC-JP for the user dictionary.
-The encoding of the user dictionary is determined by an Emacs-like
-coding cookie (something like ";;; -*- coding: utf-8 -*-").
-
-** Elisp candidates evaluation.
-IBus-SKK calls emacsclient to evaluate elisp candidates (such as
-"(current-time-string)" for "now") with the help of external Emacs
-process.
-
-* Version 0.0.2 (released 2009-12-23)
-
-** Keyword completion with TAB key.
-
-** `delete-char' behavior fix.
-Thanks Kazuhiro NISHIYAMA for providing a test case.
-
-* Version 0.0.1 (released 2009-12-04)
-
-** Initial release.
+ * Initial release using libskk.
