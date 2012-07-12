@@ -1,4 +1,4 @@
+src/ibus-setup-skk.desktop.in
 src/ibus-skk-preferences.ui
 src/engine.c
 src/setup.c
-

@@ -1,3 +1,4 @@
 src/engine.vala
 src/setup.vala
 [type: gettext/glade]src/ibus-skk-preferences.ui.in
+src/ibus-setup-skk.desktop.in.in

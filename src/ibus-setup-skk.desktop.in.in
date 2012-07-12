@@ -1,0 +1,8 @@
+[Desktop Entry]
+_Name=IBus SKK Setup
+_Comment=Set up IBus SKK engine
+Exec=@libexecdir@/ibus-setup-skk
+Icon=@pkgdatadir@/icons/ibus-skk.svg
+NoDisplay=true
+Type=Application
+StartupNotify=true
