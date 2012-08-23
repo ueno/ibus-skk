@@ -450,7 +450,6 @@ class SkkEngine : IBus.Engine {
 
     public override void enable () {
         context.reset ();
-        context.clear_output ();
 
         // request to use surrounding text feature
         get_surrounding_text (null, null, null);
@@ -464,21 +463,15 @@ class SkkEngine : IBus.Engine {
 
     public override void reset () {
         context.reset ();
-        var output = context.poll_output ();
-        if (output.length > 0) {
-            var text = new IBus.Text.from_string (output);
-            commit_text (text);
-        }
-        update_preedit ();
-        update_candidates ();
-        update_input_mode ();
+        var empty_text = new IBus.Text.from_static_string ("");
+        update_preedit_text (empty_text,
+                             0,
+                             false);
         base.reset ();
     }
 
     public override void focus_in () {
         register_properties (prop_list);
-        update_preedit ();
-        update_candidates ();
         update_input_mode ();
         base.focus_in ();
     }
