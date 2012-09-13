@@ -20,10 +20,10 @@
 using Gee;
 
 class SkkEngine : IBus.Engine {
-    // preferences are shared among SkkEngine instances.
+    // Preferences are shared among SkkEngine instances.
     static Preferences preferences;
 
-    // dictionaries are shared among SkkEngine instances and
+    // Dictionaries are shared among SkkEngine instances and
     // maintained in the per-class signal handler in main().
     static ArrayList<Skk.Dict> dictionaries;
 
@@ -45,7 +45,7 @@ class SkkEngine : IBus.Engine {
         new HashMap<string, Skk.InputMode> ();
 
     construct {
-        // prepare lookup table
+        // Prepare lookup table
         lookup_table = new IBus.LookupTable (LOOKUP_TABLE_LABELS.length,
                                              0, true, false);
         for (var i = 0; i < LOOKUP_TABLE_LABELS.length; i++) {
@@ -54,7 +54,7 @@ class SkkEngine : IBus.Engine {
         }
         lookup_table.set_orientation (IBus.Orientation.HORIZONTAL);
 
-        // prepare the properties on the lang bar
+        // Prepare the properties on the lang bar
         prop_list = new IBus.PropList ();
         var props = new IBus.PropList ();
         IBus.Property prop;
@@ -114,7 +114,7 @@ class SkkEngine : IBus.Engine {
             null);
         prop_list.append (prop);
 
-        // initialize libskk
+        // Initialize libskk
         context = new Skk.Context (dictionaries.to_array ());
 
         apply_preferences ();
@@ -229,12 +229,21 @@ class SkkEngine : IBus.Engine {
     }
 
     void update_input_mode () {
-        // update the state of menu item
-        var _prop = input_mode_props.get (context.input_mode);
-        _prop.set_state (IBus.PropState.CHECKED);
-        update_property (_prop);
+        // IBusProperty objects in input_mode_props are shared with
+        // prop_list and will be used for the next
+        // register_properties.  So, all the input mode props have to
+        // be unchecked first.  Otherwise multiple radio items might
+        // be selected.
+        foreach (var prop in input_mode_props.values) {
+            prop.set_state (IBus.PropState.UNCHECKED);
+        }
+
+        // Update the state of menu item
+        var prop = input_mode_props.get (context.input_mode);
+        prop.set_state (IBus.PropState.CHECKED);
+        update_property (prop);
         
-        // update the label of the menu
+        // Update the label of the menu
         var symbol = new IBus.Text.from_string (
             input_mode_symbols.get (context.input_mode));
         input_mode_prop.set_label (symbol);
@@ -406,7 +415,7 @@ class SkkEngine : IBus.Engine {
         V value;
     }
 
-    // keys should always be reported as handled (a8ffece4 and caf9f944)
+    // Keys should always be reported as handled (a8ffece4 and caf9f944)
     static const Entry<uint,uint>[] IGNORE_KEYVALS = {
         { IBus.j, IBus.ModifierType.CONTROL_MASK }
     };
@@ -415,7 +424,7 @@ class SkkEngine : IBus.Engine {
                                             uint keycode,
                                             uint state)
     {
-        // filter out unnecessary modifier bits
+        // Filter out unnecessary modifier bits
         // FIXME: should resolve virtual modifiers
         uint _state = state & (IBus.ModifierType.CONTROL_MASK |
                                IBus.ModifierType.MOD1_MASK |
@@ -451,7 +460,7 @@ class SkkEngine : IBus.Engine {
     public override void enable () {
         context.reset ();
 
-        // request to use surrounding text feature
+        // Request to use surrounding text feature
         get_surrounding_text (null, null, null);
         base.enable ();
     }
