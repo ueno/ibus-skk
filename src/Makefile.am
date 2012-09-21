@@ -16,6 +16,8 @@ libutil_la_SOURCES =				\
 libutil_la_CFLAGS =				\
 	$(COMMON_CFLAGS)
 
+BUILT_SOURCES = ibus-skk.vapi
+
 # force include config.h before gi18n.h.
 AM_CPPFLAGS = -include $(CONFIG_HEADER)
 
