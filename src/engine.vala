@@ -410,13 +410,13 @@ class SkkEngine : IBus.Engine {
         return false;
     }
 
-    struct Entry<K,V> {
-        K key;
-        V value;
+    struct KeyEntry {
+        uint keyval;
+        uint modifiers;
     }
 
     // Keys should always be reported as handled (a8ffece4 and caf9f944)
-    static const Entry<uint,uint>[] IGNORE_KEYVALS = {
+    static const KeyEntry[] IGNORE_KEYS = {
         { IBus.j, IBus.ModifierType.CONTROL_MASK }
     };
 
@@ -449,8 +449,8 @@ class SkkEngine : IBus.Engine {
             var text = new IBus.Text.from_string (output);
             commit_text (text);
         }
-        foreach (var entry in IGNORE_KEYVALS) {
-            if (entry.key == keyval && entry.value == modifiers) {
+        foreach (var entry in IGNORE_KEYS) {
+            if (entry.keyval == keyval && entry.modifiers == modifiers) {
                 return true;
             }
         }
