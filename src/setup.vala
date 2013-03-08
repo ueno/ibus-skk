@@ -34,7 +34,7 @@ class Setup : Object {
 
     // dict dialog
     Gtk.Dialog dict_dialog;
-    Gtk.ComboBoxText dict_type_comboboxtext;
+    Gtk.ComboBox dict_type_combobox;
     Gtk.HBox dict_data_hbox;
     Gtk.Widget dict_data_widget;
     Gtk.FileChooserButton dict_filechooserbutton;
@@ -123,9 +123,9 @@ class Setup : Object {
         assert (object != null);
         dict_dialog = (Gtk.Dialog) object;
 
-        object = builder.get_object ("dict_type_comboboxtext");
+        object = builder.get_object ("dict_type_combobox");
         assert (object != null);
-        dict_type_comboboxtext = (Gtk.ComboBoxText) object;
+        dict_type_combobox = (Gtk.ComboBox) object;
 
         object = builder.get_object ("dict_data_hbox");
         assert (object != null);
@@ -161,6 +161,10 @@ class Setup : Object {
         renderer = new Gtk.CellRendererText ();
         initial_input_mode_combobox.pack_start (renderer, false);
         initial_input_mode_combobox.set_attributes (renderer, "text", 0);
+
+        renderer = new Gtk.CellRendererText ();
+        dict_type_combobox.pack_start (renderer, false);
+        dict_type_combobox.set_attributes (renderer, "text", 0);
 
         model = new Gtk.ListStore (2, typeof (string), typeof (string));
         model.set_sort_column_id (1, Gtk.SortType.ASCENDING);
@@ -198,11 +202,11 @@ class Setup : Object {
                 }
             });
 
-        dict_type_comboboxtext.changed.connect (() => {
-                var text = dict_type_comboboxtext.get_active_text ();
+        dict_type_combobox.changed.connect (() => {
                 if (dict_data_widget != null) {
                     dict_data_hbox.remove (dict_data_widget);
                 }
+                string text = get_active_dict_type ();
                 if (text == "System") {
                     dict_filechooserbutton.set_current_folder (
                         Path.build_filename (Config.DATADIR, "skk"));
@@ -227,7 +231,7 @@ class Setup : Object {
                 dict_data_hbox.show_all ();
                 dict_data_hbox.sensitive = true;
             });
-        dict_type_comboboxtext.active = 0;
+        dict_type_combobox.active = 0;
     }
 
     void populate_dictionaries_treeview () {
@@ -249,10 +253,22 @@ class Setup : Object {
         }
     }
 
+    string get_active_dict_type () {
+        string text;
+        Gtk.TreeIter iter;
+        if (dict_type_combobox.get_active_iter (out iter)) {
+            var model = (Gtk.ListStore) dict_type_combobox.get_model ();
+            model.get (iter, 1, out text, -1);
+        } else {
+            assert_not_reached ();
+        }
+        return text;
+    }
+
     void add_dict () {
         if (dict_dialog.run () == Gtk.ResponseType.OK) {
             PList? plist = null;
-            var text = dict_type_comboboxtext.get_active_text ();
+            string text = get_active_dict_type ();
             if (text == "System") {
                 string? file = dict_filechooserbutton.get_filename ();
                 if (file != null) {
