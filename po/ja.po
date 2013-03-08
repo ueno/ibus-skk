@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ibus-skk 1.2.0.20091108\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-03-08 17:41+0900\n"
-"PO-Revision-Date: 2013-03-08 17:42+0900\n"
+"POT-Creation-Date: 2013-03-08 19:29+0900\n"
+"PO-Revision-Date: 2013-03-08 19:29+0900\n"
 "Last-Translator: Daiki Ueno <ueno@unixuser.org>\n"
 "Language-Team: Japanese\n"
 "Language: \n"
@@ -92,8 +92,8 @@ msgid "SKK Server"
 msgstr "SKK サーバー"
 
 #: ../src/ibus-skk-preferences.ui.in.h:7
-msgid "Setup - IBus-SKK"
-msgstr "IBus-SKKの設定"
+msgid "IBus SKK Preferences"
+msgstr "IBus SKK の設定"
 
 #: ../src/ibus-skk-preferences.ui.in.h:8
 msgid "Add.."
