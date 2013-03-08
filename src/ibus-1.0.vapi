@@ -447,6 +447,7 @@ namespace IBus {
 		public bool get_visible ();
 		public void set_icon (string icon);
 		public void set_label (IBus.Text label);
+		public void set_symbol (IBus.Text symbol);
 		public void set_sensitive (bool sensitive);
 		public void set_state (IBus.PropState state);
 		public void set_sub_props (IBus.PropList prop_list);

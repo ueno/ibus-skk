@@ -229,24 +229,31 @@ class SkkEngine : IBus.Engine {
     }
 
     void update_input_mode () {
-        // IBusProperty objects in input_mode_props are shared with
-        // prop_list and will be used for the next
-        // register_properties.  So, all the input mode props have to
-        // be unchecked first.  Otherwise multiple radio items might
-        // be selected.
-        foreach (var prop in input_mode_props.values) {
-            prop.set_state (IBus.PropState.UNCHECKED);
+        // Update the menu item
+        var iter = input_mode_props.map_iterator ();
+        if (iter.first ()) {
+            do {
+                var input_mode = iter.get_key ();
+                var prop = iter.get_value ();
+                if (input_mode == context.input_mode)
+                    prop.set_state (IBus.PropState.CHECKED);
+                else
+                    prop.set_state (IBus.PropState.UNCHECKED);
+                update_property (prop);
+            } while (iter.next ());
         }
 
-        // Update the state of menu item
-        var prop = input_mode_props.get (context.input_mode);
-        prop.set_state (IBus.PropState.CHECKED);
-        update_property (prop);
-        
-        // Update the label of the menu
+        // Update the menu
         var symbol = new IBus.Text.from_string (
             input_mode_symbols.get (context.input_mode));
+#if IBUS_1_5
+        var label = new IBus.Text.from_string (
+            _("Input Mode (%s)").printf (symbol.text));
+        input_mode_prop.set_label (label);
+        input_mode_prop.set_symbol (symbol);
+#else
         input_mode_prop.set_label (symbol);
+#endif
         update_property (input_mode_prop);
     }
 
