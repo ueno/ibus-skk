@@ -73,7 +73,7 @@ class SkkEngine : IBus.Engine {
 
         prop = register_input_mode_property (Skk.InputMode.HANKAKU_KATAKANA,
                                              "InputMode.HankakuKatakana",
-                                             _("HankakuKatakana"),
+                                             _("Halfwidth Katakana"),
                                              "_ｱ");
         props.append (prop);
 
@@ -85,7 +85,7 @@ class SkkEngine : IBus.Engine {
 
         prop = register_input_mode_property (Skk.InputMode.WIDE_LATIN,
                                              "InputMode.WideLatin",
-                                             _("WideLatin"),
+                                             _("Wide Latin"),
                                              "Ａ");
         props.append (prop);
 
