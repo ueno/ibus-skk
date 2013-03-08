@@ -28,21 +28,8 @@ SUBDIRS =					\
 
 ACLOCAL_AMFLAGS = -I m4
 
-component_DATA = skk.xml
-componentdir = $(datadir)/ibus/component
-
-skk.xml: skk.xml.in
-	$(AM_V_GEN) \
-	( \
-		libexecdir=${libexecdir}; \
-		pkgdatadir=${pkgdatadir}; \
-		s=`cat $<`; \
-		eval "echo \"$${s}\""; \
-	) > $@
-
 EXTRA_DIST =					\
 	autogen.sh				\
-	skk.xml.in.in				\
 	ibus-skk.spec.in			\
 	$(NULL)
 
@@ -60,12 +47,7 @@ GITIGNOREFILES =				\
 	mkinstalldirs				\
 	$(NULL)
 
-CLEANFILES =					\
-	skk.xml					\
-	$(NULL)
-
 DISTCLEANFILES =				\
-	skk.xml.in				\
 	po/stamp-it				\
 	$(NULL)
 

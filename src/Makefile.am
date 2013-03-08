@@ -71,19 +71,29 @@ ibus_setup_skk_SOURCES =			\
 setupdir = $(pkgdatadir)/setup
 setup_DATA = ibus-skk-preferences.ui
 
+edit = sed \
+	-e 's|@VERSION[@]|$(VERSION)|g' \
+	-e 's|@libexecdir[@]|$(libexecdir)|g' \
+	-e 's|@pkgdatadir[@]|$(pkgdatadir)|g'
+
 desktop_in_in_files = ibus-setup-skk.desktop.in.in
 desktop_in_files = $(desktop_in_in_files:.in.in=.in)
 
 $(desktop_in_files): %.desktop.in: %.desktop.in.in Makefile
-	$(AM_V_GEN) sed \
-	       -e "s|\@libexecdir\@|$(libexecdir)|" \
-	       -e "s|\@pkgdatadir\@|$(pkgdatadir)|" \
-	       $< > $@.tmp && mv $@.tmp $@
+	$(AM_V_GEN) $(edit) $< > $@.tmp && mv $@.tmp $@
 
 desktopdir=$(datadir)/applications
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 
 @INTLTOOL_DESKTOP_RULE@
+
+component_DATA = skk.xml
+componentdir = $(datadir)/ibus/component
+
+skk.xml.in: skk.xml.in.in
+	$(AM_V_GEN) $(edit) $< > $@.tmp && mv $@.tmp $@
+
+@INTLTOOL_XML_NOMERGE_RULE@
 
 GITIGNOREFILES =				\
         $(libutil_la_SOURCES:.vala=.c)		\
@@ -99,6 +109,8 @@ CLEANFILES =					\
 	ibus-skk.vapi				\
 	$(desktop_DATA)				\
 	$(desktop_in_files)			\
+	skk.xml.in				\
+	skk.xml					\
 	$(NULL)
 
 EXTRA_DIST =					\
@@ -108,6 +120,7 @@ EXTRA_DIST =					\
 	ibus-1.0.deps				\
 	ibus-skk-preferences.ui.in		\
 	$(desktop_in_in_files)			\
+	skk.xml.in.in 				\
 	$(NULL)
 
 DISTCLEANFILES =				\

@@ -1,9 +1,9 @@
-<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- filename: skk.xml -->
 <component>
 	<name>org.freedesktop.IBus.SKK</name>
 	<description>SKK Component</description>
-	<exec>${libexecdir}/ibus-engine-skk --ibus</exec>
+	<exec>@libexecdir@/ibus-engine-skk --ibus</exec>
 	<version>@VERSION@</version>
 	<author>Daiki Ueno &lt;ueno@unixuser.org&gt;</author>
 	<license>GPL</license>
@@ -17,10 +17,10 @@
 			<language>ja</language>
 			<license>GPL</license>
 			<author>Daiki Ueno &lt;ueno@unixuser.org&gt;</author>
-			<icon>${pkgdatadir}/icons/ibus-skk.svg</icon>
+			<icon>@pkgdatadir@/icons/ibus-skk.svg</icon>
 			<layout>jp</layout>
-			<longname>SKK</longname>
-			<description>SKK Input Method</description>
+			<_longname>SKK</_longname>
+			<_description>SKK Input Method</_description>
 			<rank>70</rank>
 			<symbol>&#x3042;</symbol>
 		</engine>

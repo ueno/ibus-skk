@@ -86,7 +86,6 @@ AM_GLIB_GNU_GETTEXT
 AC_CONFIG_FILES([ po/Makefile.in
 Makefile
 ibus-skk.spec
-skk.xml.in
 src/Makefile
 src/ibus-skk-preferences.ui
 icons/Makefile
