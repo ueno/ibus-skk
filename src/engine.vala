@@ -517,6 +517,26 @@ class SkkEngine : IBus.Engine {
         }
     }
 
+    public override void candidate_clicked (uint index, uint button, uint state) {
+        context.candidates.select_at (index);
+    }
+
+    public override void cursor_up () {
+        context.candidates.cursor_up ();
+    }
+
+    public override void cursor_down () {
+        context.candidates.cursor_down ();
+    }
+
+    public override void page_up () {
+        context.candidates.page_up ();
+    }
+
+    public override void page_down () {
+        context.candidates.page_down ();
+    }
+
     static bool ibus;
 
     const OptionEntry[] options = {
