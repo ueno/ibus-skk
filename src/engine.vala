@@ -36,6 +36,7 @@ class SkkEngine : IBus.Engine {
 
     IBus.Property input_mode_prop;
     IBus.PropList prop_list;
+    bool properties_registered = false;
 
     Map<Skk.InputMode, IBus.Property> input_mode_props =
         new HashMap<Skk.InputMode, IBus.Property> ();
@@ -239,7 +240,8 @@ class SkkEngine : IBus.Engine {
                     prop.set_state (IBus.PropState.CHECKED);
                 else
                     prop.set_state (IBus.PropState.UNCHECKED);
-                update_property (prop);
+                if (properties_registered)
+                    update_property (prop);
             } while (iter.next ());
         }
 
@@ -254,7 +256,8 @@ class SkkEngine : IBus.Engine {
 #else
         input_mode_prop.set_label (symbol);
 #endif
-        update_property (input_mode_prop);
+        if (properties_registered)
+            update_property (input_mode_prop);
     }
 
     static Skk.Dict? parse_dict_from_plist (PList plist) throws GLib.Error {
@@ -472,8 +475,9 @@ class SkkEngine : IBus.Engine {
     }
 
     public override void focus_in () {
-        register_properties (prop_list);
         update_input_mode ();
+        register_properties (prop_list);
+        properties_registered = true;
         base.focus_in ();
     }
 
@@ -481,6 +485,7 @@ class SkkEngine : IBus.Engine {
         context.reset ();
         hide_preedit_text ();
         hide_lookup_table ();
+        properties_registered = false;
         base.focus_out ();
     }
 
