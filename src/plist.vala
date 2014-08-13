@@ -94,7 +94,6 @@ public class PList : Object {
             props.add ("%s=%s".printf (PList.escape (key),
                                        PList.escape (value)));
         }
-        props.add (null);
         return string.joinv (",", props.to_array ());
     }
 }

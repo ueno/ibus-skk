@@ -5,7 +5,7 @@ libutil_la_VALAFLAGS =				\
 	-H libutil.h --vapi ibus-skk.vapi	\
 	--vapidir=.				\
 	--pkg config				\
-	--pkg gee-1.0				\
+	--pkg gee-0.8				\
 	--pkg skk-1.0				\
 	--pkg ibus-1.0				\
 	--library ibus-skk			\

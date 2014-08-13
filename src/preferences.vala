@@ -41,12 +41,10 @@ public class Preferences : Object {
 
     public void save () {
         var iter = current.map_iterator ();
-        if (iter.first ()) {
-            do {
-                config.set_value ("engine/skk",
-                                  iter.get_key (),
-                                  iter.get_value ());
-            } while (iter.next ());
+        while (iter.next ()) {
+            config.set_value ("engine/skk",
+                              iter.get_key (),
+                              iter.get_value ());
         }
     }
 

@@ -232,17 +232,15 @@ class SkkEngine : IBus.Engine {
     void update_input_mode () {
         // Update the menu item
         var iter = input_mode_props.map_iterator ();
-        if (iter.first ()) {
-            do {
-                var input_mode = iter.get_key ();
-                var prop = iter.get_value ();
-                if (input_mode == context.input_mode)
-                    prop.set_state (IBus.PropState.CHECKED);
-                else
-                    prop.set_state (IBus.PropState.UNCHECKED);
-                if (properties_registered)
-                    update_property (prop);
-            } while (iter.next ());
+        while (iter.next ()) {
+            var input_mode = iter.get_key ();
+            var prop = iter.get_value ();
+            if (input_mode == context.input_mode)
+                prop.set_state (IBus.PropState.CHECKED);
+            else
+                prop.set_state (IBus.PropState.UNCHECKED);
+            if (properties_registered)
+                update_property (prop);
         }
 
         // Update the menu
