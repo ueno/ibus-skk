@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ibus-skk 1.2.0.20091108\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-03-08 19:29+0900\n"
-"PO-Revision-Date: 2013-03-08 19:29+0900\n"
+"POT-Creation-Date: 2014-09-09 12:00+0900\n"
+"PO-Revision-Date: 2014-09-09 12:01+0900\n"
 "Last-Translator: Daiki Ueno <ueno@unixuser.org>\n"
 "Language-Team: Japanese\n"
 "Language: \n"
@@ -18,35 +18,35 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ../src/engine.vala:64 ../src/ibus-skk-preferences.ui.in.h:2
+#: ../src/engine.vala:65 ../src/ibus-skk-preferences.ui.in.h:2
 msgid "Hiragana"
 msgstr "ひらがな"
 
-#: ../src/engine.vala:70
+#: ../src/engine.vala:71
 msgid "Katakana"
 msgstr "カタカナ"
 
-#: ../src/engine.vala:76
+#: ../src/engine.vala:77
 msgid "Halfwidth Katakana"
 msgstr "半角カタカナ"
 
-#: ../src/engine.vala:82 ../src/ibus-skk-preferences.ui.in.h:3
+#: ../src/engine.vala:83 ../src/ibus-skk-preferences.ui.in.h:3
 msgid "Latin"
 msgstr "英数"
 
-#: ../src/engine.vala:88
+#: ../src/engine.vala:89
 msgid "Wide Latin"
 msgstr "全角英数"
 
-#: ../src/engine.vala:97
+#: ../src/engine.vala:98
 msgid "Switch input mode"
 msgstr "入力モードを変更"
 
-#: ../src/engine.vala:108
+#: ../src/engine.vala:109
 msgid "Setup"
 msgstr "設定"
 
-#: ../src/engine.vala:110
+#: ../src/engine.vala:111
 msgid "Configure SKK"
 msgstr "SKK を設定"
 
@@ -55,11 +55,11 @@ msgstr "SKK を設定"
 msgid "Input Mode (%s)"
 msgstr "入力モード (%s)"
 
-#: ../src/engine.vala:524
+#: ../src/engine.vala:532
 msgid "Component is executed by IBus"
 msgstr "IBus からコンポーネントを起動"
 
-#: ../src/engine.vala:571
+#: ../src/engine.vala:579 ../src/skk.xml.in.in.h:1
 msgid "SKK"
 msgstr "SKK"
 
@@ -174,3 +174,7 @@ msgstr "IBus SKK エンジンの設定"
 #: ../src/ibus-setup-skk.desktop.in.in.h:2
 msgid "Set up IBus SKK engine"
 msgstr "IBus SKK エンジンの設定"
+
+#: ../src/skk.xml.in.in.h:2
+msgid "SKK Input Method"
+msgstr "SKK入力方式"
