@@ -66,7 +66,7 @@ PKG_CHECK_EXISTS([ibus-1.0 >= 1.5.0], have_ibus_1_5=yes, have_ibus_1_5=no)
 AM_CONDITIONAL([IBUS_1_5], [test x$have_ibus_1_5 = xyes])
 
 # check libskk
-PKG_CHECK_MODULES(LIBSKK, [libskk >= 0.0.11], ,
+PKG_CHECK_MODULES(LIBSKK, [libskk >= 1.0.2], ,
   AC_MSG_ERROR([can't find libskk]))
 
 # check gtk+
