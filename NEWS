@@ -1,3 +1,11 @@
+Noteworthy changes in version 1.4.2 (2014-09-09)
+------------------------------------------------
+
+ * Migrate to libgee 0.8 from 0.6 (libskk Issue#29).
+ * Optimize property registration upon focus change.
+ * PageUp/PageDown/Up/Down keys on candidate window now work.
+ * Install ibus-setup-skk.desktop.
+
 Noteworthy changes in version 1.4.1 (2012-03-29)
 ------------------------------------------------
 
