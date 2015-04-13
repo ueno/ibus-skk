@@ -1,7 +1,7 @@
 ibus-skk -- a Japanese SKK input engine for IBus
 ======
 
-*I'm no longer actively maintain this project.  If you use it and want to take it over the maintenance, let [me](mailto:ueno@gnu.org) know.*
+*I'm no longer actively maintain this project.  If you use it and want to take over the maintenance, let [me](mailto:ueno@gnu.org) know.*
 
 What's this?
 ------
