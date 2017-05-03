@@ -65,6 +65,18 @@ PKG_CHECK_MODULES(IBUS, [ibus-1.0 >= 1.4.0], ,
 PKG_CHECK_EXISTS([ibus-1.0 >= 1.5.0], have_ibus_1_5=yes, have_ibus_1_5=no)
 AM_CONDITIONAL([IBUS_1_5], [test x$have_ibus_1_5 = xyes])
 
+# check icon_prop_key
+AC_MSG_CHECKING([icon_prop_key support])
+PKG_CHECK_EXISTS([ibus-1.0 >= 1.5.11], [icon_prop_key=yes], [icon_prop_key=no])
+if test $icon_prop_key = yes; then
+    ICON_PROP_KEY_XML="<icon_prop_key>InputMode</icon_prop_key>"
+    AC_MSG_RESULT([yes])
+else
+    ICON_PROP_KEY_XML="<!-- <icon_prop_key>InputMode</icon_prop_key> -->"
+    AC_MSG_RESULT([ibus 1.5.11 or later supports icon-prop-key in IBus.EngineDesc])
+fi
+AC_SUBST(ICON_PROP_KEY_XML)
+
 # check libskk
 PKG_CHECK_MODULES(LIBSKK, [libskk >= 1.0.2], ,
   AC_MSG_ERROR([can't find libskk]))

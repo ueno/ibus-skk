@@ -78,7 +78,8 @@ setup_DATA = ibus-skk-preferences.ui
 edit = sed \
 	-e 's|@VERSION[@]|$(VERSION)|g' \
 	-e 's|@libexecdir[@]|$(libexecdir)|g' \
-	-e 's|@pkgdatadir[@]|$(pkgdatadir)|g'
+	-e 's|@pkgdatadir[@]|$(pkgdatadir)|g' \
+	-e 's|@ICON_PROP_KEY_XML[@]|$(ICON_PROP_KEY_XML)|g'
 
 desktop_in_in_files = ibus-setup-skk.desktop.in.in
 desktop_in_files = $(desktop_in_in_files:.in.in=.in)
