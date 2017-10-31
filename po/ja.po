@@ -85,11 +85,11 @@ msgstr "システム"
 
 #: ../src/ibus-skk-preferences.ui.in.h:5
 msgid "User"
-msgstr "ユーザー"
+msgstr "ユーザ"
 
 #: ../src/ibus-skk-preferences.ui.in.h:6
 msgid "SKK Server"
-msgstr "SKK サーバー"
+msgstr "SKK サーバ"
 
 #: ../src/ibus-skk-preferences.ui.in.h:7
 msgid "IBus SKK Preferences"
@@ -161,7 +161,7 @@ msgstr "動作"
 
 #: ../src/ibus-skk-preferences.ui.in.h:24
 msgid "SKK input method for IBus"
-msgstr "IBus入力プラットフォーム用SKKエンジン"
+msgstr "IBus 入力プラットフォーム用 SKK エンジン"
 
 #: ../src/ibus-skk-preferences.ui.in.h:25
 msgid "About"
@@ -177,4 +177,4 @@ msgstr "IBus SKK エンジンの設定"
 
 #: ../src/skk.xml.in.in.h:2
 msgid "SKK Input Method"
-msgstr "SKK入力方式"
+msgstr "SKK 入力方式"
