@@ -69,7 +69,7 @@ msgstr "システム"
 
 #: ../src/setup.vala:520
 msgid "user"
-msgstr "ユーザ"
+msgstr "ユーザー"
 
 #: ../src/setup.vala:522
 msgid "server"
@@ -85,7 +85,7 @@ msgstr "システム"
 
 #: ../src/ibus-skk-preferences.ui.in.h:5
 msgid "User"
-msgstr "ユーザ"
+msgstr "ユーザー"
 
 #: ../src/ibus-skk-preferences.ui.in.h:6
 msgid "SKK Server"
