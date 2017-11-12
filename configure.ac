@@ -34,7 +34,6 @@ m4_define([ibus_version],
 
 AC_INIT([package_name], [ibus_version], [http://github.com/ueno/ibus-skk/issues], [package_name])
 AM_INIT_AUTOMAKE([silent-rules])
-AC_GNU_SOURCE
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -44,7 +43,6 @@ AM_SANITY_CHECK
 AM_MAINTAINER_MODE
 AM_DISABLE_STATIC
 AC_PROG_CC
-AC_PROG_CXX
 AM_PROG_CC_C_O
 AC_ISC_POSIX
 AC_HEADER_STDC
