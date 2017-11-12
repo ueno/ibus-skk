@@ -338,7 +338,7 @@ class Setup : Object {
         foreach (var row in rows) {
             Gtk.TreeIter iter;
             if (model.get_iter (out iter, row)) {
-                ((Gtk.ListStore)model).remove (iter);
+                ((Gtk.ListStore)model).remove (ref iter);
             }
         }
     }
