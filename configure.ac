@@ -26,13 +26,13 @@ m4_define([ibus_released], [1])
 m4_define([ibus_major_version], [1])
 m4_define([ibus_minor_version], [4])
 m4_define([ibus_micro_version], [2])
-m4_define(ibus_maybe_datestamp,
+m4_define([ibus_maybe_datestamp],
     m4_esyscmd([if test x]ibus_released[ != x1; then date +.%Y%m%d | tr -d '\n\r'; fi]))
 
 m4_define([ibus_version],
     ibus_major_version.ibus_minor_version.ibus_micro_version[]ibus_maybe_datestamp)
 
-AC_INIT([package_name], [ibus_version], [http://github.com/ueno/ibus-skk/issues], [package_name])
+AC_INIT(package_name, ibus_version, [http://github.com/ueno/ibus-skk/issues], package_name)
 AM_INIT_AUTOMAKE([dist-xz no-dist-gzip silent-rules])
 
 AC_CONFIG_HEADERS([config.h])
