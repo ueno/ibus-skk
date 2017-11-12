@@ -246,14 +246,10 @@ class SkkEngine : IBus.Engine {
         // Update the menu
         var symbol = new IBus.Text.from_string (
             input_mode_symbols.get (context.input_mode));
-#if IBUS_1_5
         var label = new IBus.Text.from_string (
             _("Input Mode (%s)").printf (symbol.text));
         input_mode_prop.set_label (label);
         input_mode_prop.set_symbol (symbol);
-#else
-        input_mode_prop.set_label (symbol);
-#endif
         if (properties_registered)
             update_property (input_mode_prop);
     }

@@ -59,11 +59,8 @@ DATE_DISPLAY="ibus_datedisplay"
 AC_SUBST(DATE_DISPLAY)
 
 # check ibus
-PKG_CHECK_MODULES(IBUS, [ibus-1.0 >= 1.4.0], ,
+PKG_CHECK_MODULES(IBUS, [ibus-1.0 >= 1.5.11], ,
   AC_MSG_ERROR([can't find ibus]))
-
-PKG_CHECK_EXISTS([ibus-1.0 >= 1.5.0], have_ibus_1_5=yes, have_ibus_1_5=no)
-AM_CONDITIONAL([IBUS_1_5], [test x$have_ibus_1_5 = xyes])
 
 # check libskk
 PKG_CHECK_MODULES(LIBSKK, [libskk >= 1.0.2], ,
