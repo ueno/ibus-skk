@@ -39,10 +39,6 @@ ibus_engine_skk_VALAFLAGS =			\
 	--pkg config --pkg ibus-skk		\
 	$(VALAFLAGS)
 
-if IBUS_1_5
-ibus_engine_skk_VALAFLAGS += -D IBUS_1_5
-endif
-
 ibus_engine_skk_CFLAGS =			\
 	$(COMMON_CFLAGS)
 
