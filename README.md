@@ -7,25 +7,28 @@ What's this?
 ------
 
 ibus-skk is an implementation of the SKK (Simple Kana-Kanji) input
-method on the IBus input method framework.  To learn about SKK, see:
+method on the IBus input method framework.  Note that SKK works quite
+differently from other Japanese input methods.  To learn about SKK,
+see:
 
-* [SKK Openlab](http://openlab.jp/skk/)
-* [SKK](https://secure.wikimedia.org/wikipedia/ja/wiki/SKK)
+* [SKK](https://ja.wikipedia.org/wiki/SKK)
 
 How to install
 ------
-```
-$ sudo yum install ibus-skk # on Fedora
-$ sudo apt-get install ibus-skk # on Debian or Ubuntu
-```
-
 If you build from the source, you will need to separately install
 [libskk](http://github.com/ueno/libskk/downloads/).
+
+After installing it, do:
+```
+$ ./configure
+$ make
+$ sudo make install
+```
 
 How to report bugs
 ------
 
-Use [issue tracker at GitHub](http://github.com/ueno/ibus-skk/issues) for upstream issues, [Red Hat Bugzilla](https://bugzilla.redhat.com/buglist.cgi?component=ibus-skk&product=Fedora) for Fedora specific issues, or [Debian BTS](http://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=ibus-skk;dist=unstable) for Debian specific issues.
+Use [issue tracker at GitHub](http://github.com/ueno/ibus-skk/issues).
 
 License
 ------
