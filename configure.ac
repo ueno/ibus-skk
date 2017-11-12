@@ -36,7 +36,7 @@ AC_INIT([package_name], [ibus_version], [http://github.com/ueno/ibus-skk/issues]
 AM_INIT_AUTOMAKE([silent-rules])
 
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_MACRO_DIRS([m4])
 
 # define PACKAGE_VERSION_* variables
 AM_SANITY_CHECK
