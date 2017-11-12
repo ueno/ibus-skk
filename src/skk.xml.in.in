@@ -23,6 +23,7 @@
 			<_description>SKK Input Method</_description>
 			<rank>70</rank>
 			<symbol>&#x3042;</symbol>
+			@ICON_PROP_KEY_XML@
 		</engine>
 	</engines>
 </component>
