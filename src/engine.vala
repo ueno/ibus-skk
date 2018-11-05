@@ -1,6 +1,6 @@
 /* 
- * Copyright (C) 2011-2017 Daiki Ueno <ueno@gnu.org>
- * Copyright (C) 2011-2017 Red Hat, Inc.
+ * Copyright (C) 2011-2018 Daiki Ueno <ueno@gnu.org>
+ * Copyright (C) 2011-2018 Red Hat, Inc.
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -302,35 +302,35 @@ class SkkEngine : IBus.Engine {
     void apply_preferences () {
         Variant? variant;
 
-        variant = preferences.get ("auto_start_henkan_keywords");
+        variant = preferences.get ("auto-start-henkan-keywords");
         assert (variant != null);
         context.auto_start_henkan_keywords = variant.get_strv ();
 
-        variant = preferences.get ("period_style");
+        variant = preferences.get ("period-style");
         assert (variant != null);
         context.period_style = (Skk.PeriodStyle) variant.get_int32 ();
 
-        variant = preferences.get ("page_size");
+        variant = preferences.get ("page-size");
         assert (variant != null);
         lookup_table.set_page_size (variant.get_int32 ());
 
-        variant = preferences.get ("pagination_start");
+        variant = preferences.get ("pagination-start");
         assert (variant != null);
         page_start = (uint) variant.get_int32 ();
 
-        variant = preferences.get ("initial_input_mode");
+        variant = preferences.get ("initial-input-mode");
         assert (variant != null);
         context.input_mode = (Skk.InputMode) variant.get_int32 ();
 
-        variant = preferences.get ("show_annotation");
+        variant = preferences.get ("show-annotation");
         assert (variant != null);
         show_annotation = variant.get_boolean ();
         
-        variant = preferences.get ("egg_like_newline");
+        variant = preferences.get ("egg-like-newline");
         assert (variant != null);
         context.egg_like_newline = variant.get_boolean ();
 
-        variant = preferences.get ("typing_rule");
+        variant = preferences.get ("typing-rule");
         assert (variant != null);
         try {
             context.typing_rule = new Skk.Rule (variant.get_string ());
@@ -555,8 +555,7 @@ class SkkEngine : IBus.Engine {
 
         bus.disconnected.connect (() => { IBus.quit (); });
 
-        var config = bus.get_config ();
-        SkkEngine.preferences = new Preferences (config);
+        SkkEngine.preferences = new Preferences ();
         SkkEngine.dictionaries = new ArrayList<Skk.Dict> ();
         SkkEngine.reload_dictionaries ();
         SkkEngine.preferences.value_changed.connect ((name, value) => {

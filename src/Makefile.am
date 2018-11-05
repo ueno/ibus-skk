@@ -95,6 +95,10 @@ skk.xml.in: skk.xml.in.in
 
 @INTLTOOL_XML_NOMERGE_RULE@
 
+gsettings_SCHEMAS = org.freedesktop.ibus.engine.skk.gschema.xml
+
+@GSETTINGS_RULES@
+
 GITIGNOREFILES =				\
         $(libutil_la_SOURCES:.vala=.c)		\
         $(ibus_engine_skk_SOURCES:.vala=.c)	\
@@ -120,6 +124,7 @@ EXTRA_DIST =					\
 	ibus-1.0.deps				\
 	ibus-skk-preferences.ui.in		\
 	$(desktop_in_in_files)			\
+	$(gsettings_SCHEMAS)			\
 	skk.xml.in.in 				\
 	$(NULL)
 
