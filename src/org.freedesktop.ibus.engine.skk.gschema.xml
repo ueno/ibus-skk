@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema gettext-domain="ibus-skk" id="org.freedesktop.ibus.engine.skk" path="/org/freedesktop/ibus/engine/skk/">
+    <key name="dictionaries" type="as">
+      <default>[]</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="auto-start-henkan-keywords" type="as">
+      <default>["を", "、", "。", "．", "，", "？", "」",
+                "！", "；", "：", ")", ";", ":", "）",
+                "”", "】", "』", "》", "〉", "｝", "］",
+                "〕", "}", "]", "?", ".", ",", "!"]
+      </default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="period-style" type="i">
+      <default>0</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="page-size" type="i">
+      <default>7</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="pagination-start" type="i">
+      <default>4</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="show-annotation" type="b">
+      <default>false</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="initial-input-mode" type="i">
+      <default>0</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="egg-like-newline" type="b">
+      <default>false</default>
+      <summary></summary>
+      <description></description>
+    </key>
+    <key name="typing-rule" type="s">
+      <default>'default'</default>
+      <summary></summary>
+      <description></description>
+    </key>
+  </schema>
+</schemalist>

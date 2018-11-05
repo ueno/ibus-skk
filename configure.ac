@@ -3,7 +3,7 @@
 # ibus-skk - The SKK engine for IBus
 #
 # Copyright (c) 2007-2008 Huang Peng <shawn.p.huang@gmail.com>
-# Copyright (C) 2009-2017 Daiki Ueno <ueno@gnu.org>
+# Copyright (C) 2009-2018 Daiki Ueno <ueno@gnu.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -79,6 +79,9 @@ AC_SUBST(VALAFLAGS)
 GETTEXT_PACKAGE=ibus-skk
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Define to the read-only architecture-independent data directory.])
+
+# glib stuff
+GLIB_GSETTINGS
 
 # OUTPUT files
 AC_CONFIG_FILES([ po/Makefile.in
