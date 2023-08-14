@@ -125,6 +125,7 @@ EXTRA_DIST =					\
 
 DISTCLEANFILES =				\
 	ibus-skk-preferences.ui			\
+	$(GITIGNOREFILES)			\
 	$(NULL)
 
 -include $(top_srcdir)/git.mk
