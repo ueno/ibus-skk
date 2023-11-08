@@ -140,11 +140,6 @@ class SkkEngine : IBus.Engine {
                 set_lookup_table_cursor_pos ();
             });
         context.candidates.selected.connect (() => {
-                var output = context.poll_output ();
-                if (output.length > 0) {
-                    var text = new IBus.Text.from_string (output);
-                    commit_text (text);
-                }
                 if (lookup_table_visible) {
                     hide_lookup_table ();
                     hide_auxiliary_text ();
@@ -502,7 +497,13 @@ class SkkEngine : IBus.Engine {
     }
 
     public override void candidate_clicked (uint index, uint button, uint state) {
-        context.candidates.select_at (index);
+        if (context.candidates.select_at (index)) {
+                var output = context.poll_output ();
+                if (output.length > 0) {
+                    var text = new IBus.Text.from_string (output);
+                    commit_text (text);
+                }
+        }
     }
 
     public override void cursor_up () {
