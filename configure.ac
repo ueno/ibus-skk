@@ -64,6 +64,10 @@ PKG_CHECK_MODULES(IBUS, [ibus-1.0 >= 1.5.11], ,
 PKG_CHECK_MODULES(LIBSKK, [libskk >= 1.0.2], ,
   AC_MSG_ERROR([can't find libskk]))
 
+# check gee
+PKG_CHECK_MODULES(GEE, [gee-0.8], ,
+  AC_MSG_ERROR([can't find gee-0.8]))
+
 # check gtk+
 PKG_CHECK_MODULES(GTK, [gtk+-3.0], ,
   AC_MSG_ERROR([can't find gtk+-3.0]))
