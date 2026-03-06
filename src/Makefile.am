@@ -32,7 +32,8 @@ COMMON_CFLAGS =					\
 
 COMMON_LIBS =					\
 	$(IBUS_LIBS)				\
-	$(LIBSKK_LIBS)
+	$(LIBSKK_LIBS)				\
+	$(GEE_LIBS)
 
 ibus_engine_skk_VALAFLAGS =			\
 	--vapidir=.				\
