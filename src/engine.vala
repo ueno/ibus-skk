@@ -359,12 +359,10 @@ class SkkEngine : IBus.Engine {
                                     "q", "w", "e", "r", "u", "i", "o"};
 
     bool process_lookup_table_key_event (uint keyval,
-                                         uint keycode,
-                                         uint state)
+                                         uint keycode)
     {
         var page_size = lookup_table.get_page_size ();
-        if (state == 0 &&
-            ((unichar) keyval).to_string () in LOOKUP_TABLE_LABELS) {
+        if (((unichar) keyval).to_string () in LOOKUP_TABLE_LABELS) {
             string label = ((unichar) keyval).tolower ().to_string ();
             for (var index = 0;
                  index < int.min ((int)page_size, LOOKUP_TABLE_LABELS.length);
@@ -376,34 +374,32 @@ class SkkEngine : IBus.Engine {
             return false;
         }
 
-        if (state == 0) {
-            bool retval = false;
-            switch (keyval) {
-            case IBus.Page_Up:
-            case IBus.KP_Page_Up:
-                retval = context.candidates.page_up ();
-                break;
-            case IBus.Page_Down:
-            case IBus.KP_Page_Down:
-                retval = context.candidates.page_down ();
-                break;
-            case IBus.Up:
-            case IBus.Left:
-                retval = context.candidates.cursor_up ();
-                break;
-            case IBus.Down:
-            case IBus.Right:
-                retval = context.candidates.cursor_down ();
-                break;
-            default:
-                break;
-            }
+        bool retval = false;
+        switch (keyval) {
+        case IBus.Page_Up:
+        case IBus.KP_Page_Up:
+            retval = context.candidates.page_up ();
+            break;
+        case IBus.Page_Down:
+        case IBus.KP_Page_Down:
+            retval = context.candidates.page_down ();
+            break;
+        case IBus.Up:
+        case IBus.Left:
+            retval = context.candidates.cursor_up ();
+            break;
+        case IBus.Down:
+        case IBus.Right:
+            retval = context.candidates.cursor_down ();
+            break;
+        default:
+            break;
+        }
 
-            if (retval) {
-                set_lookup_table_cursor_pos ();
-                update_preedit ();
-                return true;
-            }
+        if (retval) {
+            set_lookup_table_cursor_pos ();
+            update_preedit ();
+            return true;
         }
 
         return false;
@@ -413,18 +409,20 @@ class SkkEngine : IBus.Engine {
                                             uint keycode,
                                             uint state)
     {
-        // Filter out unnecessary modifier bits
-        // FIXME: should resolve virtual modifiers
-        uint _state = state & (IBus.ModifierType.CONTROL_MASK |
-                               IBus.ModifierType.MOD1_MASK |
-                               IBus.ModifierType.MOD5_MASK |
-                               IBus.ModifierType.RELEASE_MASK);
         if (context.candidates.page_visible &&
-            process_lookup_table_key_event (keyval, keycode, _state)) {
+            state == 0 &&
+            process_lookup_table_key_event (keyval, keycode)) {
             return true;
         }
 
-        Skk.ModifierType modifiers = (Skk.ModifierType) _state;
+        // Filter out unnecessary modifier bits
+        // FIXME: should resolve virtual modifiers
+        state &= IBus.ModifierType.CONTROL_MASK |
+            IBus.ModifierType.MOD1_MASK |
+            IBus.ModifierType.MOD5_MASK |
+            IBus.ModifierType.RELEASE_MASK;
+
+        Skk.ModifierType modifiers = (Skk.ModifierType) state;
         Skk.KeyEvent key;
         try {
             key = new Skk.KeyEvent.from_x_keysym (keyval, modifiers);
