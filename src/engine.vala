@@ -415,6 +415,12 @@ class SkkEngine : IBus.Engine {
             return true;
         }
 
+        // Do not handle Super by ourselves as it's used by
+        // gnome-shell
+        if ((state & IBus.ModifierType.MOD4_MASK) != 0) {
+            return false;
+        }
+
         // Filter out unnecessary modifier bits
         // FIXME: should resolve virtual modifiers
         state &= IBus.ModifierType.CONTROL_MASK |
