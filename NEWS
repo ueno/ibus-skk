@@ -1,3 +1,10 @@
+Noteworthy changes in version 1.4.4 (2026-05-12)
+------------------------------------------------
+
+ * engine: Don't handle Super modifier by ourselves [#77]
+ * Fix compatibility with libskk 1.1.1 [#75]
+ * Don't split sending CommitText when auto-start conversion [#71]
+
 Noteworthy changes in version 1.4.3 (2017-11-12)
 ------------------------------------------------
 
