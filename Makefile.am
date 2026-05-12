@@ -50,6 +50,7 @@ GITIGNOREFILES =				\
 
 DISTCLEANFILES =				\
 	po/stamp-it				\
+	po/.intltool-merge-cache.lock		\
 	$(NULL)
 
 dist-hook:
