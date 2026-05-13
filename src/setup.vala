@@ -1,6 +1,6 @@
 /* 
- * Copyright (C) 2011-2017 Daiki Ueno <ueno@gnu.org>
- * Copyright (C) 2011-2017 Red Hat, Inc.
+ * Copyright (C) 2011-2018 Daiki Ueno <ueno@gnu.org>
+ * Copyright (C) 2011-2018 Red Hat, Inc.
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -392,34 +392,34 @@ class Setup : Object {
 
         Variant? variant;
 
-        variant = preferences.get ("auto_start_henkan_keywords");
+        variant = preferences.get ("auto-start-henkan-keywords");
         assert (variant != null);
         auto_start_henkan_keywords_entry.text = string.joinv ("", variant.dup_strv ());
 
-        variant = preferences.get ("egg_like_newline");
+        variant = preferences.get ("egg-like-newline");
         assert (variant != null);
         egg_like_newline_checkbutton.active = variant.get_boolean ();
 
-        variant = preferences.get ("page_size");
+        variant = preferences.get ("page-size");
         assert (variant != null);
         page_size_spinbutton.set_range (7.0, 16.0);
         page_size_spinbutton.set_increments (1.0, 1.0); 
         page_size_spinbutton.value = (double) variant.get_int32 ();
 
-        variant = preferences.get ("pagination_start");
+        variant = preferences.get ("pagination-start");
         assert (variant != null);
         pagination_start_spinbutton.set_range (0.0, 7.0);
         pagination_start_spinbutton.set_increments (1.0, 1.0);
         pagination_start_spinbutton.value = (double) variant.get_int32 ();
 
-        variant = preferences.get ("show_annotation");
+        variant = preferences.get ("show-annotation");
         assert (variant != null);
         show_annotation_checkbutton.active = variant.get_boolean ();
 
-        load_combobox ("period_style", period_style_combobox, 1);
-        load_combobox ("initial_input_mode", initial_input_mode_combobox, 1);
+        load_combobox ("period-style", period_style_combobox, 1);
+        load_combobox ("initial-input-mode", initial_input_mode_combobox, 1);
 
-        variant = preferences.get ("typing_rule");
+        variant = preferences.get ("typing-rule");
         assert (variant != null);
         var model = (Gtk.ListStore) typing_rule_combobox.get_model ();
         Gtk.TreeIter iter;
@@ -473,19 +473,19 @@ class Setup : Object {
                                                                     out uc)) {
             keywords.add (uc.to_string ());
         }
-        preferences.set ("auto_start_henkan_keywords",
+        preferences.set ("auto-start-henkan-keywords",
                          keywords.to_array ());
-        preferences.set ("egg_like_newline",
+        preferences.set ("egg-like-newline",
                          egg_like_newline_checkbutton.active);
-        preferences.set ("page_size",
+        preferences.set ("page-size",
                          (int) page_size_spinbutton.value);
-        preferences.set ("pagination_start",
+        preferences.set ("pagination-start",
                          (int) pagination_start_spinbutton.value);
-        preferences.set ("show_annotation",
+        preferences.set ("show-annotation",
                          show_annotation_checkbutton.active);
-        save_combobox ("period_style",
+        save_combobox ("period-style",
                        period_style_combobox, 1);
-        save_combobox ("initial_input_mode",
+        save_combobox ("initial-input-mode",
                        initial_input_mode_combobox, 1);
 
         Gtk.TreeIter iter;
@@ -493,7 +493,7 @@ class Setup : Object {
             var model = (Gtk.ListStore) typing_rule_combobox.get_model ();
             string rule;
             model.get (iter, 0, out rule, -1);
-            preferences.set ("typing_rule", rule);
+            preferences.set ("typing-rule", rule);
         }
         preferences.save ();
     }
@@ -546,15 +546,14 @@ class Setup : Object {
     }
 
     public static int main (string[] args) {
-		Gtk.init (ref args);
-		IBus.init ();
+        Gtk.init (ref args);
+        IBus.init ();
         Skk.init ();
 
         var bus = new IBus.Bus ();
-        var config = bus.get_config ();
-		var setup = new Setup (new Preferences (config));
+        var setup = new Setup (new Preferences ());
 
-		setup.run ();
-		return 0;
-	}
+        setup.run ();
+        return 0;
+    }
 }
