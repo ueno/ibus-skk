@@ -405,6 +405,30 @@ class SkkEngine : IBus.Engine {
         return false;
     }
 
+    // Helper function for debugging key events.
+    // Call this anywhere during debugging to log keyval, keycode, and modifier flags.
+    // An optional prefix string can be passed as the first argument to distinguish
+    // log outputs. Pass null or omit it if not needed.
+    // Uninteresting key arguments can be passed as 0 or omitted (default is 0).
+    // Examples:
+    //   log_key_event ("before lookup", keyval, keycode, state);
+    //   log_key_event ("check state", 0, 0, state);
+    //   log_key_event (null, keyval, keycode, state);
+    //   log_key_event ();
+    void log_key_event (string? prefix = null,
+                        uint keyval = 0,
+                        uint keycode = 0,
+                        uint state = 0)
+    {
+        unowned string? key_name = IBus.keyval_name (keyval);
+        string mod_str = typeof (IBus.ModifierType).flags_to_string (state);
+        string tag = (prefix != null && prefix.length > 0)
+            ? "[%s] ".printf (prefix) : "";
+
+        debug ("%skey event: keyval=0x%x (%s), keycode=%u, state=0x%x [%s]",
+               tag, keyval, key_name ?? "none", keycode, state, mod_str);
+    }
+
     public override bool process_key_event (uint keyval,
                                             uint keycode,
                                             uint state)
