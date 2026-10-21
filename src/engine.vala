@@ -433,8 +433,14 @@ class SkkEngine : IBus.Engine {
                                             uint keycode,
                                             uint state)
     {
+        uint lookup_modifiers = state & (IBus.ModifierType.SHIFT_MASK |
+                                         IBus.ModifierType.CONTROL_MASK |
+                                         IBus.ModifierType.MOD1_MASK |
+                                         IBus.ModifierType.MOD4_MASK |
+                                         IBus.ModifierType.MOD5_MASK |
+                                         IBus.ModifierType.RELEASE_MASK);
         if (context.candidates.page_visible &&
-            state == 0 &&
+            lookup_modifiers == 0 &&
             process_lookup_table_key_event (keyval, keycode)) {
             return true;
         }
